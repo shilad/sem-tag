@@ -3,20 +3,22 @@ package org.semtag.core;
 /**
  *
  */
-public class Concept {
+public abstract class Concept {
     private final int conceptId;
-    private final String planText;
+    private final String type;
 
-    public Concept(int conceptId, String planText) {
+    public Concept(int conceptId, String type) {
         this.conceptId = conceptId;
-        this.planText = planText;
+        this.type = type;
     }
 
     public int getConceptId() {
         return conceptId;
     }
 
-    public String getPlanText() {
-        return planText;
+    public String getType() {
+        return type;
     }
+
+    public abstract float getSimilarityTo(Concept other);
 }
