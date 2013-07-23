@@ -1,4 +1,4 @@
-package org.semtag.core;
+package org.semtag.core.model;
 
 import java.util.HashMap;
 import java.util.Map;

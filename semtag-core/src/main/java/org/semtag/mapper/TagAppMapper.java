@@ -1,9 +1,9 @@
 package org.semtag.mapper;
 
 import org.apache.commons.lang.StringUtils;
-import org.semtag.core.Item;
-import org.semtag.core.TagApp;
-import org.semtag.core.User;
+import org.semtag.core.model.Item;
+import org.semtag.core.model.TagApp;
+import org.semtag.core.model.User;
 
 import java.sql.Timestamp;
 import java.util.concurrent.atomic.AtomicInteger;

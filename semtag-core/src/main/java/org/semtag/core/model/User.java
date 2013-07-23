@@ -1,4 +1,4 @@
-package org.semtag.core;
+package org.semtag.core.model;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;

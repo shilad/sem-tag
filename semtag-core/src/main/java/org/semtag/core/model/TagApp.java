@@ -1,6 +1,6 @@
-package org.semtag.core;
+package org.semtag.core.model;
 
-import org.semtag.core.concept.Concept;
+import org.semtag.core.model.concept.Concept;
 
 import java.sql.Timestamp;
 

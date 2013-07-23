@@ -1,4 +1,4 @@
-package org.semtag.core.concept;
+package org.semtag.core.model.concept;
 
 import java.util.Collection;
 

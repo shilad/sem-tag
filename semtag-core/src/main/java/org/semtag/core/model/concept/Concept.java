@@ -1,6 +1,6 @@
-package org.semtag.core.concept;
+package org.semtag.core.model.concept;
 
-import org.semtag.core.SemTagException;
+import org.semtag.core.model.SemTagException;
 
 /**
  *
