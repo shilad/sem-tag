@@ -1,7 +1,5 @@
 package org.semtag.core;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 /**
  * @author Ari Weiland
  * @author Yulun Li
