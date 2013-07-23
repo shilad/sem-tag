@@ -11,7 +11,7 @@
     <dependencies>
         <dependency>
             <groupId>org.wikapidia</groupId>
-            <artifactId>wikAPIdia-core</artifactId>
+            <artifactId>wikapidia-core</artifactId>
             <version>0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>

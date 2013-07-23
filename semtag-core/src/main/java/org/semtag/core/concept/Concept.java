@@ -1,4 +1,4 @@
-package org.semtag.core;
+package org.semtag.core.concept;
 
 /**
  *
@@ -20,5 +20,5 @@ public abstract class Concept {
         return type;
     }
 
-    public abstract float getSimilarityTo(Concept other);
+    public abstract double getSimilarityTo(Concept other);
 }
