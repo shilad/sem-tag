@@ -40,11 +40,39 @@ public class Field<V> {
         this.value = value;
     }
 
-    public boolean getBooleanValue() {
-        if (value.getClass().getCanonicalName().equals(Boolean.class.getCanonicalName())) {
+    /**
+     * Returns the boolean value of this field, or null if this field does not hold a boolean.
+     * @return
+     */
+    public Boolean getBooleanValue() {
+        if (value instanceof Boolean) {
             return (Boolean) value;
         } else {
-            throw new
+            return null;
+        }
+    }
+
+    /**
+     * Returns the int value of this field, or null if this field does not hold an int.
+     * @return
+     */
+    public Integer getIntValue() {
+        if (value instanceof Integer) {
+            return (Integer) value;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Returns the string value of this field, or null if this field does not hold a string.
+     * @return
+     */
+    public String getStringValue() {
+        if (value instanceof String) {
+            return (String) value;
+        } else {
+            return null;
         }
     }
 
