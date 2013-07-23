@@ -1,5 +1,7 @@
 package org.semtag.core.concept;
 
+import org.semtag.core.SemTagException;
+
 /**
  *
  */
@@ -20,5 +22,5 @@ public abstract class Concept {
         return type;
     }
 
-    public abstract double getSimilarityTo(Concept other);
+    public abstract double getSimilarityTo(Concept other) throws SemTagException;
 }
