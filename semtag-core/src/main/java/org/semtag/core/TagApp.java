@@ -1,5 +1,7 @@
 package org.semtag.core;
 
+import org.semtag.core.concept.Concept;
+
 import java.sql.Timestamp;
 
 /**

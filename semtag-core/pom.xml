@@ -8,6 +8,14 @@
     <artifactId>semtag-core</artifactId>
     <version>0.1-SNAPSHOT</version>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.wikapidia</groupId>
+            <artifactId>wikapidia-core</artifactId>
+            <version>0.1-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>
