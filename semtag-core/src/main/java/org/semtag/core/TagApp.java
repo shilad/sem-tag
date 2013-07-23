@@ -14,7 +14,6 @@ public class TagApp {
     private final Item item;
     private final Timestamp timestamp;
 
-    private String normalized;
     private Concept concept;
 
     public TagApp(int tagId, User user, String tag, Item item, Timestamp timestamp) {
@@ -43,14 +42,6 @@ public class TagApp {
 
     public Timestamp getTimestamp() {
         return timestamp;
-    }
-
-    public String getNormalized() {
-        return normalized;
-    }
-
-    public void setNormalized(String normalized) {
-        this.normalized = normalized;
     }
 
     public Concept getConcept() {

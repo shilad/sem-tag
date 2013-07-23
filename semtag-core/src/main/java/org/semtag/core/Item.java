@@ -1,5 +1,6 @@
 package org.semtag.core;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -9,6 +10,10 @@ public class Item {
     private final int itemId;
     private final String name;
     private final Map<String, Field> properties;
+
+    public Item(int itemId, String name) {
+        this(itemId, name, new HashMap<String, Field>());
+    }
 
     public Item(int itemId, String name, Map<String, Field> properties) {
         this.itemId = itemId;
