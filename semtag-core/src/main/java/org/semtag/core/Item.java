@@ -7,12 +7,12 @@ import java.util.Map;
  */
 public class Item {
     private final int itemId;
-    private final String itemName;
+    private final String name;
     private final Map<String, Field> properties;
 
-    public Item(int itemId, String itemName, Map<String, Field> properties) {
+    public Item(int itemId, String name, Map<String, Field> properties) {
         this.itemId = itemId;
-        this.itemName = itemName;
+        this.name = name;
         this.properties = properties;
     }
 
@@ -20,11 +20,23 @@ public class Item {
         return itemId;
     }
 
-    public String getItemName() {
-        return itemName;
+    public String getName() {
+        return name;
     }
 
     public Map<String, Field> getProperties() {
         return properties;
+    }
+
+    public void add(Field field) {
+        properties.put(field.getName(), field);
+    }
+
+    public Field getProperty(String propName) {
+        if (properties.containsKey(propName)) {
+            return properties.get(propName);
+        } else {
+            return null;
+        }
     }
 }
