@@ -15,18 +15,19 @@ import java.util.*;
 /**
  * This class should be constructed and assembled before any load process,
  * as it will be needed to construct the SQL databases. Each implementation
- * of this library should use one ItemProperties class per database, and
- * that class must be consistent throughout use of that database.
+ * of this library should use one PropertyBuilder class per database, and
+ * that class must be consistent throughout use of that database. Ideally,
+ * there would be one for Items and one for Users, but more may be used.
  * 
  * @author Ari Weiland
  */
-public class ItemProperties {
+public class PropertyBuilder {
     private final LinkedHashMap<String, Class<?>> properties;
 
     /**
      * Constructs a new empty list of properties.
      */
-    public ItemProperties() {
+    public PropertyBuilder() {
         this(new LinkedHashMap<String, Class<?>>());
     }
 
@@ -35,7 +36,7 @@ public class ItemProperties {
      * 
      * @param properties
      */
-    public ItemProperties(LinkedHashMap<String, Class<?>> properties) {
+    public PropertyBuilder(LinkedHashMap<String, Class<?>> properties) {
         this.properties = properties;
     }
 
@@ -138,7 +139,7 @@ public class ItemProperties {
     /**
      * Generates a LinkedHashMap of properties to be applied to an Item.
      * Input values must have a one-to-one matching relationship to the
-     * properties applied to this instance of ItemProperties.
+     * properties applied to this instance of PropertyBuilder.
      *
      * @param values
      * @return

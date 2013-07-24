@@ -1,6 +1,6 @@
 package org.semtag.core.model;
 
-import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -10,9 +10,9 @@ public class User {
     private static final AtomicInteger userIdGenerater = new AtomicInteger(0);
 
     private final int userId;
-    private final Map<String, Field> properties;
+    private LinkedHashMap<Class<?>, Object> properties;
 
-    public User(Map<String, Field> properties) {
+    public User(LinkedHashMap<Class<?>, Object> properties) {
         this.userId = userIdGenerater.incrementAndGet();
         this.properties = properties;
     }
@@ -21,12 +21,11 @@ public class User {
         return userId;
     }
 
-    public Map<String, Field> getProperties() {
+    public LinkedHashMap<Class<?>, Object> getProperties() {
         return properties;
     }
 
-    public void add(Field field) {
-        properties.put(field.getName(), field);
+    public void setProperties(LinkedHashMap<Class<?>, Object> properties) {
+        this.properties = properties;
     }
-
 }
