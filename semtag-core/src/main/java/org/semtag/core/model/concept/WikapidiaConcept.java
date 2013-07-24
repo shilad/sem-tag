@@ -9,13 +9,14 @@ import org.wikapidia.sr.SRResult;
 /**
  * @author Ari Weiland
  */
-public class WikapidiaConcept extends Concept {
+public class WikapidiaConcept extends Concept<LocalId> {
 
     private final LocalId wikapidiaConceptId;
     private final LocalSRMetric srMetric;
 
-    public WikapidiaConcept(String type, LocalId wikapidiaConceptId, LocalSRMetric srMetric) {
-        super(wikapidiaConceptId.getId(), type);
+    public WikapidiaConcept(LocalId wikapidiaConceptId, LocalSRMetric srMetric) {
+        // TODO: make sure srMetric.getName() aligns with the provider name
+        super(wikapidiaConceptId.getId(), srMetric.getName(), wikapidiaConceptId);
         this.wikapidiaConceptId = wikapidiaConceptId;
         this.srMetric = srMetric;
     }
@@ -31,7 +32,10 @@ public class WikapidiaConcept extends Concept {
     @Override
     public double getSimilarityTo(Concept other) throws SemTagException {
         try {
-            SRResult result = srMetric.similarity(wikapidiaConceptId.asLocalPage(), ((WikapidiaConcept) other).wikapidiaConceptId.asLocalPage(), false);
+            SRResult result = srMetric.similarity(
+                    wikapidiaConceptId.asLocalPage(),
+                    ((WikapidiaConcept) other).wikapidiaConceptId.asLocalPage(),
+                    false);
             return result.getValue();
         } catch (DaoException e) {
             throw new SemTagException(e);

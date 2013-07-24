@@ -1,0 +1,3 @@
+CREATE TABLE IF NOT EXISTS items (
+  item_id VARCHAR NOT NULL
+);

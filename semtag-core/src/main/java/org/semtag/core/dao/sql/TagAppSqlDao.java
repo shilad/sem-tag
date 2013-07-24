@@ -11,12 +11,18 @@ import javax.sql.DataSource;
 */
 public class TagAppSqlDao extends BaseSqLDao<TagApp> implements TagAppDao {
 
-    public TagAppSqlDao(DataSource dataSource, String sqlScriptPrefix) throws DaoException {
-        super(dataSource, sqlScriptPrefix);
+    public TagAppSqlDao(DataSource dataSource) throws DaoException {
+        super(dataSource, "tagapps");
     }
 
     @Override
     public void save(TagApp item) throws DaoException {
-        //To change body of implemented methods use File | Settings | File Templates.
+        insert(
+                null,
+                item.getUser().getUserId(),
+                item.getTag().getNormalizedTag(),
+                item.getItem().getItemId(),
+                item.getTimestamp()
+        );
     }
 }

@@ -11,8 +11,8 @@ import javax.sql.DataSource;
  */
 public class ConceptSqlDao extends BaseSqLDao<Concept> implements ConceptDao {
 
-    public ConceptSqlDao(DataSource dataSource, String sqlScriptPrefix) throws DaoException {
-        super(dataSource, sqlScriptPrefix);
+    public ConceptSqlDao(DataSource dataSource) throws DaoException {
+        super(dataSource, "concepts");
     }
 
     @Override

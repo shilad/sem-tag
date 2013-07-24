@@ -1,6 +1,5 @@
 package org.semtag.core.dao.sql;
 
-import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.io.IOUtils;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
@@ -25,11 +24,11 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
     public static final int DEFAULT_FETCH_SIZE = 1000;
 
     protected final SQLDialect dialect;
-    protected final String sqlScriptPrefix;
+    protected final String tableName;
     protected DataSource ds;
     private int fetchSize = DEFAULT_FETCH_SIZE;
 
-    public BaseSqLDao(DataSource dataSource, String sqlScriptPrefix) throws DaoException {
+    public BaseSqLDao(DataSource dataSource, String tableName) throws DaoException {
         ds = dataSource;
         Connection conn = null;
         try {
@@ -40,7 +39,7 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
         } finally {
             quietlyCloseConn(conn);
         }
-        this.sqlScriptPrefix = sqlScriptPrefix;
+        this.tableName = tableName;
     }
 
     @Override
@@ -73,10 +72,9 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
         try {
             conn = ds.getConnection();
             DSLContext context = DSL.using(conn, dialect);
-            String sql = context.insertInto(DSL.tableByName(sqlScriptPrefix))
+            context.insertInto(DSL.tableByName(tableName))
                     .values(values)
-                    .getSQL();
-            new QueryRunner().update(conn, sql);
+                    .execute();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -106,7 +104,7 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
      * @throws DaoException
      */
     protected void executeSqlScriptWithSuffix(String suffix) throws DaoException {
-        executeSqlResource(sqlScriptPrefix + suffix);
+        executeSqlResource(tableName + suffix);
     }
 
     /**
