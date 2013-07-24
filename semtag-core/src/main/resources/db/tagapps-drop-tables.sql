@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS concepts;
+DROP TABLE IF EXISTS tagapps;

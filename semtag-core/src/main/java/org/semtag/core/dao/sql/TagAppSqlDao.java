@@ -22,7 +22,8 @@ public class TagAppSqlDao extends BaseSqLDao<TagApp> implements TagAppDao {
                 item.getUser().getUserId(),
                 item.getTag().getNormalizedTag(),
                 item.getItem().getItemId(),
-                item.getTimestamp()
+                item.getTimestamp(),
+                item.getConcept().getConceptId()
         );
     }
 }

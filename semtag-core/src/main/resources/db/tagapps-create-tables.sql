@@ -1,7 +1,8 @@
-CREATE TABLE IF NOT EXISTS tagapp (
+CREATE TABLE IF NOT EXISTS tagapps (
   tag_app_id IDENTITY PRIMARY KEY NOT NULL,
   user_id VARCHAR NOT NULL,
   tag VARCHAR NOT NULL,
   item_id VARCHAR NOT NULL,
-  timestamp TIMESTAMP NOT NULL
+  timestamp TIMESTAMP NOT NULL,
+  concept_id INT NOT NULL
 );
