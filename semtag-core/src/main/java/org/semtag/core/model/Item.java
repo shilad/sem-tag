@@ -1,7 +1,6 @@
 package org.semtag.core.model;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedHashMap;
 
 /**
  * @author Ari Weiland
@@ -9,13 +8,13 @@ import java.util.Map;
 public class Item {
     private final int itemId;
     private final String name;
-    private final Map<String, Field> properties;
+    private LinkedHashMap<Class<?>, Object> properties;
 
     public Item(int itemId, String name) {
-        this(itemId, name, new HashMap<String, Field>());
+        this(itemId, name, new LinkedHashMap<Class<?>, Object>());
     }
 
-    public Item(int itemId, String name, Map<String, Field> properties) {
+    public Item(int itemId, String name, LinkedHashMap<Class<?>, Object> properties) {
         this.itemId = itemId;
         this.name = name;
         this.properties = properties;
@@ -29,19 +28,11 @@ public class Item {
         return name;
     }
 
-    public Map<String, Field> getProperties() {
+    public LinkedHashMap<Class<?>, Object> getProperties() {
         return properties;
     }
 
-    public void add(Field field) {
-        properties.put(field.getName(), field);
-    }
-
-    public Field getProperty(String propName) {
-        if (properties.containsKey(propName)) {
-            return properties.get(propName);
-        } else {
-            return null;
-        }
+    public void setProperties(LinkedHashMap<Class<?>, Object> properties) {
+        this.properties = properties;
     }
 }
