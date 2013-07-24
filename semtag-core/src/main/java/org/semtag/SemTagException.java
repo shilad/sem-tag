@@ -1,4 +1,4 @@
-package org.semtag.core.model;
+package org.semtag;
 
 /**
  * @author Ari Weiland

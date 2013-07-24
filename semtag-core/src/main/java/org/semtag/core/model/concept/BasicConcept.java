@@ -3,7 +3,7 @@ package org.semtag.core.model.concept;
 import java.util.Collection;
 
 /**
- *
+ * @author Yulun Li
  */
 public class BasicConcept extends Concept {
 

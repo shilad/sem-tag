@@ -1,9 +1,10 @@
 package org.semtag.core.model.concept;
 
-import org.semtag.core.model.SemTagException;
+import org.semtag.SemTagException;
 
 /**
- *
+ * @author Ari Weiland
+ * @author Yulun Li
  */
 public abstract class Concept {
     private final int conceptId;

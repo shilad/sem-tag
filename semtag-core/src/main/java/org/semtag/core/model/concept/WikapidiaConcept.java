@@ -1,6 +1,6 @@
 package org.semtag.core.model.concept;
 
-import org.semtag.core.model.SemTagException;
+import org.semtag.SemTagException;
 import org.wikapidia.core.dao.DaoException;
 import org.wikapidia.core.lang.LocalId;
 import org.wikapidia.sr.LocalSRMetric;
