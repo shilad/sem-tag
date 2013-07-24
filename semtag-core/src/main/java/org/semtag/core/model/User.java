@@ -10,15 +10,21 @@ public class User {
     private static final AtomicInteger userIdGenerater = new AtomicInteger(0);
 
     private final int userId;
+    private final int name;
     private LinkedHashMap<Class<?>, Object> properties;
 
-    public User(LinkedHashMap<Class<?>, Object> properties) {
-        this.userId = userIdGenerater.incrementAndGet();
+    public User(int name, LinkedHashMap<Class<?>, Object> properties) {
+        this.userId = userIdGenerater.getAndIncrement();
+        this.name = name;
         this.properties = properties;
     }
 
     public int getUserId() {
         return userId;
+    }
+
+    public int getName() {
+        return name;
     }
 
     public LinkedHashMap<Class<?>, Object> getProperties() {

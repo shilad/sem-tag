@@ -1,7 +1,9 @@
 package org.semtag.core.dao;
 
+import org.semtag.core.model.TagApp;
+
 /**
  * @author Ari Weiland
  */
-public class TagAppDao {
+public interface TagAppDao extends Dao<TagApp> {
 }

@@ -1,7 +1,9 @@
 package org.semtag.core.dao;
 
+import org.semtag.core.model.Item;
+
 /**
  * @author Ari Weiland
  */
-public class ItemDao {
+public interface ItemDao extends Dao<Item> {
 }

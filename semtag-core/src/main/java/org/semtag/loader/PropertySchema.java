@@ -15,49 +15,37 @@ import java.util.*;
 /**
  * This class should be constructed and assembled before any load process,
  * as it will be needed to construct the SQL databases. Each implementation
- * of this library should use one PropertyBuilder class per database, and
+ * of this library should use one PropertySchema class per database, and
  * that class must be consistent throughout use of that database. Ideally,
  * there would be one for Items and one for Users, but more may be used.
  * 
  * @author Ari Weiland
  */
-public class PropertyBuilder {
+public class PropertySchema implements Iterable<String> {
+    private final String schemaName;
     private final LinkedHashMap<String, Class<?>> properties;
 
     /**
      * Constructs a new empty list of properties.
+     * @param schemaName
      */
-    public PropertyBuilder() {
-        this(new LinkedHashMap<String, Class<?>>());
+    public PropertySchema(String schemaName) {
+        this(schemaName, new LinkedHashMap<String, Class<?>>());
     }
 
     /**
      * Constructs a list of properties initialized with the input properties.
-     * 
+     *
      * @param properties
+     * @param schemaName
      */
-    public PropertyBuilder(LinkedHashMap<String, Class<?>> properties) {
+    public PropertySchema(String schemaName, LinkedHashMap<String, Class<?>> properties) {
+        this.schemaName = schemaName;
         this.properties = properties;
     }
 
-    /**
-     * Adds a new property to the list of properties.
-     * 
-     * @param name  the name of the property. 
-     *              This will also be the name of the equivalent SQL field
-     * @param clazz the class of the property
-     */
-    public void addProperty(String name, Class<?> clazz) {
-        properties.put(name, clazz);
-    }
-
-    /**
-     * Removes the specified property from the list of properties.
-     * 
-     * @param name
-     */
-    public void removeProperty(String name) {
-        properties.remove(name);
+    public String getSchemaName() {
+        return schemaName;
     }
 
     /**
@@ -69,22 +57,45 @@ public class PropertyBuilder {
     }
 
     /**
-     * Assembles the necessary SQL files with the specified tableName.
+     * Adds a new property to the list of properties.
+     *
+     * @param name  the name of the property.
+     *              This will also be the name of the equivalent SQL field
+     * @param clazz the class of the property
+     */
+    public void addProperty(String name, Class<?> clazz) {
+        properties.put(name, clazz);
+    }
+
+    /**
+     * Removes the specified property from the list of properties.
+     *
+     * @param name
+     */
+    public void removeProperty(String name) {
+        properties.remove(name);
+    }
+
+    public int size() {
+        return properties.size();
+    }
+
+    /**
+     * Assembles the necessary SQL files.
      * 
-     * @param tableName the name for the table and the prefix for the files
      * @param indexProperties indicates whether integer-based properties should be indexed
      * @throws IOException
      */
-    public void buildSqlFiles(String tableName, boolean indexProperties) throws IOException {
+    public void buildSqlFiles(boolean indexProperties) throws IOException {
         File db = new File("src/main/resources/db/");
         if (!db.isDirectory()) db.mkdirs();
 
         // writes the create-tables SQL file
-        File createTables = new File(db, tableName + "-create-tables.sql");
+        File createTables = new File(db, schemaName + "-create-tables.sql");
         createTables.delete();
         createTables.createNewFile();
         List<String> lines = new ArrayList<String>();
-        lines.add("CREATE TABLE IF NOT EXISTS " + tableName + " (");
+        lines.add("CREATE TABLE IF NOT EXISTS " + schemaName + " (");
         lines.add("  item_id INT NOT NULL,");
         lines.add("  name VARCHAR NOT NULL,");
         for (Map.Entry<String, Class<?>> entry : properties.entrySet()) {
@@ -99,25 +110,25 @@ public class PropertyBuilder {
         FileUtils.writeLines(createTables, lines, "\n");
 
         // writes the drop-tables SQL file
-        File dropTables = new File(db, tableName + "-drop-tables.sql");
+        File dropTables = new File(db, schemaName + "-drop-tables.sql");
         dropTables.delete();
         dropTables.createNewFile();
         lines = new ArrayList<String>();
-        lines.add("DROP TABLE IF EXISTS " + tableName + ";");
+        lines.add("DROP TABLE IF EXISTS " + schemaName + ";");
         FileUtils.writeLines(dropTables, lines, "\n");
 
         // writes the create- and drop-index SQL files, 
         // including integer field indexes if specified
-        File createIndexes = new File(db, tableName + "-create-indexes.sql");
-        File dropIndexes = new File(db, tableName + "-drop-indexes.sql");
+        File createIndexes = new File(db, schemaName + "-create-indexes.sql");
+        File dropIndexes = new File(db, schemaName + "-drop-indexes.sql");
         createIndexes.delete();
         createIndexes.createNewFile();
         dropIndexes.delete();
         dropIndexes.createNewFile();
         lines = new ArrayList<String>();
         List<String> lines2 = new ArrayList<String>();
-        lines.add("CREATE INDEX IF NOT EXISTS " + tableName + "_idx_item_id ON " + tableName + "(item_id);");
-        lines2.add("DROP INDEX IF EXISTS " + tableName + "_idx_item_id;");
+        lines.add("CREATE INDEX IF NOT EXISTS " + schemaName + "_idx_item_id ON " + schemaName + "(item_id);");
+        lines2.add("DROP INDEX IF EXISTS " + schemaName + "_idx_item_id;");
         if (indexProperties) {
             for (Map.Entry<String, Class<?>> entry : properties.entrySet()) {
                 String name = entry.getKey();
@@ -126,9 +137,9 @@ public class PropertyBuilder {
                         clazz == Short.class || clazz == short.class ||
                         clazz == Integer.class || clazz == int.class ||
                         clazz == Long.class || clazz == long.class) {
-                    lines.add("CREATE INDEX IF NOT EXISTS " + tableName + "_idx_" + name +
-                            " ON " + tableName + "(item_id, " + name +");");
-                    lines2.add("DROP INDEX IF EXISTS " + tableName + "_idx_" + name + ";");
+                    lines.add("CREATE INDEX IF NOT EXISTS " + schemaName + "_idx_" + name +
+                            " ON " + schemaName + "(item_id, " + name +");");
+                    lines2.add("DROP INDEX IF EXISTS " + schemaName + "_idx_" + name + ";");
                 }
             }
         }
@@ -139,7 +150,7 @@ public class PropertyBuilder {
     /**
      * Generates a LinkedHashMap of properties to be applied to an Item.
      * Input values must have a one-to-one matching relationship to the
-     * properties applied to this instance of PropertyBuilder.
+     * properties applied to this instance of PropertySchema.
      *
      * @param values
      * @return
@@ -160,6 +171,11 @@ public class PropertyBuilder {
             i++;
         }
         return madeProps;
+    }
+
+    @Override
+    public Iterator<String> iterator() {
+        return properties.keySet().iterator();
     }
 
     /**
