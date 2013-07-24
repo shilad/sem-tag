@@ -38,6 +38,10 @@ public class Field<V> {
         this.value = value;
     }
 
+    public Class<V> getType() {
+        return (Class<V>) value.getClass();
+    }
+
     /**
      * Returns the boolean value of this field, or null if this field does not hold a boolean.
      * @return
