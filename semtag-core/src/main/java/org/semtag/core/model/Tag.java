@@ -21,11 +21,10 @@ public class Tag {
     }
 
     /**
-     * Normalizes a tag string, stripping all
+     * Normalizes a tag string.
      * First it converts the tag to lower case.
      * Second it replaces all characters except digits and letters with spaces.
-     * Fourth it trims whitespace from the ends.
-     * Fifth it replaces all substrings of whitespace with a single space.
+     * Third it trims whitespace from the ends.
      * Finally it truncates the string to a maximum length of 256 characters.
      * @param tag
      * @return
