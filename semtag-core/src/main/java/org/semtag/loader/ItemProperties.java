@@ -1,4 +1,4 @@
-package org.semtag.core.model;
+package org.semtag.loader;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
