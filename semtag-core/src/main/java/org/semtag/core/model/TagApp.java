@@ -10,13 +10,13 @@ import java.sql.Timestamp;
 public class TagApp {
     private final int tagId;
     private final User user;
-    private final String tag;
+    private final Tag tag;
     private final Item item;
     private final Timestamp timestamp;
 
     private Concept concept;
 
-    public TagApp(int tagId, User user, String tag, Item item, Timestamp timestamp) {
+    public TagApp(int tagId, User user, Tag tag, Item item, Timestamp timestamp) {
         this.tagId = tagId;
         this.user = user;
         this.tag = tag;
@@ -32,7 +32,7 @@ public class TagApp {
         return user;
     }
 
-    public String getTag() {
+    public Tag getTag() {
         return tag;
     }
 
