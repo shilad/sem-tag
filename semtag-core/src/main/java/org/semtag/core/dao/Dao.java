@@ -37,21 +37,21 @@ public interface Dao<T> {
      */
     public void endLoad() throws DaoException;
 
-    /**
-     * Returns an Iterable of T objects that fit the filters specified by the DaoFilter.
-     *
-     * @param daoFilter a set of filters to limit the search
-     * @return an Iterable of objects that fit the specified filters
-     * @throws DaoException if there was an error retrieving the objects
-     */
-    public Iterable<T> get(DaoFilter daoFilter) throws DaoException;
-
-    /**
-     * Returns the number of objects that fit the filters specified by the DaoFilter
-     * @param daoFilter a set of filters to limit the search
-     * @return the number of objects that fit the specified filters
-     * @throws DaoException if there was an error retrieving the objects
-     */
-    public int getCount(DaoFilter daoFilter) throws DaoException;
+//    /**
+//     * Returns an Iterable of T objects that fit the filters specified by the DaoFilter.
+//     *
+//     * @param daoFilter a set of filters to limit the search
+//     * @return an Iterable of objects that fit the specified filters
+//     * @throws DaoException if there was an error retrieving the objects
+//     */
+//    public Iterable<T> get(DaoFilter daoFilter) throws DaoException;
+//
+//    /**
+//     * Returns the number of objects that fit the filters specified by the DaoFilter
+//     * @param daoFilter a set of filters to limit the search
+//     * @return the number of objects that fit the specified filters
+//     * @throws DaoException if there was an error retrieving the objects
+//     */
+//    public int getCount(DaoFilter daoFilter) throws DaoException;
 
 }
