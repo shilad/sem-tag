@@ -1,4 +1,4 @@
-package org.semtag.core.loader;
+package org.semtag.loader;
 
 /**
  *
