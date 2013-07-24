@@ -11,7 +11,7 @@ import javax.sql.DataSource;
  */
 public class UserSqLDao extends BaseSqLDao<User> implements UserDao {
 
-    public UserSqLDao(DataSource dataSource, String sqlScriptPrefix) throws DaoException {
+    public UserSqLDao(DataSource dataSource) throws DaoException {
         super(dataSource, "users");
     }
 
