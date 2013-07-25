@@ -4,6 +4,7 @@ import edu.emory.mathcs.backport.java.util.Arrays;
 import edu.emory.mathcs.backport.java.util.Collections;
 import org.semtag.core.model.Tag;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -30,76 +31,145 @@ public class DaoFilter {
         this.conceptId = null;
     }
 
+    /**
+     * Sets the user filter to the specified collection of user IDs.
+     * Used by TagApp, User.
+     * @param userIds
+     * @return
+     */
     public DaoFilter setUserIds(Collection<String> userIds) {
         this.userIds = userIds;
         return this;
     }
 
+    /**
+     * Sets the user filter to the specified array of user IDs.
+     * Used by TagApp, User.
+     * @param userIds
+     * @return
+     */
     public DaoFilter setUserIds(String... userIds) {
         return setUserIds(Arrays.asList(userIds));
     }
 
+    /**
+     * Sets the tag filter to the specified collection of tags.
+     * Used by TagApp.
+     * @param tags
+     * @return
+     */
     public DaoFilter setTags(Collection<Tag> tags) {
-        String[] strings = new String[tags.size()];
+        Collection<String> strings = new ArrayList<String>();
         int i=0;
         for (Tag tag : tags) {
-            strings[i] = tag.getNormalizedTag();
+            strings.add(tag.getNormalizedTag());
             i++;
         }
-        return setTags(strings);
+        this.tags = strings;
+        return this;
     }
 
+    /**
+     * Sets the tag filter to the specified array of tags.
+     * Used by TagApp.
+     * @param tags
+     * @return
+     */
     public DaoFilter setTags(Tag... tags) {
         return setTags(Arrays.asList(tags));
     }
 
-    public DaoFilter setTags(String... tags) {
-        this.tags = Arrays.asList(tags);
-        return this;
-    }
-
+    /**
+     * Sets the item filter to the specified collection of item IDs.
+     * Used by TagApp, Item.
+     * @param itemIds
+     * @return
+     */
     public DaoFilter setItemIds(Collection<String> itemIds) {
         this.itemIds = itemIds;
         return this;
     }
 
+    /**
+     * Sets the item filter to the specified array of item IDs.
+     * Used by TagApp, Item.
+     * @param itemIds
+     * @return
+     */
     public DaoFilter setItemIds(String... itemIds) {
         this.itemIds = Arrays.asList(itemIds);
         return this;
     }
 
+    /**
+     * Sets the concept filter to the specified collection of concept IDs.
+     * Used by TagApp, Concept.
+     * @param conceptIds
+     * @return
+     */
     public DaoFilter setConceptIds(Collection<Integer> conceptIds) {
         this.conceptIds = conceptIds;
         return this;
     }
 
+    /**
+     * Sets the concept filter to the specified array of concept IDs.
+     * Used by TagApp, Concept.
+     * @param conceptIds
+     * @return
+     */
     public DaoFilter setConceptIds(Integer... conceptIds) {
         this.conceptIds = Arrays.asList(conceptIds);
         return this;
     }
 
+    /**
+     * Sets the user filter to the specified user ID.
+     * Additionally sets a singleton user filter for use by TagAppGroup.
+     * Used by TagApp, User.
+     * @param userId
+     * @return
+     */
     public DaoFilter setUserId(String userId) {
         this.userIds = Collections.singleton(userId);
         this.userId = userId;
         return this;
     }
 
+    /**
+     * Sets the tag filter to the specified tag.
+     * Additionally sets a singleton tag filter for use by TagAppGroup.
+     * Used by TagApp.
+     * @param tag
+     * @return
+     */
     public DaoFilter setTag(Tag tag) {
-        return setTag(tag.getNormalizedTag());
-    }
-
-    public DaoFilter setTag(String tag) {
-        this.tags = Collections.singleton(tag);
-        this.tag = tag;
+        String string = tag.getNormalizedTag();
+        this.tags = Collections.singleton(string);
+        this.tag = string;
         return this;
     }
 
+    /**
+     * Sets the item filter to the specified item ID.
+     * Additionally sets a singleton item filter for use by TagAppGroup.
+     * Used by TagApp, User.
+     * @param itemId
+     * @return
+     */
     public DaoFilter setItemId(String itemId) {
         this.itemIds = Collections.singleton(itemId);
         this.itemId = itemId;
         return this;
     }
 
+    /**
+     * Sets the concept filter to the specified concept ID.
+     * Additionally sets a singleton concept filter for use by TagAppGroup.
+     * Used by TagApp, User.
+     * @param conceptId
+     * @return
+     */
     public DaoFilter setConceptId(Integer conceptId) {
         this.conceptIds = Collections.singleton(conceptId);
         this.conceptId = conceptId;
