@@ -11,7 +11,7 @@ public abstract class Concept<I> {
     protected final String metric;
     protected final I conceptObj;
 
-    protected Concept(int conceptId, String metric, I conceptObj) {
+    public Concept(int conceptId, String metric, I conceptObj) {
         this.conceptId = conceptId;
         this.metric = metric;
         this.conceptObj = conceptObj;

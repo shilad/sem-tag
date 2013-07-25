@@ -1,5 +1,6 @@
 package org.semtag.core.dao.sql;
 
+import org.jooq.Record;
 import org.semtag.core.dao.DaoException;
 import org.semtag.core.dao.ItemDao;
 import org.semtag.core.jooq.Tables;
@@ -21,4 +22,21 @@ public class ItemSqlDao extends BaseSqLDao<Item> implements ItemDao {
         insert(item.getItemId());
     }
 
+    @Override
+    public Item getByItemId(int itemId) throws DaoException {
+        return getByItemId(String.valueOf(itemId));
+    }
+
+    @Override
+    public Item getByItemId(String itemId) throws DaoException {
+        Record record = fetchOne(Tables.ITEMS.ITEM_ID.eq(itemId));
+        return buildItem(record);
+    }
+
+    private Item buildItem(Record record) {
+        if (record == null) {
+            return null;
+        }
+        return new Item(record.getValue(Tables.ITEMS.ITEM_ID));
+    }
 }

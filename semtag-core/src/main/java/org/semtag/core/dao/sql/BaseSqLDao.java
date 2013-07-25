@@ -99,6 +99,36 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
         }
     }
 
+    protected Result<Record> fetch(Condition... conditions) throws DaoException {
+        Connection conn = null;
+        try {
+            conn = ds.getConnection();
+            DSLContext context = DSL.using(conn, dialect);
+            return context.selectFrom(table)
+                    .where(conditions)
+                    .fetch();
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            quietlyCloseConn(conn);
+        }
+    }
+
+    protected Cursor<Record> fetchLazy(Condition... conditions) throws DaoException {
+        Connection conn = null;
+        try {
+            conn = ds.getConnection();
+            DSLContext context = DSL.using(conn, dialect);
+            return context.selectFrom(table)
+                    .where(conditions)
+                    .fetchLazy(fetchSize);
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            quietlyCloseConn(conn);
+        }
+    }
+
     protected void createTables() throws DaoException {
         executeSqlScriptWithSuffix("-create-tables.sql");
     }
