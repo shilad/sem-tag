@@ -1,12 +1,10 @@
 package org.semtag.loader;
 
-import org.semtag.core.dao.DaoException;
-import org.semtag.core.dao.ItemDao;
-import org.semtag.core.dao.TagAppDao;
-import org.semtag.core.dao.UserDao;
+import org.semtag.core.dao.*;
 import org.semtag.core.model.Item;
 import org.semtag.core.model.TagApp;
 import org.semtag.core.model.User;
+import org.semtag.core.model.concept.Concept;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
@@ -23,11 +21,13 @@ public class TagAppLoader {
     private final TagAppDao tagAppDao;
     private final UserDao userDao;
     private final ItemDao itemDao;
+    private final ConceptDao conceptDao;
 
-    public TagAppLoader(TagAppDao tagAppDao) {
+    public TagAppLoader(TagAppDao tagAppDao, UserDao userDao, ItemDao itemDao, ConceptDao conceptDao) {
         this.tagAppDao = tagAppDao;
-        this.userDao = new userDao();
-        this.itemDao = new itemDao();
+        this.userDao = userDao;
+        this.itemDao = itemDao;
+        this.conceptDao = conceptDao;
     }
 
     // TODO: add context
@@ -54,8 +54,11 @@ public class TagAppLoader {
         try {
             itemDao.save(item);
         } catch (DaoException e) {
-            LOG.log(Level.WARNING, "adding of item " + item.getItemId() + " failed", e);
+            LOG.log(Level.WARNING, "adding of item " + item.getItemId() + " failed", e);  //TODO: use a transaction model, set autocommit false, if there is an exception, roll back the previous changes
         }
+
+        Concept concept = tagApp.getConcept();
+
     }
 
 }
