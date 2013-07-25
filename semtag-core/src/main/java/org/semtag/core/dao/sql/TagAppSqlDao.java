@@ -2,6 +2,7 @@ package org.semtag.core.dao.sql;
 
 import org.semtag.core.dao.DaoException;
 import org.semtag.core.dao.TagAppDao;
+import org.semtag.core.jooq.Tables;
 import org.semtag.core.model.TagApp;
 
 import javax.sql.DataSource;
@@ -12,7 +13,7 @@ import javax.sql.DataSource;
 public class TagAppSqlDao extends BaseSqLDao<TagApp> implements TagAppDao {
 
     public TagAppSqlDao(DataSource dataSource) throws DaoException {
-        super(dataSource, "tagapps");
+        super(dataSource, "tagapps", Tables.TAGAPPS);
     }
 
     @Override

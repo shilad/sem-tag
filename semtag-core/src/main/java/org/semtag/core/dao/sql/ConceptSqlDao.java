@@ -2,6 +2,7 @@ package org.semtag.core.dao.sql;
 
 import org.semtag.core.dao.ConceptDao;
 import org.semtag.core.dao.DaoException;
+import org.semtag.core.jooq.Tables;
 import org.semtag.core.model.concept.Concept;
 
 import javax.sql.DataSource;
@@ -12,7 +13,7 @@ import javax.sql.DataSource;
 public class ConceptSqlDao extends BaseSqLDao<Concept> implements ConceptDao {
 
     public ConceptSqlDao(DataSource dataSource) throws DaoException {
-        super(dataSource, "concepts");
+        super(dataSource, "concepts", Tables.CONCEPTS);
     }
 
     @Override

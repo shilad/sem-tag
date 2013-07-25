@@ -1,8 +1,7 @@
 package org.semtag.core.dao.sql;
 
 import org.apache.commons.io.IOUtils;
-import org.jooq.DSLContext;
-import org.jooq.SQLDialect;
+import org.jooq.*;
 import org.jooq.impl.DSL;
 import org.semtag.core.dao.Dao;
 import org.semtag.core.dao.DaoException;
@@ -25,10 +24,12 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
 
     protected final SQLDialect dialect;
     protected final String tableName;
-    protected DataSource ds;
+    protected final Table<Record> table;
+    protected final DataSource ds;
+
     private int fetchSize = DEFAULT_FETCH_SIZE;
 
-    public BaseSqLDao(DataSource dataSource, String tableName) throws DaoException {
+    public BaseSqLDao(DataSource dataSource, String tableName, Table<Record> table) throws DaoException {
         ds = dataSource;
         Connection conn = null;
         try {
@@ -40,6 +41,7 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
             quietlyCloseConn(conn);
         }
         this.tableName = tableName;
+        this.table = table;
     }
 
     @Override
@@ -72,9 +74,24 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
         try {
             conn = ds.getConnection();
             DSLContext context = DSL.using(conn, dialect);
-            context.insertInto(DSL.tableByName(tableName))
+            context.insertInto(table)
                     .values(values)
                     .execute();
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            quietlyCloseConn(conn);
+        }
+    }
+
+    protected Record fetchOne(Condition... conditions) throws DaoException {
+        Connection conn = null;
+        try {
+            conn = ds.getConnection();
+            DSLContext context = DSL.using(conn, dialect);
+            return context.selectFrom(table)
+                    .where(conditions)
+                    .fetchOne();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
