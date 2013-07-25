@@ -6,6 +6,10 @@ package org.semtag.core.model;
 public class Item {
     private final String itemId;
 
+    public Item(int itemId) {
+        this.itemId = String.valueOf(itemId);
+    }
+
     public Item(String itemId) {
         this.itemId = itemId;
     }

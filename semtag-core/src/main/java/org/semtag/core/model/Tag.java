@@ -31,6 +31,7 @@ public class Tag {
      */
     public static String normalize(String tag) {
         tag = tag.toLowerCase();
+        tag = tag.replace('_', ' ');
         tag = tag.replaceAll("[^\\d\\w]+", " ");
         tag = tag.trim();
         if (tag.length() > 256) tag = tag.substring(0, 256);
