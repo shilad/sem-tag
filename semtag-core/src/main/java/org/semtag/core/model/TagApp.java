@@ -1,5 +1,7 @@
 package org.semtag.core.model;
 
+import org.semtag.core.model.concept.Concept;
+
 import java.sql.Timestamp;
 
 /**
@@ -11,7 +13,9 @@ public class TagApp {
     private final Tag tag;
     private final Item item;
     private final Timestamp timestamp;
-    private final int conceptId;
+
+    private Concept concept;
+    private int conceptId;
 
     public TagApp(long tagAppId, User user, Tag tag, Item item, Timestamp timestamp, int conceptId) {
         this.tagAppId = tagAppId;
@@ -20,6 +24,16 @@ public class TagApp {
         this.item = item;
         this.timestamp = timestamp;
         this.conceptId = conceptId;
+    }
+
+    public TagApp(long tagAppId, User user, Tag tag, Item item, Timestamp timestamp, Concept concept) {
+        this.tagAppId = tagAppId;
+        this.user = user;
+        this.tag = tag;
+        this.item = item;
+        this.timestamp = timestamp;
+        this.concept = concept;
+        this.conceptId = concept.getConceptId();
     }
 
     public long getTagAppId() {
@@ -44,6 +58,15 @@ public class TagApp {
 
     public int getConceptId() {
         return conceptId;
+    }
+
+    public Concept getConcept() {
+        return concept;
+    }
+
+    public void setConcept(Concept concept) {
+        this.concept = concept;
+        this.conceptId = concept.getConceptId();
     }
 
     @Override
