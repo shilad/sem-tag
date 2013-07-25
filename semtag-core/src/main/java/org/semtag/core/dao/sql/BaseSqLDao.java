@@ -1,5 +1,6 @@
 package org.semtag.core.dao.sql;
 
+import edu.emory.mathcs.backport.java.util.Arrays;
 import org.apache.commons.io.IOUtils;
 import org.jooq.*;
 import org.jooq.impl.DSL;
@@ -11,6 +12,7 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.logging.Logger;
 
 /**
@@ -85,6 +87,10 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
     }
 
     protected Record fetchOne(Condition... conditions) throws DaoException {
+        return fetchOne(Arrays.asList(conditions));
+    }
+
+    protected Record fetchOne(Collection<Condition> conditions) throws DaoException {
         Connection conn = null;
         try {
             conn = ds.getConnection();
@@ -100,6 +106,10 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
     }
 
     protected Result<Record> fetch(Condition... conditions) throws DaoException {
+        return fetch(Arrays.asList(conditions));
+    }
+
+    protected Result<Record> fetch(Collection<Condition> conditions) throws DaoException {
         Connection conn = null;
         try {
             conn = ds.getConnection();
@@ -115,6 +125,10 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
     }
 
     protected Cursor<Record> fetchLazy(Condition... conditions) throws DaoException {
+        return fetchLazy(Arrays.asList(conditions));
+    }
+
+    protected Cursor<Record> fetchLazy(Collection<Condition> conditions) throws DaoException {
         Connection conn = null;
         try {
             conn = ds.getConnection();
@@ -122,6 +136,25 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
             return context.selectFrom(table)
                     .where(conditions)
                     .fetchLazy(fetchSize);
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            quietlyCloseConn(conn);
+        }
+    }
+
+    protected int fetchCount(Condition... conditions) throws DaoException {
+        return fetchCount(Arrays.asList(conditions));
+    }
+
+    protected int fetchCount(Collection<Condition> conditions) throws DaoException {
+        Connection conn = null;
+        try {
+            conn = ds.getConnection();
+            DSLContext context = DSL.using(conn, dialect);
+            return context.selectFrom(table)
+                    .where(conditions)
+                    .fetchCount();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

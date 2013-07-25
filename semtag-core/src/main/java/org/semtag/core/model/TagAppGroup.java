@@ -1,6 +1,7 @@
 package org.semtag.core.model;
 
 import com.google.common.collect.Sets;
+import org.semtag.core.dao.DaoFilter;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -47,6 +48,14 @@ public class TagAppGroup implements Iterable<TagApp> {
         this.tag = tag;
         this.itemId = itemId;
         this.conceptId = conceptId;
+        this.tagApps = tagApps;
+    }
+
+    public TagAppGroup(DaoFilter filter, Set<TagApp> tagApps) {
+        this.userId = filter.getUserId();
+        this.tag = new Tag(filter.getTag());
+        this.itemId = filter.getItemId();
+        this.conceptId = filter.getConceptId();
         this.tagApps = tagApps;
     }
 

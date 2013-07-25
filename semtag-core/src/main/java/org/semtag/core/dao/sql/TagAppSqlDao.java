@@ -1,5 +1,7 @@
 package org.semtag.core.dao.sql;
 
+import org.jooq.Condition;
+import org.jooq.Cursor;
 import org.jooq.Record;
 import org.jooq.Result;
 import org.semtag.core.dao.DaoException;
@@ -9,6 +11,8 @@ import org.semtag.core.jooq.Tables;
 import org.semtag.core.model.*;
 
 import javax.sql.DataSource;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -33,30 +37,83 @@ public class TagAppSqlDao extends BaseSqLDao<TagApp> implements TagAppDao {
         );
     }
 
-    /**
-     * Fetches a TagApp from the database by specified TagApp ID.
-     * @param tagAppId
-     * @return
-     * @throws DaoException
-     */
+    @Override
+    public Iterable<TagApp> get(DaoFilter filter) throws DaoException {
+        Collection<Condition> conditions = new ArrayList<Condition>();
+        if (filter.getUserIds() != null) {
+            conditions.add(Tables.TAGAPPS.USER_ID.in(filter.getUserIds()));
+        }
+        if (filter.getTags() != null) {
+            conditions.add(Tables.TAGAPPS.TAG.in(filter.getTags()));
+        }
+        if (filter.getItemIds() != null) {
+            conditions.add(Tables.TAGAPPS.ITEM_ID.in(filter.getItemIds()));
+        }
+        if (filter.getConceptIds() != null) {
+            conditions.add(Tables.TAGAPPS.CONCEPT_ID.in(filter.getConceptIds()));
+        }
+        Cursor<Record> cursor = fetchLazy(conditions);
+        return buildTagAppIterable(cursor);
+    }
+
+    @Override
+    public int getCount(DaoFilter filter) throws DaoException {
+        Collection<Condition> conditions = new ArrayList<Condition>();
+        if (filter.getUserIds() != null) {
+            conditions.add(Tables.TAGAPPS.USER_ID.in(filter.getUserIds()));
+        }
+        if (filter.getTags() != null) {
+            conditions.add(Tables.TAGAPPS.TAG.in(filter.getTags()));
+        }
+        if (filter.getItemIds() != null) {
+            conditions.add(Tables.TAGAPPS.ITEM_ID.in(filter.getItemIds()));
+        }
+        if (filter.getConceptIds() != null) {
+            conditions.add(Tables.TAGAPPS.CONCEPT_ID.in(filter.getConceptIds()));
+        }
+        return fetchCount(conditions);
+    }
+
+    @Override
     public TagApp getByTagAppId(long tagAppId) throws DaoException {
         Record record = fetchOne(Tables.TAGAPPS.TAG_APP_ID.eq(tagAppId));
         return buildTagApp(record);
     }
 
+    @Override
+    public TagAppGroup getGroup(DaoFilter filter) throws DaoException {
+        Collection<Condition> conditions = new ArrayList<Condition>();
+        if (filter.getUserId() != null) {
+            conditions.add(Tables.TAGAPPS.USER_ID.eq(filter.getUserId()));
+        }
+        if (filter.getTag() != null) {
+            conditions.add(Tables.TAGAPPS.TAG.eq(filter.getTag()));
+        }
+        if (filter.getItemId() != null) {
+            conditions.add(Tables.TAGAPPS.ITEM_ID.eq(filter.getItemId()));
+        }
+        if (filter.getConceptId() != null) {
+            conditions.add(Tables.TAGAPPS.CONCEPT_ID.eq(filter.getConceptId()));
+        }
+        Result<Record> result = fetch(conditions);
+        return buildTagAppGroup(filter, result);
+    }
 
+    private Iterable<TagApp> buildTagAppIterable(Cursor<Record> cursor) {
+        return new SqlDaoIterable<TagApp>(cursor) {
+            @Override
+            public TagApp transform(Record record) throws DaoException {
+                return buildTagApp(record);
+            }
+        };
+    }
 
     private TagAppGroup buildTagAppGroup(DaoFilter filter, Result<Record> result) {
         Set<TagApp> tagApps = new HashSet<TagApp>();
         for (Record record : result) {
             tagApps.add(buildTagApp(record));
         }
-        return new TagAppGroup(
-                userId,
-                tag,
-                itemId,
-                conceptId,
-                tagApps);
+        return new TagAppGroup(filter, tagApps);
     }
 
     private TagApp buildTagApp(Record record) {
