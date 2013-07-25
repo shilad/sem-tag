@@ -8,31 +8,31 @@ import java.sql.Timestamp;
  * @author Ari Weiland
  */
 public class TagApp {
-    private final int tagId;
+    private final int tagAppId;
     private final User user;
-    private final String tag;
+    private final Tag tag;
     private final Item item;
     private final Timestamp timestamp;
 
     private Concept concept;
 
-    public TagApp(int tagId, User user, String tag, Item item, Timestamp timestamp) {
-        this.tagId = tagId;
+    public TagApp(int tagAppId, User user, Tag tag, Item item, Timestamp timestamp) {
+        this.tagAppId = tagAppId;
         this.user = user;
         this.tag = tag;
         this.item = item;
         this.timestamp = timestamp;
     }
 
-    public int getTagId() {
-        return tagId;
+    public int getTagAppId() {
+        return tagAppId;
     }
 
     public User getUser() {
         return user;
     }
 
-    public String getTag() {
+    public Tag getTag() {
         return tag;
     }
 

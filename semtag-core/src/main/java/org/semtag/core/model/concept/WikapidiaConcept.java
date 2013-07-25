@@ -2,6 +2,7 @@ package org.semtag.core.model.concept;
 
 import org.semtag.SemTagException;
 import org.wikapidia.core.dao.DaoException;
+import org.wikapidia.core.lang.Language;
 import org.wikapidia.core.lang.LocalId;
 import org.wikapidia.sr.LocalSRMetric;
 import org.wikapidia.sr.SRResult;
@@ -9,19 +10,14 @@ import org.wikapidia.sr.SRResult;
 /**
  * @author Ari Weiland
  */
-public class WikapidiaConcept extends Concept {
+public class WikapidiaConcept extends Concept<LocalId> {
 
-    private final LocalId wikapidiaConceptId;
     private final LocalSRMetric srMetric;
 
-    public WikapidiaConcept(String type, LocalId wikapidiaConceptId, LocalSRMetric srMetric) {
-        super(wikapidiaConceptId.getId(), type);
-        this.wikapidiaConceptId = wikapidiaConceptId;
+    public WikapidiaConcept(LocalId wikapidiaConceptId, LocalSRMetric srMetric) {
+        // TODO: make sure srMetric.getName() aligns with the provider name
+        super(wikapidiaConceptId.getId(), srMetric.getName(), wikapidiaConceptId);
         this.srMetric = srMetric;
-    }
-
-    public LocalId getWikapidiaConceptId() {
-        return wikapidiaConceptId;
     }
 
     public LocalSRMetric getSrMetric() {
@@ -31,11 +27,27 @@ public class WikapidiaConcept extends Concept {
     @Override
     public double getSimilarityTo(Concept other) throws SemTagException {
         try {
-            SRResult result = srMetric.similarity(wikapidiaConceptId.asLocalPage(), ((WikapidiaConcept) other).wikapidiaConceptId.asLocalPage(), false);
+            SRResult result = srMetric.similarity(
+                    conceptObj.asLocalPage(),
+                    ((WikapidiaConcept) other).conceptObj.asLocalPage(),
+                    false);
             return result.getValue();
         } catch (DaoException e) {
             throw new SemTagException(e);
         }
+    }
+
+    @Override
+    protected String conceptObjToString() {
+        return conceptObj.getId() + " " +conceptObj.getLanguage().getId();
+    }
+
+    @Override
+    protected LocalId stringToConceptObj(String s) {
+        String[] split = s.split(" ");
+        return new LocalId(
+                Language.getById(new Integer(split[1])),
+                new Integer(split[0]));
     }
 
 }
