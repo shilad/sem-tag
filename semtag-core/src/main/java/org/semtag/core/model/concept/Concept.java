@@ -73,4 +73,24 @@ public abstract class Concept<I> {
     public I bytesToConceptObj(byte[] bytes) {
         return stringToConceptObj(new String(bytes));
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Concept)) return false;
+
+        Concept concept = (Concept) o;
+
+        return conceptId == concept.conceptId && metric.equals(concept.metric);
+
+    }
+
+    @Override
+    public String toString() {
+        return "Concept{" +
+                "conceptId=" + conceptId +
+                ", metric=\'" + metric + '\'' +
+                ", conceptObj=" + conceptObj +
+                '}';
+    }
 }

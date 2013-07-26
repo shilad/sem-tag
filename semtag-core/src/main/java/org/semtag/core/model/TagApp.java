@@ -98,6 +98,31 @@ public class TagApp {
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof TagApp && this.tagAppId == ((TagApp) o).tagAppId;
+        if (!(o instanceof TagApp)) {
+            return false;
+        }
+        TagApp t = (TagApp) o;
+        if (tagAppId != -1 && t.tagAppId != -1) {
+            return tagAppId == t.tagAppId;
+        } else {
+            return  user.equals(t.user) &&
+                    tag.equals(t.tag) &&
+                    item.equals(t.item) &&
+                    timestamp.equals(t.timestamp) &&
+                    conceptId == t.conceptId;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "TagApp{" +
+                "tagAppId=" + tagAppId +
+                ", user=" + user +
+                ", tag=" + tag +
+                ", item=" + item +
+                ", timestamp=" + timestamp +
+                ", conceptId=" + conceptId +
+                ", concept=" + concept +
+                '}';
     }
 }
