@@ -1,5 +1,6 @@
 package org.semtag.core.dao.sql;
 
+import com.typesafe.config.Config;
 import org.jooq.Condition;
 import org.jooq.Cursor;
 import org.jooq.Record;
@@ -8,6 +9,9 @@ import org.semtag.core.dao.DaoFilter;
 import org.semtag.core.dao.ItemDao;
 import org.semtag.core.jooq.Tables;
 import org.semtag.core.model.Item;
+import org.wikapidia.conf.Configuration;
+import org.wikapidia.conf.ConfigurationException;
+import org.wikapidia.conf.Configurator;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
@@ -73,5 +77,35 @@ public class ItemSqlDao extends BaseSqLDao<Item> implements ItemDao {
             return null;
         }
         return new Item(record.getValue(Tables.ITEMS.ITEM_ID));
+    }
+
+    public static class Provider extends org.wikapidia.conf.Provider<ItemDao> {
+        public Provider(Configurator configurator, Configuration config) throws ConfigurationException {
+            super(configurator, config);
+        }
+
+        @Override
+        public Class getType() {
+            return ItemDao.class;
+        }
+
+        @Override
+        public String getPath() {
+            return "sem-tag.dao.itemDao";
+        }
+
+        @Override
+        public ItemSqlDao get(String name, Config config) throws ConfigurationException {
+            if (!config.getString("type").equals("sql")) {
+                return null;
+            }
+            try {
+                return new ItemSqlDao(
+                        getConfigurator().get(DataSource.class, config.getString("datasource"))
+                );
+            } catch (DaoException e) {
+                throw new ConfigurationException(e);
+            }
+        }
     }
 }

@@ -15,28 +15,84 @@ public class TagApp {
     private final Tag tag;
     private final Item item;
     private final Timestamp timestamp;
-    private final int conceptId;
 
+    private int conceptId;
     private Concept concept;
 
-    public TagApp(long tagAppId, User user, Tag tag, Item item, Timestamp timestamp, int conceptId) {
-        this.tagAppId = tagAppId;
-        this.user = user;
-        this.tag = tag;
-        this.item = item;
-        this.timestamp = timestamp;
-        this.conceptId = conceptId;
-        this.concept = null;
+    /**
+     * Constructs a TagApp without an ID and without any concept references.
+     * @param user
+     * @param tag
+     * @param item
+     * @param timestamp
+     */
+    public TagApp(User user, Tag tag, Item item, Timestamp timestamp) {
+        this(user, tag, item, timestamp, -1);
     }
 
+    /**
+     * Constructs a TagApp without an ID and with a concept ID.
+     * @param user
+     * @param tag
+     * @param item
+     * @param timestamp
+     * @param conceptId
+     */
+    public TagApp(User user, Tag tag, Item item, Timestamp timestamp, int conceptId) {
+        this(-1, user, tag, item, timestamp, conceptId);
+    }
+
+    /**
+     * Constructs a TagApp without an ID and with a concept.
+     * @param user
+     * @param tag
+     * @param item
+     * @param timestamp
+     * @param concept
+     */
+    public TagApp(User user, Tag tag, Item item, Timestamp timestamp, Concept concept) {
+        this(-1, user, tag, item, timestamp, concept);
+    }
+
+    /**
+     * Constructs a TagApp with an ID and with a concept ID.
+     * @param tagAppId
+     * @param user
+     * @param tag
+     * @param item
+     * @param timestamp
+     * @param conceptId
+     */
+    public TagApp(long tagAppId, User user, Tag tag, Item item, Timestamp timestamp, int conceptId) {
+        this(tagAppId, user, tag, item, timestamp, conceptId, null);
+    }
+
+    /**
+     * Constructs a TagApp with an ID and with a concept.
+     * @param tagAppId
+     * @param user
+     * @param tag
+     * @param item
+     * @param timestamp
+     * @param concept
+     */
     public TagApp(long tagAppId, User user, Tag tag, Item item, Timestamp timestamp, Concept concept) {
-        this.tagAppId = tagAppId;
+        this(tagAppId, user, tag, item, timestamp, concept.getConceptId(), concept);
+    }
+
+    private TagApp(long tagAppId, User user, Tag tag, Item item, Timestamp timestamp, int conceptId, Concept concept) {
+        this.tagAppId = tagAppId < 0 ? -1 : tagAppId;
         this.user = user;
         this.tag = tag;
         this.item = item;
         this.timestamp = timestamp;
-        this.conceptId = concept.getConceptId();
-        this.concept = concept;
+        if (conceptId < 0) {
+            this.conceptId = -1;
+            this.concept = null;
+        } else {
+            this.conceptId = conceptId;
+            this.concept = concept;
+        }
     }
 
     public long getTagAppId() {
@@ -68,13 +124,27 @@ public class TagApp {
     }
 
     /**
+     * Sets the concept ID only if the concept ID was not previously set.
+     * Returns whether or not the concept ID was set
+     * @param conceptId
+     * @return true only if the concept ID was not previously set.
+     */
+    public boolean setConceptId(int conceptId) {
+        if (conceptId > -1) {
+            this.conceptId = conceptId;
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Sets the concept only if the specified concept matches this TagApp's concept ID,
      * and the concept was not previously set. Returns whether or not the concept was set.
      * @param concept
      * @return true only if the concept was not previously set and the input concept is valid
      */
     public boolean setConcept(Concept concept) {
-        if (concept != null && this.concept == null && conceptId == concept.getConceptId()) {
+        if (concept != null && this.concept == null && setConceptId(concept.getConceptId())) {
             this.concept = concept;
             return true;
         }

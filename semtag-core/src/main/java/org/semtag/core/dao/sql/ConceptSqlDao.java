@@ -1,5 +1,6 @@
 package org.semtag.core.dao.sql;
 
+import com.typesafe.config.Config;
 import org.jooq.Condition;
 import org.jooq.Cursor;
 import org.jooq.Record;
@@ -9,6 +10,9 @@ import org.semtag.core.dao.DaoFilter;
 import org.semtag.core.jooq.Tables;
 import org.semtag.core.model.concept.Concept;
 import org.semtag.mapper.ConceptMapper;
+import org.wikapidia.conf.Configuration;
+import org.wikapidia.conf.ConfigurationException;
+import org.wikapidia.conf.Configurator;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
@@ -27,12 +31,13 @@ public class ConceptSqlDao extends BaseSqLDao<Concept> implements ConceptDao {
     }
 
     @Override
-    public void save(Concept item) throws DaoException {
-        insert(
-                item.getConceptId(),
-                item.getMetric(),
-                item.conceptObjToBytes()
-        );
+    public void save(Concept concept) throws DaoException {
+        if (getCount(new DaoFilter().setConceptId(concept.getConceptId())) == 0) {
+            insert(
+                    concept.getConceptId(),
+                    concept.getMetric(),
+                    concept.conceptObjToBytes());
+        }
     }
 
     @Override
@@ -74,5 +79,36 @@ public class ConceptSqlDao extends BaseSqLDao<Concept> implements ConceptDao {
                 record.getValue(Tables.CONCEPTS.CONCEPT_ID),
                 record.getValue(Tables.CONCEPTS.METRIC),
                 record.getValue(Tables.CONCEPTS.CONCEPT_OBJ));
+    }
+
+    public static class Provider extends org.wikapidia.conf.Provider<ConceptDao> {
+        public Provider(Configurator configurator, Configuration config) throws ConfigurationException {
+            super(configurator, config);
+        }
+
+        @Override
+        public Class getType() {
+            return ConceptDao.class;
+        }
+
+        @Override
+        public String getPath() {
+            return "sem-tag.dao.conceptDao";
+        }
+
+        @Override
+        public ConceptSqlDao get(String name, Config config) throws ConfigurationException {
+            if (!config.getString("type").equals("sql")) {
+                return null;
+            }
+            try {
+                return new ConceptSqlDao(
+                        getConfigurator().get(DataSource.class, config.getString("datasource")),
+                        getConfigurator().get(ConceptMapper.class, config.getString("mapper"))
+                );
+            } catch (DaoException e) {
+                throw new ConfigurationException(e);
+            }
+        }
     }
 }

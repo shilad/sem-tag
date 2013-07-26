@@ -6,10 +6,18 @@ package org.semtag.core.model;
 public class Item {
     private final String itemId;
 
+    /**
+     * Constructs an item from a given ID.
+     * @param itemId
+     */
     public Item(int itemId) {
         this.itemId = String.valueOf(itemId);
     }
 
+    /**
+     * Constructs an item from a given ID.
+     * @param itemId
+     */
     public Item(String itemId) {
         this.itemId = itemId;
     }
