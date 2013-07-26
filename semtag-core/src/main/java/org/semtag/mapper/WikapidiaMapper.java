@@ -1,5 +1,6 @@
 package org.semtag.mapper;
 
+import com.typesafe.config.Config;
 import org.semtag.SemTagException;
 import org.semtag.core.dao.DaoException;
 import org.semtag.core.dao.DaoFilter;
@@ -7,6 +8,7 @@ import org.semtag.core.dao.TagAppDao;
 import org.semtag.core.model.*;
 import org.semtag.core.model.concept.Concept;
 import org.semtag.core.model.concept.WikapidiaConcept;
+import org.wikapidia.conf.Configuration;
 import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
 import org.wikapidia.core.lang.Language;
@@ -30,14 +32,10 @@ public class WikapidiaMapper extends ConceptMapper {
     protected final Disambiguator disambiguator;
     protected final TagAppDao tagAppDao;
 
-    public WikapidiaMapper(Configurator configurator) throws SemTagException {
+    public WikapidiaMapper(Configurator configurator, Disambiguator disambiguator, TagAppDao tagAppDao) {
         super(configurator);
-        try {
-            this.disambiguator = configurator.get(Disambiguator.class);
-            this.tagAppDao = configurator.get(TagAppDao.class);
-        } catch (ConfigurationException e) {
-            throw new SemTagException(e);
-        }
+        this.disambiguator = disambiguator;
+        this.tagAppDao = tagAppDao;
     }
 
     public Disambiguator getDisambiguator() {
@@ -81,6 +79,34 @@ public class WikapidiaMapper extends ConceptMapper {
             );
         } catch (ConfigurationException e) {
             throw new DaoException(e);
+        }
+    }
+
+    public static class Provider extends org.wikapidia.conf.Provider<ConceptMapper> {
+        public Provider(Configurator configurator, Configuration config) throws ConfigurationException {
+            super(configurator, config);
+        }
+
+        @Override
+        public Class getType() {
+            return ConceptMapper.class;
+        }
+
+        @Override
+        public String getPath() {
+            return "sem-tag.concept";
+        }
+
+        @Override
+        public WikapidiaMapper get(String name, Config config) throws ConfigurationException {
+            if (!config.getString("type").equals("wikapidia")) {
+                return null;
+            }
+            return new WikapidiaMapper(
+                    getConfigurator(),
+                    getConfigurator().get(Disambiguator.class, config.getString("disambiguator")),
+                    getConfigurator().get(TagAppDao.class, config.getString("tagAppDao"))
+            );
         }
     }
 }

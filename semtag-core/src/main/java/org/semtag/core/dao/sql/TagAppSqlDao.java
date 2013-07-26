@@ -1,5 +1,6 @@
 package org.semtag.core.dao.sql;
 
+import com.typesafe.config.Config;
 import org.jooq.Condition;
 import org.jooq.Cursor;
 import org.jooq.Record;
@@ -9,6 +10,9 @@ import org.semtag.core.dao.DaoFilter;
 import org.semtag.core.dao.TagAppDao;
 import org.semtag.core.jooq.Tables;
 import org.semtag.core.model.*;
+import org.wikapidia.conf.Configuration;
+import org.wikapidia.conf.ConfigurationException;
+import org.wikapidia.conf.Configurator;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
@@ -129,4 +133,33 @@ public class TagAppSqlDao extends BaseSqLDao<TagApp> implements TagAppDao {
                 record.getValue(Tables.TAGAPPS.CONCEPT_ID));
     }
 
+    public static class Provider extends org.wikapidia.conf.Provider<TagAppDao> {
+        public Provider(Configurator configurator, Configuration config) throws ConfigurationException {
+            super(configurator, config);
+        }
+
+        @Override
+        public Class getType() {
+            return TagAppDao.class;
+        }
+
+        @Override
+        public String getPath() {
+            return "sem-tag.dao.tagAppDao";
+        }
+
+        @Override
+        public TagAppSqlDao get(String name, Config config) throws ConfigurationException {
+            if (!config.getString("type").equals("sql")) {
+                return null;
+            }
+            try {
+                return new TagAppSqlDao(
+                        getConfigurator().get(DataSource.class, config.getString("datasource"))
+                );
+            } catch (DaoException e) {
+                throw new ConfigurationException(e);
+            }
+        }
+    }
 }
