@@ -27,15 +27,15 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
     protected final SQLDialect dialect;
     protected final String tableName;
     protected final Table<Record> table;
-    protected final DataSource ds;
+    protected final DataSource dataSource;
 
     private int fetchSize = DEFAULT_FETCH_SIZE;
 
     public BaseSqLDao(DataSource dataSource, String tableName, Table<Record> table) throws DaoException {
-        ds = dataSource;
+        this.dataSource = dataSource;
         Connection conn = null;
         try {
-            conn = ds.getConnection();
+            conn = dataSource.getConnection();
             this.dialect = JooqUtils.dialect(conn);
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -74,7 +74,7 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
     protected void insert(Object... values) throws DaoException {
         Connection conn = null;
         try {
-            conn = ds.getConnection();
+            conn = dataSource.getConnection();
             DSLContext context = DSL.using(conn, dialect);
             context.insertInto(table)
                     .values(values)
@@ -93,7 +93,7 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
     protected Record fetchOne(Collection<Condition> conditions) throws DaoException {
         Connection conn = null;
         try {
-            conn = ds.getConnection();
+            conn = dataSource.getConnection();
             DSLContext context = DSL.using(conn, dialect);
             return context.selectFrom(table)
                     .where(conditions)
@@ -112,7 +112,7 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
     protected Result<Record> fetch(Collection<Condition> conditions) throws DaoException {
         Connection conn = null;
         try {
-            conn = ds.getConnection();
+            conn = dataSource.getConnection();
             DSLContext context = DSL.using(conn, dialect);
             return context.selectFrom(table)
                     .where(conditions)
@@ -131,7 +131,7 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
     protected Cursor<Record> fetchLazy(Collection<Condition> conditions) throws DaoException {
         Connection conn = null;
         try {
-            conn = ds.getConnection();
+            conn = dataSource.getConnection();
             DSLContext context = DSL.using(conn, dialect);
             return context.selectFrom(table)
                     .where(conditions)
@@ -150,7 +150,7 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
     protected int fetchCount(Collection<Condition> conditions) throws DaoException {
         Connection conn = null;
         try {
-            conn = ds.getConnection();
+            conn = dataSource.getConnection();
             DSLContext context = DSL.using(conn, dialect);
             return context.selectFrom(table)
                     .where(conditions)
@@ -195,7 +195,7 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
     public void executeSqlResource(String name) throws DaoException {
         Connection conn=null;
         try {
-            conn = ds.getConnection();
+            conn = dataSource.getConnection();
             conn.createStatement().execute(
                     IOUtils.toString(
                             BaseSqLDao.class.getResource(name)
