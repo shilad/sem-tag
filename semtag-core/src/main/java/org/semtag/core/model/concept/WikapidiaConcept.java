@@ -30,6 +30,9 @@ public class WikapidiaConcept extends Concept<LocalId> {
 
     @Override
     public double getSimilarityTo(Concept other) throws SemTagException {
+        if (!(other instanceof WikapidiaConcept)) {
+            throw new IllegalArgumentException("Concept types do not match");
+        }
         try {
             SRResult result = srMetric.similarity(
                     conceptObj.asLocalPage(),

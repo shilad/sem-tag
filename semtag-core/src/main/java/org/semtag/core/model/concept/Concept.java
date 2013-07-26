@@ -1,12 +1,13 @@
 package org.semtag.core.model.concept;
 
 import org.semtag.SemTagException;
+import org.semtag.core.model.Similar;
 
 /**
  * @author Ari Weiland
  * @author Yulun Li
  */
-public abstract class Concept<I> {
+public abstract class Concept<I> implements Similar<Concept<I>> {
     protected final int conceptId;
     protected final String metric;
     protected final I conceptObj;
@@ -55,7 +56,7 @@ public abstract class Concept<I> {
      * @return
      * @throws SemTagException
      */
-    public abstract double getSimilarityTo(Concept other) throws SemTagException;
+    public abstract double getSimilarityTo(Concept<I> other) throws SemTagException;
 
     /**
      * Describes how to convert a conceptObj to a String.

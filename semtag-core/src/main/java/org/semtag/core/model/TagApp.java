@@ -10,7 +10,7 @@ import java.sql.Timestamp;
 /**
  * @author Ari Weiland
  */
-public class TagApp {
+public class TagApp implements Similar<TagApp> {
     private final long tagAppId;
     private final User user;
     private final Tag tag;

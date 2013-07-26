@@ -1,9 +1,11 @@
 package org.semtag.core.model;
 
+import org.semtag.SemTagException;
+
 /**
  * @author Ari Weiland
  */
-public class Item {
+public class Item implements Similar<Item> {
     private final String itemId;
 
     /**
@@ -24,6 +26,11 @@ public class Item {
 
     public String getItemId() {
         return itemId;
+    }
+
+    @Override
+    public double getSimilarityTo(Item other) throws SemTagException {
+        return 0; // TODO: implement this properly
     }
 
     @Override
