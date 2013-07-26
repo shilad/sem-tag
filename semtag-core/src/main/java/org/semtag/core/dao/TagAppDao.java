@@ -14,7 +14,7 @@ public interface TagAppDao extends Dao<TagApp> {
      * @return
      * @throws DaoException
      */
-    TagApp getByTagAppId(long tagAppId) throws DaoException;
+    public TagApp getByTagAppId(long tagAppId) throws DaoException;
 
     /**
      * Fetches a single TagAppGroup from the database that matches the
@@ -23,5 +23,5 @@ public interface TagAppDao extends Dao<TagApp> {
      * @return
      * @throws DaoException
      */
-    TagAppGroup getGroup(DaoFilter filter) throws DaoException;
+    public TagAppGroup getGroup(DaoFilter filter) throws DaoException;
 }

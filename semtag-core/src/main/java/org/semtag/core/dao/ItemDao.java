@@ -13,7 +13,7 @@ public interface ItemDao extends Dao<Item> {
      * @return
      * @throws DaoException
      */
-    Item getByItemId(int itemId) throws DaoException;
+    public Item getByItemId(int itemId) throws DaoException;
 
     /**
      * Fetches an Item from the database specified by the given ID.
@@ -21,5 +21,5 @@ public interface ItemDao extends Dao<Item> {
      * @return
      * @throws DaoException
      */
-    Item getByItemId(String itemId) throws DaoException;
+    public Item getByItemId(String itemId) throws DaoException;
 }

@@ -13,7 +13,7 @@ public interface UserDao extends Dao<User> {
      * @return
      * @throws DaoException
      */
-    User getByUserId(int userId) throws DaoException;
+    public User getByUserId(int userId) throws DaoException;
 
     /**
      * Fetches a User from the database specified by the given ID.
@@ -21,5 +21,5 @@ public interface UserDao extends Dao<User> {
      * @return
      * @throws DaoException
      */
-    User getByUserId(String userId) throws DaoException;
+    public User getByUserId(String userId) throws DaoException;
 }

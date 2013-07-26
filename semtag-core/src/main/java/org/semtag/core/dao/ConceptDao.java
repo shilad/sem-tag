@@ -13,5 +13,5 @@ public interface ConceptDao extends Dao<Concept> {
      * @return
      * @throws DaoException
      */
-    Concept getByConceptId(int conceptId) throws DaoException;
+    public Concept getByConceptId(int conceptId) throws DaoException;
 }

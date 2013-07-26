@@ -167,16 +167,18 @@ public class TagApp implements Similar<TagApp> {
         return false;
     }
 
+    @Override
     public double getSimilarityTo(TagApp other) throws SemTagException {
-        if (this.conceptId == -1 || other.conceptId == -1) {
-            return 0.0;
-        } else if (this.concept == null || other.concept == null) {
-            return this.conceptId == other.conceptId ? 1.0 : 0.0;
-        } else if (!this.concept.getMetric().equals(other.concept.getMetric())) {
-            return 0.0;
-        } else {
-            return this.concept.getSimilarityTo(other.concept);
+        if (this.concept != null && other.concept != null) {
+            if (this.concept.getMetric().equals(other.concept.getMetric())) {
+                return this.concept.getSimilarityTo(other.concept);
+            } else {
+                return 0.0;
+            }
+        } else if (this.conceptId == other.conceptId && this.conceptId > -1) {
+            return 1.0;
         }
+        return 0.0;
     }
 
     @Override

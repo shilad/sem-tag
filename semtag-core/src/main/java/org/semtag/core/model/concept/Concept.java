@@ -1,6 +1,5 @@
 package org.semtag.core.model.concept;
 
-import org.semtag.SemTagException;
 import org.semtag.core.model.Similar;
 
 /**
@@ -48,15 +47,6 @@ public abstract class Concept<I> implements Similar<Concept<I>> {
     public I getConceptObj() {
         return conceptObj;
     }
-
-    /**
-     * Describes how Sem-Tag will determine the similarity between two concepts,
-     * and by extension two tags.
-     * @param other
-     * @return
-     * @throws SemTagException
-     */
-    public abstract double getSimilarityTo(Concept<I> other) throws SemTagException;
 
     /**
      * Describes how to convert a conceptObj to a String.
