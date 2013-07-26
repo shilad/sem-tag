@@ -1,6 +1,7 @@
 package org.semtag.core.model;
 
 /**
+ * TODO: ask Shilad about maintaining raw tags
  * @author Ari Weiland
  */
 public class Tag {
