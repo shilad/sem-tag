@@ -24,7 +24,9 @@ public class ItemSqlDao extends BaseSqLDao<Item> implements ItemDao {
 
     @Override
     public void save(Item item) throws DaoException {
-        insert(item.getItemId());
+        if (getCount(new DaoFilter().setItemId(item.getItemId())) == 0) {
+            insert(item.getItemId());
+        }
     }
 
     @Override
