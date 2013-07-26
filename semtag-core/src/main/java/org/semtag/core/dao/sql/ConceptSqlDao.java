@@ -93,7 +93,7 @@ public class ConceptSqlDao extends BaseSqLDao<Concept> implements ConceptDao {
 
         @Override
         public String getPath() {
-            return "sem-tag.dao.tagAppDao";
+            return "sem-tag.dao.conceptDao";
         }
 
         @Override
