@@ -6,10 +6,18 @@ package org.semtag.core.model;
 public class User {
     private final String userId;
 
+    /**
+     * Constructs a user from a given ID.
+     * @param userId
+     */
     public User(int userId) {
         this.userId = String.valueOf(userId);
     }
 
+    /**
+     * Constructs a user from a given ID.
+     * @param userId
+     */
     public User(String userId) {
         this.userId = userId;
     }

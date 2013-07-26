@@ -11,12 +11,25 @@ public abstract class Concept<I> {
     protected final String metric;
     protected final I conceptObj;
 
+    /**
+     * Constructs a concept with given ID, metric, and concept object.
+     * @param conceptId
+     * @param metric
+     * @param conceptObj
+     */
     public Concept(int conceptId, String metric, I conceptObj) {
         this.conceptId = conceptId;
         this.metric = metric;
         this.conceptObj = conceptObj;
     }
 
+    /**
+     * Constructs a concept with given ID, metric, and concept object
+     * extracted by the {@code bytesToConceptObj} method.
+     * @param conceptId
+     * @param metric
+     * @param objBytes
+     */
     public Concept(int conceptId, String metric, byte[] objBytes) {
         this.conceptId = conceptId;
         this.metric = metric;
@@ -35,6 +48,13 @@ public abstract class Concept<I> {
         return conceptObj;
     }
 
+    /**
+     * Describes how Sem-Tag will determine the similarity between two concepts,
+     * and by extension two tags.
+     * @param other
+     * @return
+     * @throws SemTagException
+     */
     public abstract double getSimilarityTo(Concept other) throws SemTagException;
 
     /**
