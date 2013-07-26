@@ -2,6 +2,7 @@ package org.semtag.mapper;
 
 import org.semtag.SemTagException;
 import org.semtag.core.model.Item;
+import org.semtag.core.model.Tag;
 import org.semtag.core.model.TagApp;
 import org.semtag.core.model.User;
 import org.semtag.core.model.concept.Concept;
@@ -30,7 +31,15 @@ public abstract class ConceptMapper {
         this.configurator = configurator;
     }
 
-    public abstract TagApp mapTagApp(User user, String tag, Item item, Timestamp timestamp) throws SemTagException;
+    public TagApp mapTagApp(String userId, String tag, String itemId, Timestamp timestamp) throws SemTagException {
+        return mapTagApp(
+                new User(userId),
+                new Tag(tag),
+                new Item(itemId),
+                timestamp);
+    }
+
+    protected abstract TagApp mapTagApp(User user, Tag tag, Item item, Timestamp timestamp) throws SemTagException;
 
     /**
      * This method is used by the ConceptDao to retrieve the correct type of concept

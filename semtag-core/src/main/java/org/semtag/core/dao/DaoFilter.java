@@ -1,14 +1,15 @@
 package org.semtag.core.dao;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
-import edu.emory.mathcs.backport.java.util.Collections;
 import org.semtag.core.model.Tag;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * @author Ari Weiland
+ * @author Yulun Li
  */
 public class DaoFilter {
     private Collection<String> userIds;

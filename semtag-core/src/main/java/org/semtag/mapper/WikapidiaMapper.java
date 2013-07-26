@@ -2,6 +2,7 @@ package org.semtag.mapper;
 
 import org.semtag.SemTagException;
 import org.semtag.core.model.Item;
+import org.semtag.core.model.Tag;
 import org.semtag.core.model.TagApp;
 import org.semtag.core.model.User;
 import org.semtag.core.model.concept.Concept;
@@ -32,17 +33,17 @@ public class WikapidiaMapper extends ConceptMapper {
     }
 
     @Override
-    public TagApp mapTagApp(User user, String tag, Item item, Timestamp timestamp) throws SemTagException {
+    protected TagApp mapTagApp(User user, Tag tag, Item item, Timestamp timestamp) throws SemTagException {
         Set<LocalString> context = null;
-        LocalString tagString = new LocalString(LANGUAGE, tag);
+        LocalString tagString = new LocalString(LANGUAGE, tag.toString());
         try {
             LocalId conceptObj = disambiguator.disambiguate(tagString, context);
             Concept concept = new WikapidiaConcept(conceptObj, configurator.get(LocalSRMetric.class));
+            return new TagApp(-1, user, tag, item, timestamp, concept);
         } catch (DaoException e) {
             throw new SemTagException(e);
         } catch (ConfigurationException e) {
             throw new SemTagException(e);
         }
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 }
