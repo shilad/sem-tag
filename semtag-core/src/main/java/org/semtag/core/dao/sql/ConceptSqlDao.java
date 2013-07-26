@@ -41,6 +41,17 @@ public class ConceptSqlDao extends BaseSqLDao<Concept> implements ConceptDao {
     }
 
     @Override
+    public String getSaveString(Concept concept) throws DaoException {
+        if (getCount(new DaoFilter().setConceptId(concept.getConceptId())) == 0) {
+            return  getInsertString(
+                    concept.getConceptId(),
+                    concept.getMetric(),
+                    concept.conceptObjToBytes());
+        }
+        return null;
+    }
+
+    @Override
     public Iterable<Concept> get(DaoFilter filter) throws DaoException {
         Collection<Condition> conditions = new ArrayList<Condition>();
         if (filter.getConceptIds() != null) {

@@ -58,6 +58,8 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
         createTables();
     }
 
+    public abstract String getSaveString(T item) throws DaoException;
+
     @Override
     public void endLoad() throws DaoException {
         createIndexes();
@@ -79,6 +81,21 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
             context.insertInto(table)
                     .values(values)
                     .execute();
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            quietlyCloseConn(conn);
+        }
+    }
+
+    protected String getInsertString(Object... values) throws DaoException {
+        Connection conn = null;
+        try {
+            conn = dataSource.getConnection();
+            DSLContext context = DSL.using(conn, dialect);
+            return context.insertInto(table)
+                    .values(values)
+                    .getSQL();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

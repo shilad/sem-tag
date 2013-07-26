@@ -42,6 +42,18 @@ public class TagAppSqlDao extends BaseSqLDao<TagApp> implements TagAppDao {
     }
 
     @Override
+    public String getSaveString(TagApp tagApp) throws DaoException {
+        return getInsertString(
+                null,
+                tagApp.getUser().getUserId(),
+                tagApp.getTag().getNormalizedTag(),
+                tagApp.getItem().getItemId(),
+                tagApp.getTimestamp(),
+                tagApp.getConceptId()
+        );
+    }
+
+    @Override
     public Iterable<TagApp> get(DaoFilter filter) throws DaoException {
         Collection<Condition> conditions = new ArrayList<Condition>();
         if (filter.getUserIds() != null) {

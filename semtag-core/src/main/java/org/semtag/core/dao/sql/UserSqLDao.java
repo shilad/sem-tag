@@ -34,6 +34,14 @@ public class UserSqLDao extends BaseSqLDao<User> implements UserDao {
     }
 
     @Override
+    public String getSaveString(User user) throws DaoException {
+        if (getCount(new DaoFilter().setUserId(user.getUserId())) == 0) {
+            return getInsertString(user.getUserId());
+        }
+        return null;
+    }
+
+    @Override
     public Iterable<User> get(DaoFilter filter) throws DaoException {
         Collection<Condition> conditions = new ArrayList<Condition>();
         if (filter.getUserIds() != null) {

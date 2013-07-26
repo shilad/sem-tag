@@ -1,7 +1,8 @@
 package org.semtag.loader;
 
 import org.semtag.SemTagException;
-import org.semtag.core.dao.*;
+import org.semtag.core.dao.DaoException;
+import org.semtag.core.dao.SaveHandler;
 import org.semtag.core.model.Item;
 import org.semtag.core.model.Tag;
 import org.semtag.core.model.TagApp;
@@ -10,8 +11,6 @@ import org.semtag.core.model.concept.Concept;
 import org.semtag.mapper.ConceptMapper;
 
 import java.sql.Timestamp;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -21,18 +20,11 @@ import java.util.logging.Logger;
 public class TagAppLoader {
 
     private static final Logger LOG = Logger.getLogger(TagAppLoader.class.getName());
-    private final AtomicInteger counter = new AtomicInteger();
-    private final TagAppDao tagAppDao;
-    private final UserDao userDao;
-    private final ItemDao itemDao;
-    private final ConceptDao conceptDao;
+    private final SaveHandler handler;
     private final ConceptMapper mapper;
 
-    public TagAppLoader(TagAppDao tagAppDao, UserDao userDao, ItemDao itemDao, ConceptDao conceptDao, ConceptMapper mapper) {
-        this.tagAppDao = tagAppDao;
-        this.userDao = userDao;
-        this.itemDao = itemDao;
-        this.conceptDao = conceptDao;
+    public TagAppLoader(SaveHandler handler, ConceptMapper mapper) {
+        this.handler = handler;
         this.mapper = mapper;
     }
 
@@ -55,12 +47,8 @@ public class TagAppLoader {
         Concept concept = tagApp.getConcept();
 
         try {
-            tagAppDao.save(tagApp);
-            userDao.save(user);
-            itemDao.save(item);
-            conceptDao.save(concept);
+            handler.save(tagApp);
         } catch (DaoException e) {
-            // TODO: implement transaction model so we save all or nothing
             throw new SemTagException(e);
         }
     }
