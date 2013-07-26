@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * A ConceptMapper subclass that maps TagApps to
  * @author Yulun Li
  * @author Ari Weiland
  */
@@ -59,7 +60,7 @@ public class WikapidiaMapper extends ConceptMapper {
             LocalString tagString = new LocalString(LANGUAGE, tag.toString());
             LocalId conceptObj = disambiguator.disambiguate(tagString, context);
             Concept concept = new WikapidiaConcept(conceptObj, configurator.get(LocalSRMetric.class));
-            return new TagApp(-1, user, tag, item, timestamp, concept);
+            return new TagApp(user, tag, item, timestamp, concept);
         } catch (ConfigurationException e) {
             throw new SemTagException(e);
         } catch (org.wikapidia.core.dao.DaoException e) {
