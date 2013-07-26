@@ -17,12 +17,22 @@ public abstract class Concept<I> {
         this.conceptObj = conceptObj;
     }
 
+    public Concept(int conceptId, String metric, byte[] objBytes) {
+        this.conceptId = conceptId;
+        this.metric = metric;
+        this.conceptObj = bytesToConceptObj(objBytes);
+    }
+
     public int getConceptId() {
         return conceptId;
     }
 
     public String getMetric() {
         return metric;
+    }
+
+    public I getConceptObj() {
+        return conceptObj;
     }
 
     public abstract double getSimilarityTo(Concept other) throws SemTagException;

@@ -16,7 +16,4 @@
 log/
 target/
 
-# WikAPIdia
-wikAPIdia-*
-
 *.db

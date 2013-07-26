@@ -1,6 +1,7 @@
 package org.semtag.mapper;
 
 import org.semtag.SemTagException;
+import org.semtag.core.dao.DaoException;
 import org.semtag.core.model.Item;
 import org.semtag.core.model.Tag;
 import org.semtag.core.model.TagApp;
@@ -9,7 +10,6 @@ import org.semtag.core.model.concept.Concept;
 import org.semtag.core.model.concept.WikapidiaConcept;
 import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
-import org.wikapidia.core.dao.DaoException;
 import org.wikapidia.core.lang.Language;
 import org.wikapidia.core.lang.LocalId;
 import org.wikapidia.core.lang.LocalString;
@@ -40,10 +40,23 @@ public class WikapidiaMapper extends ConceptMapper {
             LocalId conceptObj = disambiguator.disambiguate(tagString, context);
             Concept concept = new WikapidiaConcept(conceptObj, configurator.get(LocalSRMetric.class));
             return new TagApp(-1, user, tag, item, timestamp, concept);
-        } catch (DaoException e) {
-            throw new SemTagException(e);
         } catch (ConfigurationException e) {
             throw new SemTagException(e);
+        } catch (org.wikapidia.core.dao.DaoException e) {
+            throw new SemTagException(e);
+        }
+    }
+
+    @Override
+    public Concept getConcept(int conceptId, String metric, byte[] objBytes) throws DaoException {
+        try {
+            return new WikapidiaConcept(
+                    conceptId,
+                    configurator.get(LocalSRMetric.class, metric),
+                    objBytes
+            );
+        } catch (ConfigurationException e) {
+            throw new DaoException(e);
         }
     }
 }
