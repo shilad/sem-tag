@@ -8,6 +8,7 @@ import org.semtag.core.dao.DaoException;
 import org.semtag.core.dao.DaoFilter;
 import org.semtag.core.jooq.Tables;
 import org.semtag.core.model.concept.Concept;
+import org.semtag.mapper.ConceptMapper;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
@@ -18,8 +19,11 @@ import java.util.Collection;
  */
 public class ConceptSqlDao extends BaseSqLDao<Concept> implements ConceptDao {
 
-    public ConceptSqlDao(DataSource dataSource) throws DaoException {
+    private final ConceptMapper mapper;
+
+    public ConceptSqlDao(DataSource dataSource, ConceptMapper mapper) throws DaoException {
         super(dataSource, "concepts", Tables.CONCEPTS);
+        this.mapper = mapper;
     }
 
     @Override
@@ -66,7 +70,9 @@ public class ConceptSqlDao extends BaseSqLDao<Concept> implements ConceptDao {
     } 
     
     private Concept buildConcept(Record record) {
-        // TODO: this method
-        return null;
+        return mapper.getConcept(
+                record.getValue(Tables.CONCEPTS.CONCEPT_ID),
+                record.getValue(Tables.CONCEPTS.METRIC),
+                record.getValue(Tables.CONCEPTS.CONCEPT_OBJ));
     }
 }
