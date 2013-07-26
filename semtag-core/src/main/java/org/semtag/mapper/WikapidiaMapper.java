@@ -2,10 +2,9 @@ package org.semtag.mapper;
 
 import org.semtag.SemTagException;
 import org.semtag.core.dao.DaoException;
-import org.semtag.core.model.Item;
-import org.semtag.core.model.Tag;
-import org.semtag.core.model.TagApp;
-import org.semtag.core.model.User;
+import org.semtag.core.dao.DaoFilter;
+import org.semtag.core.dao.TagAppDao;
+import org.semtag.core.model.*;
 import org.semtag.core.model.concept.Concept;
 import org.semtag.core.model.concept.WikapidiaConcept;
 import org.wikapidia.conf.ConfigurationException;
@@ -17,32 +16,57 @@ import org.wikapidia.sr.LocalSRMetric;
 import org.wikapidia.sr.disambig.Disambiguator;
 
 import java.sql.Timestamp;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
  * @author Yulun Li
+ * @author Ari Weiland
  */
 public class WikapidiaMapper extends ConceptMapper {
 
     public static final Language LANGUAGE = Language.getByLangCode("en");
 
-    protected Disambiguator disambiguator;
+    protected final Disambiguator disambiguator;
+    protected final TagAppDao tagAppDao;
 
-    public WikapidiaMapper(Configurator configurator) {
+    public WikapidiaMapper(Configurator configurator) throws SemTagException {
         super(configurator);
+        try {
+            this.disambiguator = configurator.get(Disambiguator.class);
+            this.tagAppDao = configurator.get(TagAppDao.class);
+        } catch (ConfigurationException e) {
+            throw new SemTagException(e);
+        }
+    }
+
+    public Disambiguator getDisambiguator() {
+        return disambiguator;
+    }
+
+    public TagAppDao getTagAppDao() {
+        return tagAppDao;
     }
 
     @Override
     protected TagApp mapTagApp(User user, Tag tag, Item item, Timestamp timestamp) throws SemTagException {
-        Set<LocalString> context = null;
-        LocalString tagString = new LocalString(LANGUAGE, tag.toString());
         try {
+            Set<LocalString> context = new HashSet<LocalString>();
+            if (tagAppDao != null) {
+                TagAppGroup group = tagAppDao.getGroup(new DaoFilter().setItemId(item.getItemId()));
+                for (TagApp tagApp : group) {
+                    context.add(new LocalString(LANGUAGE, tagApp.getTag().toString()));
+                }
+            }
+            LocalString tagString = new LocalString(LANGUAGE, tag.toString());
             LocalId conceptObj = disambiguator.disambiguate(tagString, context);
             Concept concept = new WikapidiaConcept(conceptObj, configurator.get(LocalSRMetric.class));
             return new TagApp(-1, user, tag, item, timestamp, concept);
         } catch (ConfigurationException e) {
             throw new SemTagException(e);
         } catch (org.wikapidia.core.dao.DaoException e) {
+            throw new SemTagException(e);
+        } catch (DaoException e) {
             throw new SemTagException(e);
         }
     }
