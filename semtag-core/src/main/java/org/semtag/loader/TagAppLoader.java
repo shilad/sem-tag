@@ -1,11 +1,14 @@
 package org.semtag.loader;
 
+import org.semtag.SemTagException;
 import org.semtag.core.dao.*;
 import org.semtag.core.model.Item;
 import org.semtag.core.model.TagApp;
 import org.semtag.core.model.User;
 import org.semtag.core.model.concept.Concept;
+import org.semtag.mapper.ConceptMapper;
 
+import java.sql.Timestamp;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,19 +25,28 @@ public class TagAppLoader {
     private final UserDao userDao;
     private final ItemDao itemDao;
     private final ConceptDao conceptDao;
+    private final ConceptMapper mapper;
 
-    public TagAppLoader(TagAppDao tagAppDao, UserDao userDao, ItemDao itemDao, ConceptDao conceptDao) {
+    public TagAppLoader(TagAppDao tagAppDao, UserDao userDao, ItemDao itemDao, ConceptDao conceptDao, ConceptMapper mapper) {
         this.tagAppDao = tagAppDao;
         this.userDao = userDao;
         this.itemDao = itemDao;
         this.conceptDao = conceptDao;
+        this.mapper = mapper;
     }
 
     /**
      * Call this method to load a tagApp into the semtag db.
-     * @param tagApp
+     * @param userId
+     * @param tag
+     * @param itemId
+     * @param timestamp
+     * @throws DaoException
+     * @throws SemTagException
      */
-    public void add(TagApp tagApp) throws DaoException {
+    public void add(String userId, String tag, String itemId, Timestamp timestamp) throws SemTagException {
+
+        TagApp tagApp = mapper.mapTagApp(userId, tag, itemId, timestamp);
         try {
             tagAppDao.save(tagApp);
         } catch (DaoException e) {
@@ -59,7 +71,7 @@ public class TagAppLoader {
         try {
             conceptDao.save(concept);
         } catch (DaoException e) {
-            LOG.log(Level.WARNING, "adding of item " + concept.conceptObjToBytes() + " failed", e);  //TODO: use a transaction model, set autocommit false, if there is an exception, roll back the previous changes
+            LOG.log(Level.WARNING, "adding of item " + concept.toString() + " failed", e);  //TODO: use a transaction model, set autocommit false, if there is an exception, roll back the previous changes
         }
     }
 

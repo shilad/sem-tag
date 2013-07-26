@@ -26,14 +26,14 @@ public class TagAppSqlDao extends BaseSqLDao<TagApp> implements TagAppDao {
     }
 
     @Override
-    public void save(TagApp item) throws DaoException {
+    public void save(TagApp tagApp) throws DaoException {
         insert(
                 null,
-                item.getUser().getUserId(),
-                item.getTag().getNormalizedTag(),
-                item.getItem().getItemId(),
-                item.getTimestamp(),
-                item.getConceptId()
+                tagApp.getUser().getUserId(),
+                tagApp.getTag().getNormalizedTag(),
+                tagApp.getItem().getItemId(),
+                tagApp.getTimestamp(),
+                tagApp.getConceptId()
         );
     }
 
