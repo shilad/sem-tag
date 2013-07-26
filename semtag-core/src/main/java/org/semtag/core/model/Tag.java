@@ -7,9 +7,9 @@ public class Tag {
     private final String rawTag;
     private final String normalizedTag;
 
-    public Tag(String tag) {
-        this.rawTag = tag;
-        this.normalizedTag = normalize(tag);
+    public Tag(String rawTagString) {
+        this.rawTag = rawTagString;
+        this.normalizedTag = normalize(rawTagString);
     }
 
     public String getRawTag() {

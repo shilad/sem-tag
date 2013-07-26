@@ -24,7 +24,7 @@ public class UserSqLDao extends BaseSqLDao<User> implements UserDao {
 
     @Override
     public void save(User user) throws DaoException {
-        if (getCount(new DaoFilter().setItemId(user.getUserId())) == 0) {
+        if (getCount(new DaoFilter().setUserId(user.getUserId())) == 0) {
             insert(user.getUserId());
         }
     }

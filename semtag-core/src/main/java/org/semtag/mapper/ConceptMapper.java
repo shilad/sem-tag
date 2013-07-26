@@ -24,33 +24,19 @@ import java.sql.Timestamp;
  * @author Ari Weiland
  * @author Yulun Li
  */
-public abstract class ConceptMapper {
-
-    protected final Configurator configurator;
-
-    public ConceptMapper(Configurator configurator) {
-        this.configurator = configurator;
-    }
+public interface ConceptMapper {
 
     /**
      * This method is used in the ConceptLoader to assemble a TagApp and map it to
      * the appropriate concept.
-     * @param userId
+     * @param user
      * @param tag
-     * @param itemId
+     * @param item
      * @param timestamp
      * @return
      * @throws SemTagException
      */
-    public TagApp mapTagApp(String userId, String tag, String itemId, Timestamp timestamp) throws SemTagException {
-        return mapTagApp(
-                new User(userId),
-                new Tag(tag),
-                new Item(itemId),
-                timestamp);
-    }
-
-    protected abstract TagApp mapTagApp(User user, Tag tag, Item item, Timestamp timestamp) throws SemTagException;
+    public abstract TagApp mapTagApp(User user, Tag tag, Item item, Timestamp timestamp) throws SemTagException;
 
     /**
      * This method is used in the ConceptDao to retrieve the correct type of concept

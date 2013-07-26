@@ -3,6 +3,7 @@ package org.semtag.loader;
 import org.semtag.SemTagException;
 import org.semtag.core.dao.*;
 import org.semtag.core.model.Item;
+import org.semtag.core.model.Tag;
 import org.semtag.core.model.TagApp;
 import org.semtag.core.model.User;
 import org.semtag.core.model.concept.Concept;
@@ -38,41 +39,29 @@ public class TagAppLoader {
     /**
      * Call this method to load a tagApp into the semtag db.
      * @param userId
-     * @param tag
+     * @param rawTagString
      * @param itemId
      * @param timestamp
      * @throws DaoException
      * @throws SemTagException
      */
-    public void add(String userId, String tag, String itemId, Timestamp timestamp) throws SemTagException {
+    public void add(String userId, String rawTagString, String itemId, Timestamp timestamp) throws SemTagException {
 
-        TagApp tagApp = mapper.mapTagApp(userId, tag, itemId, timestamp);
+        User user = new User(userId);
+        Tag tag = new Tag(rawTagString);
+        Item item = new Item(itemId);
+
+        TagApp tagApp = mapper.mapTagApp(user, tag, item, timestamp);
+        Concept concept = tagApp.getConcept();
+
         try {
             tagAppDao.save(tagApp);
-        } catch (DaoException e) {
-            LOG.log(Level.WARNING, "adding of tag application <" + tagApp + "> failed", e);
-        }
-
-        User user = tagApp.getUser();
-        try {
             userDao.save(user);
-        } catch (DaoException e) {
-            LOG.log(Level.WARNING, "adding of user " + user.getUserId() + " failed", e);
-        }
-
-        Item item = tagApp.getItem();
-        try {
             itemDao.save(item);
-        } catch (DaoException e) {
-            LOG.log(Level.WARNING, "adding of item " + item.getItemId() + " failed", e);  //TODO: use a transaction model, set autocommit false, if there is an exception, roll back the previous changes
-        }
-
-        Concept concept = tagApp.getConcept();
-        try {
             conceptDao.save(concept);
         } catch (DaoException e) {
-            LOG.log(Level.WARNING, "adding of item " + concept.toString() + " failed", e);  //TODO: use a transaction model, set autocommit false, if there is an exception, roll back the previous changes
+            // TODO: implement transaction model so we save all or nothing
+            throw new SemTagException(e);
         }
     }
-
 }

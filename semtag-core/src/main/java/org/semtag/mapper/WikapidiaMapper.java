@@ -23,15 +23,16 @@ import java.util.Set;
  * @author Yulun Li
  * @author Ari Weiland
  */
-public class WikapidiaMapper extends ConceptMapper {
+public class WikapidiaMapper implements ConceptMapper {
 
     public static final Language LANGUAGE = Language.getByLangCode("en");
 
+    protected final Configurator configurator;
     protected final Disambiguator disambiguator;
     protected final TagAppDao tagAppDao;
 
     public WikapidiaMapper(Configurator configurator) throws SemTagException {
-        super(configurator);
+        this.configurator = configurator;
         try {
             this.disambiguator = configurator.get(Disambiguator.class);
             this.tagAppDao = configurator.get(TagAppDao.class);
@@ -49,7 +50,7 @@ public class WikapidiaMapper extends ConceptMapper {
     }
 
     @Override
-    protected TagApp mapTagApp(User user, Tag tag, Item item, Timestamp timestamp) throws SemTagException {
+    public TagApp mapTagApp(User user, Tag tag, Item item, Timestamp timestamp) throws SemTagException {
         try {
             Set<LocalString> context = new HashSet<LocalString>();
             if (tagAppDao != null) {
