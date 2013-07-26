@@ -1,5 +1,6 @@
 package org.semtag.core.model;
 
+import org.semtag.SemTagException;
 import org.semtag.core.dao.ConceptDao;
 import org.semtag.core.dao.DaoException;
 import org.semtag.core.model.concept.Concept;
@@ -164,6 +165,18 @@ public class TagApp {
             return concept != null;
         }
         return false;
+    }
+
+    public double getSimilarityTo(TagApp other) throws SemTagException {
+        if (this.conceptId == -1 || other.conceptId == -1) {
+            return 0.0;
+        } else if (this.concept == null || other.concept == null) {
+            return this.conceptId == other.conceptId ? 1.0 : 0.0;
+        } else if (!this.concept.getMetric().equals(other.concept.getMetric())) {
+            return 0.0;
+        } else {
+            return this.concept.getSimilarityTo(other.concept);
+        }
     }
 
     @Override
