@@ -69,7 +69,7 @@ public class ConceptSqlDao extends BaseSqLDao<Concept> implements ConceptDao {
         };
     } 
     
-    private Concept buildConcept(Record record) {
+    private Concept buildConcept(Record record) throws DaoException {
         return mapper.getConcept(
                 record.getValue(Tables.CONCEPTS.CONCEPT_ID),
                 record.getValue(Tables.CONCEPTS.METRIC),

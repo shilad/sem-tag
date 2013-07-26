@@ -1,6 +1,7 @@
 package org.semtag.mapper;
 
 import org.semtag.SemTagException;
+import org.semtag.core.dao.DaoException;
 import org.semtag.core.model.Item;
 import org.semtag.core.model.Tag;
 import org.semtag.core.model.TagApp;
@@ -31,6 +32,16 @@ public abstract class ConceptMapper {
         this.configurator = configurator;
     }
 
+    /**
+     * This method is used in the ConceptLoader to assemble a TagApp and map it to
+     * the appropriate concept.
+     * @param userId
+     * @param tag
+     * @param itemId
+     * @param timestamp
+     * @return
+     * @throws SemTagException
+     */
     public TagApp mapTagApp(String userId, String tag, String itemId, Timestamp timestamp) throws SemTagException {
         return mapTagApp(
                 new User(userId),
@@ -42,12 +53,12 @@ public abstract class ConceptMapper {
     protected abstract TagApp mapTagApp(User user, Tag tag, Item item, Timestamp timestamp) throws SemTagException;
 
     /**
-     * This method is used by the ConceptDao to retrieve the correct type of concept
+     * This method is used in the ConceptDao to retrieve the correct type of concept
      * based on the information in the database.
      * @param conceptId
      * @param metric
      * @param objBytes
      * @return
      */
-    public abstract Concept getConcept(int conceptId, String metric, byte[] objBytes);
+    public abstract Concept getConcept(int conceptId, String metric, byte[] objBytes) throws DaoException;
 }

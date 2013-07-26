@@ -9,12 +9,17 @@ import org.semtag.SemTagException;
 public abstract class Concept<I> {
     protected final int conceptId;
     protected final String metric;
-    protected final I conceptObj;
+    protected I conceptObj;
 
     public Concept(int conceptId, String metric, I conceptObj) {
         this.conceptId = conceptId;
         this.metric = metric;
         this.conceptObj = conceptObj;
+    }
+
+    protected Concept(int conceptId, String metric) {
+        this.conceptId = conceptId;
+        this.metric = metric;
     }
 
     public int getConceptId() {
@@ -23,6 +28,10 @@ public abstract class Concept<I> {
 
     public String getMetric() {
         return metric;
+    }
+
+    public I getConceptObj() {
+        return conceptObj;
     }
 
     public abstract double getSimilarityTo(Concept other) throws SemTagException;

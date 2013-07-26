@@ -14,9 +14,14 @@ public class WikapidiaConcept extends Concept<LocalId> {
 
     private final LocalSRMetric srMetric;
 
-    public WikapidiaConcept(LocalId wikapidiaConceptId, LocalSRMetric srMetric) {
-        // TODO: make sure srMetric.getName() aligns with the provider name
-        super(wikapidiaConceptId.getId(), srMetric.getName(), wikapidiaConceptId);
+    public WikapidiaConcept(int conceptId, LocalSRMetric srMetric, byte[] objBytes) {
+        super(conceptId, srMetric.getName());
+        this.srMetric = srMetric;
+        this.conceptObj = bytesToConceptObj(objBytes);
+    }
+
+    public WikapidiaConcept(LocalId conceptObj, LocalSRMetric srMetric) {
+        super(conceptObj.getId(), srMetric.getName(), conceptObj);
         this.srMetric = srMetric;
     }
 
@@ -49,5 +54,4 @@ public class WikapidiaConcept extends Concept<LocalId> {
                 Language.getById(new Integer(split[1])),
                 new Integer(split[0]));
     }
-
 }
