@@ -34,14 +34,10 @@ public class WikapidiaMapper implements ConceptMapper {
     protected final Disambiguator disambiguator;
     protected final TagAppDao tagAppDao;
 
-    public WikapidiaMapper(Configurator configurator) throws SemTagException {
+    public WikapidiaMapper(Configurator configurator, Disambiguator disambiguator, TagAppDao tagAppDao) {
         this.configurator = configurator;
-        try {
-            this.disambiguator = configurator.get(Disambiguator.class);
-            this.tagAppDao = configurator.get(TagAppDao.class);
-        } catch (ConfigurationException e) {
-            throw new SemTagException(e);
-        }
+        this.disambiguator = disambiguator;
+        this.tagAppDao = tagAppDao;
     }
 
     public Disambiguator getDisambiguator() {
