@@ -15,9 +15,8 @@ public class WikapidiaConcept extends Concept<LocalId> {
     private final LocalSRMetric srMetric;
 
     public WikapidiaConcept(int conceptId, LocalSRMetric srMetric, byte[] objBytes) {
-        super(conceptId, srMetric.getName());
+        super(conceptId, srMetric.getName(), objBytes);
         this.srMetric = srMetric;
-        this.conceptObj = bytesToConceptObj(objBytes);
     }
 
     public WikapidiaConcept(LocalId conceptObj, LocalSRMetric srMetric) {

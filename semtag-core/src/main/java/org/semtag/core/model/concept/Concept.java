@@ -9,7 +9,7 @@ import org.semtag.SemTagException;
 public abstract class Concept<I> {
     protected final int conceptId;
     protected final String metric;
-    protected I conceptObj;
+    protected final I conceptObj;
 
     public Concept(int conceptId, String metric, I conceptObj) {
         this.conceptId = conceptId;
@@ -17,9 +17,10 @@ public abstract class Concept<I> {
         this.conceptObj = conceptObj;
     }
 
-    protected Concept(int conceptId, String metric) {
+    public Concept(int conceptId, String metric, byte[] objBytes) {
         this.conceptId = conceptId;
         this.metric = metric;
+        this.conceptObj = bytesToConceptObj(objBytes);
     }
 
     public int getConceptId() {
