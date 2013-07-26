@@ -31,12 +31,13 @@ public class ConceptSqlDao extends BaseSqLDao<Concept> implements ConceptDao {
     }
 
     @Override
-    public void save(Concept item) throws DaoException {
-        insert(
-                item.getConceptId(),
-                item.getMetric(),
-                item.conceptObjToBytes()
-        );
+    public void save(Concept concept) throws DaoException {
+        if (getCount(new DaoFilter().setConceptId(concept.getConceptId())) == 0) {
+            insert(
+                    concept.getConceptId(),
+                    concept.getMetric(),
+                    concept.conceptObjToBytes());
+        }
     }
 
     @Override
