@@ -30,8 +30,6 @@ public class TagAppLoader {
         this.conceptDao = conceptDao;
     }
 
-    // TODO: add context
-
     /**
      * Call this method to load a tagApp into the semtag db.
      * @param tagApp
@@ -58,7 +56,11 @@ public class TagAppLoader {
         }
 
         Concept concept = tagApp.getConcept();
-
+        try {
+            conceptDao.save(concept);
+        } catch (DaoException e) {
+            LOG.log(Level.WARNING, "adding of item " + concept.conceptObjToBytes() + " failed", e);  //TODO: use a transaction model, set autocommit false, if there is an exception, roll back the previous changes
+        }
     }
 
 }
