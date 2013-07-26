@@ -28,12 +28,12 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
     protected final String tableName;
     protected final Table<Record> table;
     protected final DataSource dataSource;
-    protected Connection conn = null;
 
     private int fetchSize = DEFAULT_FETCH_SIZE;
 
     public BaseSqLDao(DataSource dataSource, String tableName, Table<Record> table) throws DaoException {
         this.dataSource = dataSource;
+        Connection conn = null;
         try {
             conn = dataSource.getConnection();
             this.dialect = JooqUtils.dialect(conn);
@@ -72,10 +72,18 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
     }
 
     protected void insert(Object... values) throws DaoException {
-        DSLContext context = DSL.using(conn, dialect);
-        context.insertInto(table)
-                .values(values)
-                .execute();
+        Connection conn = null;
+        try {
+            conn = dataSource.getConnection();
+            DSLContext context = DSL.using(conn, dialect);
+            context.insertInto(table)
+                    .values(values)
+                    .execute();
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            quietlyCloseConn(conn);
+        }
     }
 
     protected Record fetchOne(Condition... conditions) throws DaoException {
