@@ -55,10 +55,10 @@ public class WikapidiaMapper implements ConceptMapper {
             if (tagAppDao != null) {
                 TagAppGroup group = tagAppDao.getGroup(new DaoFilter().setItemId(item.getItemId()));
                 for (TagApp tagApp : group) {
-                    context.add(new LocalString(LANGUAGE, tagApp.getTag().toString()));
+                    context.add(new LocalString(LANGUAGE, tagApp.getTag().getNormalizedTag()));
                 }
             }
-            LocalString tagString = new LocalString(LANGUAGE, tag.toString());
+            LocalString tagString = new LocalString(LANGUAGE, tag.getNormalizedTag());
             LocalId conceptObj = disambiguator.disambiguate(tagString, context);
             Concept concept = new WikapidiaConcept(conceptObj, configurator.get(LocalSRMetric.class));
             return new TagApp(user, tag, item, timestamp, concept);

@@ -34,6 +34,7 @@ public class TagAppSqlDao extends BaseSqLDao<TagApp> implements TagAppDao {
         insert(
                 null,
                 tagApp.getUser().getUserId(),
+                tagApp.getTag().getRawTag(),
                 tagApp.getTag().getNormalizedTag(),
                 tagApp.getItem().getItemId(),
                 tagApp.getTimestamp(),
@@ -46,6 +47,7 @@ public class TagAppSqlDao extends BaseSqLDao<TagApp> implements TagAppDao {
         return getInsertString(
                 null,
                 tagApp.getUser().getUserId(),
+                tagApp.getTag().getRawTag(),
                 tagApp.getTag().getNormalizedTag(),
                 tagApp.getItem().getItemId(),
                 tagApp.getTimestamp(),
@@ -60,7 +62,7 @@ public class TagAppSqlDao extends BaseSqLDao<TagApp> implements TagAppDao {
             conditions.add(Tables.TAGAPPS.USER_ID.in(filter.getUserIds()));
         }
         if (filter.getTags() != null) {
-            conditions.add(Tables.TAGAPPS.TAG.in(filter.getTags()));
+            conditions.add(Tables.TAGAPPS.NORM_TAG.in(filter.getTags()));
         }
         if (filter.getItemIds() != null) {
             conditions.add(Tables.TAGAPPS.ITEM_ID.in(filter.getItemIds()));
@@ -79,7 +81,7 @@ public class TagAppSqlDao extends BaseSqLDao<TagApp> implements TagAppDao {
             conditions.add(Tables.TAGAPPS.USER_ID.in(filter.getUserIds()));
         }
         if (filter.getTags() != null) {
-            conditions.add(Tables.TAGAPPS.TAG.in(filter.getTags()));
+            conditions.add(Tables.TAGAPPS.NORM_TAG.in(filter.getTags()));
         }
         if (filter.getItemIds() != null) {
             conditions.add(Tables.TAGAPPS.ITEM_ID.in(filter.getItemIds()));
@@ -103,7 +105,7 @@ public class TagAppSqlDao extends BaseSqLDao<TagApp> implements TagAppDao {
             conditions.add(Tables.TAGAPPS.USER_ID.eq(filter.getUserId()));
         }
         if (filter.getTag() != null) {
-            conditions.add(Tables.TAGAPPS.TAG.eq(filter.getTag()));
+            conditions.add(Tables.TAGAPPS.NORM_TAG.eq(filter.getTag()));
         }
         if (filter.getItemId() != null) {
             conditions.add(Tables.TAGAPPS.ITEM_ID.eq(filter.getItemId()));
@@ -139,7 +141,7 @@ public class TagAppSqlDao extends BaseSqLDao<TagApp> implements TagAppDao {
         return new TagApp(
                 record.getValue(Tables.TAGAPPS.TAG_APP_ID),
                 new User(record.getValue(Tables.TAGAPPS.USER_ID)),
-                new Tag(record.getValue(Tables.TAGAPPS.TAG)),
+                new Tag(record.getValue(Tables.TAGAPPS.RAW_TAG)),
                 new Item(record.getValue(Tables.TAGAPPS.ITEM_ID)),
                 record.getValue(Tables.TAGAPPS.TIMESTAMP),
                 record.getValue(Tables.TAGAPPS.CONCEPT_ID));
