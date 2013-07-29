@@ -28,6 +28,14 @@ public class TagAppLoader {
         this.mapper = mapper;
     }
 
+    public void beginLoad() throws SemTagException {
+        try {
+            handler.beginLoad();
+        } catch (DaoException e) {
+            throw new SemTagException(e);
+        }
+    }
+
     /**
      * Call this method to load a tagApp into the semtag db.
      * @param userId
@@ -48,6 +56,14 @@ public class TagAppLoader {
 
         try {
             handler.save(tagApp);
+        } catch (DaoException e) {
+            throw new SemTagException(e);
+        }
+    }
+
+    public void endLoad() throws SemTagException {
+        try {
+            handler.endLoad();
         } catch (DaoException e) {
             throw new SemTagException(e);
         }

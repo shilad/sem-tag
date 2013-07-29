@@ -23,5 +23,19 @@ public abstract class SaveHandler {
         this.conceptDao = conceptDao;
     }
 
+    public void beginLoad() throws DaoException {
+        this.tagAppDao.beginLoad();
+        this.userDao.beginLoad();
+        this.itemDao.beginLoad();
+        this.conceptDao.beginLoad();
+    }
+
     public abstract void save(TagApp tagApp) throws DaoException;
+
+    public void endLoad() throws DaoException {
+        this.tagAppDao.endLoad();
+        this.userDao.endLoad();
+        this.itemDao.endLoad();
+        this.conceptDao.endLoad();
+    }
 }
