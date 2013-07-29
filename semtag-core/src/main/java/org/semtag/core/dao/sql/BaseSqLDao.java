@@ -58,7 +58,7 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
         createTables();
     }
 
-    public abstract String getSaveString(T item) throws DaoException;
+    public abstract void save(Connection conn, T item) throws DaoException;
 
     @Override
     public void endLoad() throws DaoException {
@@ -77,15 +77,19 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
         Connection conn = null;
         try {
             conn = dataSource.getConnection();
-            DSLContext context = DSL.using(conn, dialect);
-            context.insertInto(table)
-                    .values(values)
-                    .execute();
+            insert(conn, values);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
             quietlyCloseConn(conn);
         }
+    }
+
+    protected void insert(Connection conn, Object... values) {
+        DSLContext context = DSL.using(conn, dialect);
+        context.insertInto(table)
+                .values(values)
+                .execute();
     }
 
     protected String getInsertString(Object... values) throws DaoException {
@@ -201,7 +205,7 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
      * @throws DaoException
      */
     protected void executeSqlScriptWithSuffix(String suffix) throws DaoException {
-        executeSqlResource(tableName + suffix);
+        executeSqlResource("/db/" + tableName + suffix);
     }
 
     /**
@@ -214,9 +218,7 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
         try {
             conn = dataSource.getConnection();
             conn.createStatement().execute(
-                    IOUtils.toString(
-                            BaseSqLDao.class.getResource(name)
-                    ));
+                    IOUtils.toString(BaseSqLDao.class.getResource(name)));
         } catch (IOException e) {
             throw new DaoException(e);
         } catch (SQLException e){

@@ -14,6 +14,7 @@ import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -34,11 +35,10 @@ public class ItemSqlDao extends BaseSqLDao<Item> implements ItemDao {
     }
 
     @Override
-    public String getSaveString(Item item) throws DaoException {
+    public void save(Connection conn, Item item) throws DaoException {
         if (getCount(new DaoFilter().setItemId(item.getItemId())) == 0) {
-            return getInsertString(item.getItemId());
+            insert(conn, item.getItemId());
         }
-        return null;
     }
 
     @Override

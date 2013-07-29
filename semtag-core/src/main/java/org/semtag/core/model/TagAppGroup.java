@@ -53,7 +53,11 @@ public class TagAppGroup implements Iterable<TagApp> {
 
     public TagAppGroup(DaoFilter filter, Set<TagApp> tagApps) {
         this.userId = filter.getUserId();
-        this.tag = new Tag(filter.getTag());
+        if (filter.getTag() == null) {
+            this.tag = null;
+        } else {
+            this.tag = new Tag(filter.getTag());
+        }
         this.itemId = filter.getItemId();
         this.conceptId = filter.getConceptId();
         this.tagApps = tagApps;

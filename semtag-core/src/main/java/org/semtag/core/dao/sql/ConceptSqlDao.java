@@ -15,6 +15,7 @@ import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -41,14 +42,14 @@ public class ConceptSqlDao extends BaseSqLDao<Concept> implements ConceptDao {
     }
 
     @Override
-    public String getSaveString(Concept concept) throws DaoException {
+    public void save(Connection conn, Concept concept) throws DaoException {
         if (getCount(new DaoFilter().setConceptId(concept.getConceptId())) == 0) {
-            return  getInsertString(
+            insert(
+                    conn,
                     concept.getConceptId(),
                     concept.getMetric(),
                     concept.conceptObjToBytes());
         }
-        return null;
     }
 
     @Override

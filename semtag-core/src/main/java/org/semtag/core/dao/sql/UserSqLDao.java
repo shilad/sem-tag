@@ -14,6 +14,7 @@ import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -34,11 +35,10 @@ public class UserSqLDao extends BaseSqLDao<User> implements UserDao {
     }
 
     @Override
-    public String getSaveString(User user) throws DaoException {
+    public void save(Connection conn, User user) throws DaoException {
         if (getCount(new DaoFilter().setUserId(user.getUserId())) == 0) {
-            return getInsertString(user.getUserId());
+            insert(conn, user.getUserId());
         }
-        return null;
     }
 
     @Override
