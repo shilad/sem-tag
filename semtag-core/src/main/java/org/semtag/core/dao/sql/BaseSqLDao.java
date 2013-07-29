@@ -92,21 +92,6 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
                 .execute();
     }
 
-    protected String getInsertString(Object... values) throws DaoException {
-        Connection conn = null;
-        try {
-            conn = dataSource.getConnection();
-            DSLContext context = DSL.using(conn, dialect);
-            return context.insertInto(table)
-                    .values(values)
-                    .getSQL();
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        } finally {
-            quietlyCloseConn(conn);
-        }
-    }
-
     protected Record fetchOne(Condition... conditions) throws DaoException {
         return fetchOne(Arrays.asList(conditions));
     }
@@ -183,19 +168,19 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
         }
     }
 
-    protected void createTables() throws DaoException {
+    public void createTables() throws DaoException {
         executeSqlScriptWithSuffix("-create-tables.sql");
     }
 
-    protected void dropTables() throws DaoException {
+    public void dropTables() throws DaoException {
         executeSqlScriptWithSuffix("-drop-tables.sql");
     }
 
-    protected void createIndexes() throws DaoException {
+    public void createIndexes() throws DaoException {
         executeSqlScriptWithSuffix("-create-indexes.sql");
     }
 
-    protected void dropIndexes() throws DaoException {
+    public void dropIndexes() throws DaoException {
         executeSqlScriptWithSuffix("-drop-indexes.sql");
     }
 
@@ -235,6 +220,7 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
     public static void quietlyCloseConn(Connection conn) {
         if (conn != null) {
             try {
+                conn.setAutoCommit(true);
                 conn.close();
             } catch (SQLException e) {
                 LOG.warning("Failed to close connection");

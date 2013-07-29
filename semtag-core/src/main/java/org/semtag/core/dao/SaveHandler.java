@@ -23,6 +23,13 @@ public abstract class SaveHandler {
         this.conceptDao = conceptDao;
     }
 
+    public void clear() throws DaoException {
+        this.tagAppDao.clear();
+        this.userDao.clear();
+        this.itemDao.clear();
+        this.conceptDao.clear();
+    }
+
     public void beginLoad() throws DaoException {
         this.tagAppDao.beginLoad();
         this.userDao.beginLoad();

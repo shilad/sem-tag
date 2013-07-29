@@ -39,11 +39,14 @@ public class TestMacademia {
         for (String tagApp : tagApps) {
             if (i > 0) {
                 String[] split = tagApp.split("\t");
-                loader.add(split[0], split[2], split[1], Timestamp.valueOf(StringUtils.removeEnd(split[3], "-05")));
+                if (split.length == 4) {
+                    loader.add(split[0], split[2], split[1], Timestamp.valueOf(StringUtils.removeEnd(split[3], "-05")));
+                }
             }
             i++;
-            if (i%1000 == 0)
+            if (i%1000 == 0) {
                 LOG.info("Loaded TagApps: " + i);
+            }
         }
         LOG.info("End Load");
         loader.endLoad();

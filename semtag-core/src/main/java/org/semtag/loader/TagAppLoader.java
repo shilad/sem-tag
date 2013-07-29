@@ -29,6 +29,7 @@ public class TagAppLoader {
 
     public void beginLoad() throws SemTagException {
         try {
+            handler.clear();
             handler.beginLoad();
         } catch (DaoException e) {
             throw new SemTagException(e);
