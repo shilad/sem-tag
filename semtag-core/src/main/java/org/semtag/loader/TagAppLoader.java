@@ -27,9 +27,16 @@ public class TagAppLoader {
         this.mapper = mapper;
     }
 
-    public void beginLoad() throws SemTagException {
+    public void clear() throws SemTagException {
         try {
             handler.clear();
+        } catch (DaoException e) {
+            throw new SemTagException(e);
+        }
+    }
+
+    public void beginLoad() throws SemTagException {
+        try {
             handler.beginLoad();
         } catch (DaoException e) {
             throw new SemTagException(e);
