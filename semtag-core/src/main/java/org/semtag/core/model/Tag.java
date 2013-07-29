@@ -41,11 +41,11 @@ public class Tag {
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof Tag && this.normalizedTag.equals(((Tag) o).getNormalizedTag());
+        return o instanceof Tag && this.toString().equals(o.toString());
     }
 
     @Override
     public String toString() {
-        return normalizedTag;
+        return normalizedTag + " (" + rawTag + ")";
     }
 }
