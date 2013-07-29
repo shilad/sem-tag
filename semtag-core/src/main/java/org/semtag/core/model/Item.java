@@ -74,10 +74,8 @@ public class Item implements Similar<Item> {
             }
             int dim = concepts.size();
 
-            // convert to vector form:
-            // Alpha vectors are defined by the map value set with zeros filled in
-            // and ordered properly according to the vector space.
-            // concept vector space references and orders the concepts in the vector space
+            // convert to vector form
+            // concept vector space
             Integer[] vectorSpace = concepts.keySet().toArray(new Integer[dim]);
             // alpha vector representation of mapX values in above vector space
             int[] aX = new int[dim];
@@ -99,14 +97,17 @@ public class Item implements Similar<Item> {
             }
 
             // build similarity matrix and calculate beta vectors
-            // beta vectors are calculated by multiplying the
-            // similarity matrix by the alpha vectors
             double[][] matrix = new double[dim][dim];
             double[] bX = new double[dim];
             double[] bY = new double[dim];
             for (int i=0; i<dim; i++) {
                 for (int j=0; j<dim; j++) {
-                    matrix[i][j] = concepts.get(vectorSpace[i]).getSimilarityTo(concepts.get(vectorSpace[j]));
+                    // For efficiency, only cosimilarity in the upper triangle of the matrix is calculated.
+                    if (i > j) {
+                        matrix[i][j] = matrix[j][i];
+                    } else {
+                        matrix[i][j] = concepts.get(vectorSpace[i]).getSimilarityTo(concepts.get(vectorSpace[j]));
+                    }
                     bX[i] += matrix[i][j] * aX[j];
                     bY[i] += matrix[i][j] * aY[j];
                 }
