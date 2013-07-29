@@ -131,6 +131,10 @@ public class TagAppGroup implements Iterable<TagApp> {
         return Collections.unmodifiableSet(tagApps);
     }
 
+    public int size() {
+        return tagApps.size();
+    }
+
     /**
      * Returns a new TagAppGroup that represents the intersection of the two groups,
      * with properly set common fields. If the intersection is empty, it will return
