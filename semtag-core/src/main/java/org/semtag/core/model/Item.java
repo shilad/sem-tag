@@ -14,6 +14,7 @@ import java.util.Map;
 
 /**
  * @author Ari Weiland
+ * @author Yulun Li
  */
 public class Item implements Similar<Item> {
     private final String itemId;

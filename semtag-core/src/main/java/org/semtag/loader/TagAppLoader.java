@@ -52,7 +52,6 @@ public class TagAppLoader {
         Item item = new Item(itemId);
 
         TagApp tagApp = mapper.mapTagApp(user, tag, item, timestamp);
-        Concept concept = tagApp.getConcept();
 
         try {
             handler.save(tagApp);
