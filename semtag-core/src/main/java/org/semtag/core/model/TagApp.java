@@ -20,6 +20,8 @@ public class TagApp implements Similar<TagApp> {
     private int conceptId;
     private Concept concept;
 
+    //TODO: most popular unormalized tag
+
     /**
      * Constructs a TagApp without an ID and without any concept references.
      * @param user
