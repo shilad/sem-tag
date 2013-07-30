@@ -4,9 +4,15 @@ import org.apache.commons.cli.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.semtag.SemTagException;
+import org.semtag.core.dao.SaveHandler;
 import org.semtag.loader.TagAppLoader;
+import org.semtag.mapper.ConceptMapper;
 import org.wikapidia.conf.ConfigurationException;
+import org.wikapidia.conf.Configurator;
 import org.wikapidia.conf.DefaultOptionBuilder;
+import org.wikapidia.core.cmd.Env;
+import org.wikapidia.utils.ParallelForEach;
+import org.wikapidia.utils.Procedure;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,43 +27,22 @@ public class LoadMacademia {
 
     public static final Logger LOG = Logger.getLogger(LoadMacademia.class.getName());
 
-    public final TagAppLoader loader;
+    private final TagAppLoader loader;
 
     public LoadMacademia(TagAppLoader loader) {
         this.loader = loader;
     }
 
-    public void load(String filepath) throws ConfigurationException, IOException, SemTagException {
-        LOG.info("Begin Load");
-        loader.beginLoad();
-        LOG.info("Loading");
-        List<String> tagApps = FileUtils.readLines(new File(filepath));
-        int i=0;
-        for (String tagApp : tagApps) {
-            if (i > 0) {
-                String[] split = tagApp.split("\t");
-                if (split.length == 4) {
-                    loader.add(split[0], split[2], split[1], Timestamp.valueOf(StringUtils.removeEnd(split[3], "-05")));
-                }
-            }
-            i++;
-            if (i%1000 == 0) {
-                LOG.info("Loaded TagApps: " + i);
-            }
+    public void load(String tagApp) throws SemTagException {
+        String[] split = tagApp.split("\t");
+        if (split.length == 4) {
+            loader.add(split[0], split[2], split[1], Timestamp.valueOf(StringUtils.removeEnd(split[3], "-05")));
         }
-        LOG.info("End Load");
-        loader.endLoad();
-        LOG.info("DONE");
     }
 
-    public static void main(String[] args) {
+
+    public static void main(String[] args) throws ConfigurationException, SemTagException, IOException {
         Options options = new Options();
-        options.addOption(
-                new DefaultOptionBuilder()
-                        .hasArg()
-                        .withLongOpt("configuration")
-                        .withDescription("specify a custom configuration file")
-                        .create("c"));
         options.addOption(
                 new DefaultOptionBuilder()
                         .withLongOpt("drop-tables")
@@ -66,9 +51,11 @@ public class LoadMacademia {
         options.addOption(
                 new DefaultOptionBuilder()
                         .hasArg()
+                        .isRequired()
                         .withLongOpt("file")
                         .withDescription("file path to a tab-delimited file with columns: user ID, item ID, tag text, timestamp")
                         .create("f"));
+        Env.addStandardOptions(options);
 
         CommandLineParser parser = new PosixParser();
         CommandLine cmd;
@@ -80,6 +67,32 @@ public class LoadMacademia {
             return;
         }
 
-        // TODO: FINISH ME
+        Env env = new Env(cmd);
+        Configurator conf = env.getConfigurator();
+        SaveHandler handler = conf.get(SaveHandler.class);
+        ConceptMapper mapper = conf.get(ConceptMapper.class);
+        TagAppLoader loader = new TagAppLoader(handler, mapper);
+        final LoadMacademia macademia = new LoadMacademia(loader);
+        List<String> tagApps = FileUtils.readLines(new File(cmd.getOptionValue("f")));
+
+        if (cmd.hasOption("d")) {
+            LOG.info("Dropping tables");
+            loader.clear();
+        }
+        LOG.info("Begin Load");
+        loader.beginLoad();
+        LOG.info("Loading");
+        ParallelForEach.loop(tagApps,
+                env.getMaxThreads(),
+                new Procedure<String>() {
+                    @Override
+                    public void call(String tagApp) throws Exception {
+                        macademia.load(tagApp);
+                    }
+                },
+                1000);
+        LOG.info("End Load");
+        loader.endLoad();
+        LOG.info("DONE");
     }
 }
