@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 /**
@@ -34,12 +33,10 @@ public class TagAppLoader {
     private static final Logger LOG = Logger.getLogger(TagAppLoader.class.getName());
     private final SaveHandler handler;
     private final ConceptMapper mapper;
-    private final AtomicInteger i;
 
     public TagAppLoader(SaveHandler handler, ConceptMapper mapper) {
         this.handler = handler;
         this.mapper = mapper;
-        i = new AtomicInteger(0);
     }
 
     public void clear() throws SemTagException {
