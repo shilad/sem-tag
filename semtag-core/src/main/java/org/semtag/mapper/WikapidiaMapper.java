@@ -49,24 +49,21 @@ public class WikapidiaMapper implements ConceptMapper {
     }
 
     @Override
-    public TagApp mapTagApp(User user, Tag tag, Item item, Timestamp timestamp) throws SemTagException {
+    public TagApp map(User user, Tag tag, Item item, Timestamp timestamp) throws SemTagException {
         try {
             Set<LocalString> context = new HashSet<LocalString>();
             if (tagAppDao != null) {
                 TagAppGroup group = tagAppDao.getGroup(new DaoFilter().setItemId(item.getItemId()));
-                for (TagApp tagApp : group) {
-                    context.add(new LocalString(LANGUAGE, tagApp.getTag().getNormalizedTag()));
+                for (TagApp t : group) {
+                    context.add(new LocalString(LANGUAGE, t.getTag().getNormalizedTag()));
                 }
             }
             LocalString tagString = new LocalString(LANGUAGE, tag.getNormalizedTag());
             LocalId conceptObj = disambiguator.disambiguate(tagString, context);
-            // TODO: this is not ideal, what should we do?
-            Concept concept;
-            if (conceptObj == null) {
-                concept = new WikapidiaConcept(new LocalId(LANGUAGE, -1), configurator.get(LocalSRMetric.class));
-            } else {
-                concept = new WikapidiaConcept(conceptObj, configurator.get(LocalSRMetric.class));
+            if (conceptObj == null) { // TODO: this is not ideal, what should we do?
+                conceptObj = new LocalId(LANGUAGE, -1);
             }
+            Concept concept = new WikapidiaConcept(conceptObj, configurator.get(LocalSRMetric.class));
             return new TagApp(user, tag, item, timestamp, concept);
         } catch (ConfigurationException e) {
             throw new SemTagException(e);

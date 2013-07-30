@@ -45,6 +45,8 @@ public class TagAppLoader {
 
     /**
      * Call this method to load a tagApp into the semtag db.
+     *
+     *
      * @param userId
      * @param rawTagString
      * @param itemId
@@ -52,8 +54,8 @@ public class TagAppLoader {
      * @throws DaoException
      * @throws SemTagException
      */
-    public void add(String userId, String rawTagString, String itemId, Timestamp timestamp) throws SemTagException {
-        TagApp tagApp = mapper.mapTagApp(
+    public void load(String userId, String rawTagString, String itemId, Timestamp timestamp) throws SemTagException {
+        TagApp tagApp = mapper.map(
                 new User(userId),
                 new Tag(rawTagString),
                 new Item(itemId),

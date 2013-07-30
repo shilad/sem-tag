@@ -36,7 +36,7 @@ public class MacademiaLoader {
     public void load(String tagApp) throws SemTagException {
         String[] split = tagApp.split("\t");
         if (split.length == 4) {
-            loader.add(split[0], split[2], split[1], Timestamp.valueOf(StringUtils.removeEnd(split[3], "-05")));
+            loader.load(split[0], split[2], split[1], Timestamp.valueOf(StringUtils.removeEnd(split[3], "-05")));
         }
     }
 
