@@ -7,7 +7,6 @@ import org.semtag.core.model.Item;
 import org.semtag.core.model.Tag;
 import org.semtag.core.model.TagApp;
 import org.semtag.core.model.User;
-import org.semtag.core.model.concept.Concept;
 import org.semtag.mapper.ConceptMapper;
 
 import java.sql.Timestamp;
@@ -28,6 +27,14 @@ public class TagAppLoader {
         this.mapper = mapper;
     }
 
+    public void clear() throws SemTagException {
+        try {
+            handler.clear();
+        } catch (DaoException e) {
+            throw new SemTagException(e);
+        }
+    }
+
     public void beginLoad() throws SemTagException {
         try {
             handler.beginLoad();
@@ -46,13 +53,11 @@ public class TagAppLoader {
      * @throws SemTagException
      */
     public void add(String userId, String rawTagString, String itemId, Timestamp timestamp) throws SemTagException {
-
-        User user = new User(userId);
-        Tag tag = new Tag(rawTagString);
-        Item item = new Item(itemId);
-
-        TagApp tagApp = mapper.mapTagApp(user, tag, item, timestamp);
-
+        TagApp tagApp = mapper.mapTagApp(
+                new User(userId),
+                new Tag(rawTagString),
+                new Item(itemId),
+                timestamp);
         try {
             handler.save(tagApp);
         } catch (DaoException e) {

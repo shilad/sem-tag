@@ -28,7 +28,7 @@ import java.util.Set;
  */
 public class WikapidiaMapper implements ConceptMapper {
 
-    public static final Language LANGUAGE = Language.getByLangCode("en");
+    public static final Language LANGUAGE = Language.getByLangCode("simple");
 
     protected final Configurator configurator;
     protected final Disambiguator disambiguator;
@@ -60,7 +60,13 @@ public class WikapidiaMapper implements ConceptMapper {
             }
             LocalString tagString = new LocalString(LANGUAGE, tag.getNormalizedTag());
             LocalId conceptObj = disambiguator.disambiguate(tagString, context);
-            Concept concept = new WikapidiaConcept(conceptObj, configurator.get(LocalSRMetric.class));
+            // TODO: this is not ideal, what should we do?
+            Concept concept;
+            if (conceptObj == null) {
+                concept = new WikapidiaConcept(new LocalId(LANGUAGE, -1), configurator.get(LocalSRMetric.class));
+            } else {
+                concept = new WikapidiaConcept(conceptObj, configurator.get(LocalSRMetric.class));
+            }
             return new TagApp(user, tag, item, timestamp, concept);
         } catch (ConfigurationException e) {
             throw new SemTagException(e);

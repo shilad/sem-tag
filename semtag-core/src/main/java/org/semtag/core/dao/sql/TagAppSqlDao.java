@@ -15,6 +15,7 @@ import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -43,8 +44,9 @@ public class TagAppSqlDao extends BaseSqLDao<TagApp> implements TagAppDao {
     }
 
     @Override
-    public String getSaveString(TagApp tagApp) throws DaoException {
-        return getInsertString(
+    public void save(Connection conn, TagApp tagApp) throws DaoException {
+        insert(
+                conn,
                 null,
                 tagApp.getUser().getUserId(),
                 tagApp.getTag().getRawTag(),

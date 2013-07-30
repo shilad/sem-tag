@@ -89,13 +89,8 @@ public class TagApp implements Similar<TagApp> {
         this.tag = tag;
         this.item = item;
         this.timestamp = timestamp;
-        if (conceptId < 0) {
-            this.conceptId = -1;
-            this.concept = null;
-        } else {
-            this.conceptId = conceptId;
-            this.concept = concept;
-        }
+        this.conceptId = conceptId;
+        this.concept = concept;
     }
 
     public long getTagAppId() {

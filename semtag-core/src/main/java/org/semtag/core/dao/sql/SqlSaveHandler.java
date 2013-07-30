@@ -30,17 +30,10 @@ public class SqlSaveHandler extends SaveHandler {
         try {
             conn = dataSource.getConnection();
             conn.setAutoCommit(false);
-            String[] sql = new String[] {
-                    ((TagAppSqlDao) tagAppDao).getSaveString(tagApp),
-                    ((UserSqLDao) userDao).getSaveString(tagApp.getUser()),
-                    ((ItemSqlDao) itemDao).getSaveString(tagApp.getItem()),
-                    ((ConceptSqlDao) conceptDao).getSaveString(tagApp.getConcept())
-            };
-            for (String s : sql) {
-                if (s != null) {
-                    conn.createStatement().executeUpdate(s);
-                }
-            }
+            ((TagAppSqlDao) tagAppDao).save(conn, tagApp);
+            ((UserSqLDao) userDao).save(conn, tagApp.getUser());
+            ((ItemSqlDao) itemDao).save(conn, tagApp.getItem());
+            ((ConceptSqlDao) conceptDao).save(conn, tagApp.getConcept());
             conn.commit();
         } catch (SQLException e) {
             rollback(conn, e);
