@@ -28,8 +28,6 @@ public interface ConceptMapper {
     /**
      * This method is used in the ConceptLoader to assemble a TagApp and map it to
      * the appropriate concept.
-     *
-     *
      * @param user
      * @param tag
      * @param item
