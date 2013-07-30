@@ -23,13 +23,13 @@ import java.util.logging.Logger;
 /**
  * @author Ari Weiland
  */
-public class LoadMacademia {
+public class MacademiaLoader {
 
-    public static final Logger LOG = Logger.getLogger(LoadMacademia.class.getName());
+    public static final Logger LOG = Logger.getLogger(MacademiaLoader.class.getName());
 
     private final TagAppLoader loader;
 
-    public LoadMacademia(TagAppLoader loader) {
+    public MacademiaLoader(TagAppLoader loader) {
         this.loader = loader;
     }
 
@@ -63,7 +63,7 @@ public class LoadMacademia {
             cmd = parser.parse(options, args);
         } catch (ParseException e) {
             System.err.println("Invalid option usage: " + e.getMessage());
-            new HelpFormatter().printHelp("DumpLoader", options);
+            new HelpFormatter().printHelp("MacademiaLoader", options);
             return;
         }
 
@@ -72,7 +72,7 @@ public class LoadMacademia {
         SaveHandler handler = conf.get(SaveHandler.class);
         ConceptMapper mapper = conf.get(ConceptMapper.class);
         TagAppLoader loader = new TagAppLoader(handler, mapper);
-        final LoadMacademia macademia = new LoadMacademia(loader);
+        final MacademiaLoader macademia = new MacademiaLoader(loader);
         List<String> tagApps = FileUtils.readLines(new File(cmd.getOptionValue("f")));
 
         if (cmd.hasOption("d")) {
