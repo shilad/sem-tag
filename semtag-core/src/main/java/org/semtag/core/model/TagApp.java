@@ -1,11 +1,14 @@
 package org.semtag.core.model;
 
-import org.semtag.SemTagException;
 import org.semtag.core.dao.ConceptDao;
 import org.semtag.core.dao.DaoException;
+import org.semtag.core.dao.DaoFilter;
+import org.semtag.core.dao.TagAppDao;
 import org.semtag.core.model.concept.Concept;
 
 import java.sql.Timestamp;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Ari Weiland
@@ -165,7 +168,7 @@ public class TagApp implements Similar<TagApp> {
     }
 
     @Override
-    public double getSimilarityTo(TagApp other) throws SemTagException {
+    public double getSimilarityTo(TagApp other) throws DaoException {
         if (    this.concept != null && other.concept != null &&
                 this.concept.getMetric().equals(other.concept.getMetric())) {
             return this.concept.getSimilarityTo(other.concept);
@@ -173,6 +176,22 @@ public class TagApp implements Similar<TagApp> {
             return 1.0;
         }
         return 0.0;
+    }
+
+    @Override
+    public SimilarResultList getMostSimilar(int maxResults, TagAppDao helperDao) throws DaoException {
+        SimilarResultList concepts = concept.getMostSimilar(maxResults, helperDao);
+        Set<Integer> conceptIds = new HashSet<Integer>();
+        for (SimilarResult result : concepts) {
+            conceptIds.add(result.getIntId());
+        }
+        Iterable<TagApp> iterable = helperDao.get(new DaoFilter().setConceptIds(conceptIds));
+        SimilarResultList list = new SimilarResultList(concepts.getMaxSize());
+        for (TagApp t : iterable) {
+            list.add(new SimilarResult(t.getTagAppId(), concepts.getValue(t.getTagAppId())));
+        }
+        list.lock();
+        return list;
     }
 
     @Override

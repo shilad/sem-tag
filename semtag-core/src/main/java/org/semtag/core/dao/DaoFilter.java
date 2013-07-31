@@ -12,6 +12,7 @@ import java.util.Collections;
  * @author Yulun Li
  */
 public class DaoFilter {
+    private Collection<Long> tagAppIds;
     private Collection<String> userIds;
     private Collection<String> tags;
     private Collection<String> itemIds;
@@ -30,6 +31,27 @@ public class DaoFilter {
         this.tag = null;
         this.itemId = null;
         this.conceptId = null;
+    }
+
+    /**
+     * Sets the TagApp filter to the specified collection of TagApp IDs.
+     * Used by TagApp.
+     * @param tagAppIds
+     * @return
+     */
+    public DaoFilter setTagAppIds(Collection<Long> tagAppIds) {
+        this.tagAppIds = tagAppIds;
+        return this;
+    }
+
+    /**
+     * Sets the TagApp filter to the specified array of TagApp IDs.
+     * Used by TagApp.
+     * @param tagAppIds
+     * @return
+     */
+    public DaoFilter setTagAppIds(Long... tagAppIds) {
+        return setTagAppIds(Arrays.asList(tagAppIds));
     }
 
     /**
@@ -175,6 +197,10 @@ public class DaoFilter {
         this.conceptIds = Collections.singleton(conceptId);
         this.conceptId = conceptId;
         return this;
+    }
+
+    public Collection<Long> getTagAppIds() {
+        return tagAppIds;
     }
 
     public Collection<String> getUserIds() {
