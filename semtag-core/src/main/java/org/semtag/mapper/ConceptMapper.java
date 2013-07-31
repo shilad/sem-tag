@@ -16,7 +16,7 @@ import java.sql.Timestamp;
  * appropriate concept, and returns the assembled TagApp. Additionally, the
  * {@code getConcept} method is used by the ConceptDao to assemble the appropriate
  * concept from the information stored in the database. A subclass should implement
- * these methods to refer to a specific subclass of {@link Concept}.
+ * these methods to refer to a specific subclass of {@link org.semtag.core.model.concept.Concept}.
  *
  * This class must be passed to both the loader and any instance of a ConceptDao.
  *

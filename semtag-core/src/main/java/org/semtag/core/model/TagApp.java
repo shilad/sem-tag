@@ -1,10 +1,10 @@
 package org.semtag.core.model;
 
-import org.semtag.concept.Concept;
 import org.semtag.core.dao.ConceptDao;
 import org.semtag.core.dao.DaoException;
 import org.semtag.core.dao.DaoFilter;
 import org.semtag.core.dao.TagAppDao;
+import org.semtag.core.model.concept.Concept;
 
 import java.sql.Timestamp;
 import java.util.HashSet;

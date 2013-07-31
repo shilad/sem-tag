@@ -1,8 +1,8 @@
 package org.semtag.core.model;
 
 import org.junit.Test;
-import org.semtag.concept.Concept;
-import org.semtag.concept.WikapidiaConcept;
+import org.semtag.core.model.concept.Concept;
+import org.semtag.core.model.concept.WikapidiaConcept;
 import org.wikapidia.conf.Configuration;
 import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;

@@ -1,4 +1,4 @@
-package org.semtag.concept;
+package org.semtag.core.model.concept;
 
 import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.TIntHashSet;
