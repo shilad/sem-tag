@@ -1,12 +1,10 @@
 package org.semtag.core.model.concept;
 
-import org.semtag.core.model.Similar;
-
 /**
  * @author Ari Weiland
  * @author Yulun Li
  */
-public abstract class Concept<I> implements Similar<Concept<I>> {
+public abstract class Concept<I> {
     protected final int conceptId;
     protected final String metric;
     protected final I conceptObj;

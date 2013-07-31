@@ -11,6 +11,10 @@ import org.semtag.core.dao.DaoException;
 import org.semtag.core.dao.DaoFilter;
 import org.semtag.core.dao.TagAppDao;
 import org.semtag.core.model.concept.Concept;
+import org.semtag.core.sim.ConceptSimilarity;
+import org.semtag.core.sim.SimilarResult;
+import org.semtag.core.sim.SimilarResultList;
+import org.semtag.core.sim.TagAppSimilarity;
 import org.wikapidia.conf.Configuration;
 import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
@@ -65,8 +69,9 @@ public class Benchmark {
     @Ignore
     @Test
     public void benchmarkConceptMostSimilar() throws ConfigurationException, DaoException {
-        TagAppDao helperDao = new Configurator(new Configuration()).get(TagAppDao.class);
-        ConceptDao dao = new Configurator(new Configuration()).get(ConceptDao.class);
+        Configurator conf = new Configurator(new Configuration());
+        ConceptDao dao = conf.get(ConceptDao.class);
+        ConceptSimilarity sim = conf.get(ConceptSimilarity.class);
         List<Concept> concepts = new ArrayList<Concept>();
         Iterable<Concept> iterable = dao.get(new DaoFilter());
         int i=0;
@@ -79,7 +84,7 @@ public class Benchmark {
         long start = System.currentTimeMillis();
         for (Concept c : concepts) {
             TIntSet set = new TIntHashSet();
-            SimilarResultList list = c.getMostSimilar(10, helperDao);
+            SimilarResultList list = sim.mostSimilar(c, 10);
             for (SimilarResult result : list) {
                 set.add(result.getIntId());
             }
@@ -92,7 +97,9 @@ public class Benchmark {
     @Ignore
     @Test
     public void benchmarkTagAppMostSimilar() throws ConfigurationException, DaoException {
-        TagAppDao dao = new Configurator(new Configuration()).get(TagAppDao.class);
+        Configurator conf = new Configurator(new Configuration());
+        TagAppDao dao = conf.get(TagAppDao.class);
+        TagAppSimilarity sim = conf.get(TagAppSimilarity.class);
         List<TagApp> tagApps = new ArrayList<TagApp>();
         int i=1;
         while (tagApps.size() < 100) {
@@ -105,7 +112,7 @@ public class Benchmark {
         long start = System.currentTimeMillis();
         for (TagApp t : tagApps) {
             TLongSet set = new TLongHashSet();
-            SimilarResultList list = t.getMostSimilar(10, dao);
+            SimilarResultList list = sim.mostSimilar(t, 10);
             for (SimilarResult result : list) {
                 set.add(result.getLongId());
             }
