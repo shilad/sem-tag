@@ -1,4 +1,4 @@
-package org.semtag.concept.mapper;
+package org.semtag.mapper;
 
 import com.typesafe.config.Config;
 import org.semtag.SemTagException;
@@ -109,7 +109,7 @@ public class WikapidiaMapper implements ConceptMapper {
             }
             return new WikapidiaMapper(
                     getConfigurator(),
-                    Language.getByLangCode(config.getString("language")),
+                    Language.getByLangCode(config.getString("lang")),
                     getConfigurator().get(Disambiguator.class, config.getString("disambiguator")),
                     getConfigurator().get(TagAppDao.class, config.getString("tagAppDao"))
             );

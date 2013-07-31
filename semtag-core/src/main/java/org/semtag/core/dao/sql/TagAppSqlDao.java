@@ -119,19 +119,6 @@ public class TagAppSqlDao extends BaseSqLDao<TagApp> implements TagAppDao {
         return buildTagAppGroup(filter, result);
     }
 
-//    public TLongDoubleMap getSimilar(TagApp tagApp, int numHits) throws DaoException {
-//        Iterable<TagApp> iterable = get(new DaoFilter());
-//        ArrayList<Integer> ids = new ArrayList<Integer>(numHits);
-//        ArrayList<Double> similarity = new ArrayList<Double>(numHits);
-//        try {
-//            for (TagApp t : iterable) {
-//                double sim = tagApp.getSimilarityTo(t);
-//            }
-//        } catch (SemTagException e) {
-//            throw new DaoException(e);
-//        }
-//    }
-
     private Iterable<TagApp> buildTagAppIterable(Cursor<Record> cursor) {
         return new SqlDaoIterable<TagApp>(cursor) {
             @Override
@@ -174,7 +161,7 @@ public class TagAppSqlDao extends BaseSqLDao<TagApp> implements TagAppDao {
 
         @Override
         public String getPath() {
-            return "sem-tag.dao.tagAppDao";
+            return "sem-tag.dao.tagApp";
         }
 
         @Override

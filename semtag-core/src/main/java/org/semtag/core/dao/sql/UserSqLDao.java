@@ -99,7 +99,7 @@ public class UserSqLDao extends BaseSqLDao<User> implements UserDao {
 
         @Override
         public String getPath() {
-            return "sem-tag.dao.userDao";
+            return "sem-tag.dao.user";
         }
 
         @Override

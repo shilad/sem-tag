@@ -1,4 +1,4 @@
-package org.semtag.concept.mapper;
+package org.semtag.mapper;
 
 import org.semtag.SemTagException;
 import org.semtag.core.dao.DaoException;

@@ -99,7 +99,7 @@ public class ItemSqlDao extends BaseSqLDao<Item> implements ItemDao {
 
         @Override
         public String getPath() {
-            return "sem-tag.dao.itemDao";
+            return "sem-tag.dao.item";
         }
 
         @Override
