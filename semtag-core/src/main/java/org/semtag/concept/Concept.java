@@ -1,4 +1,4 @@
-package org.semtag.core.model.concept;
+package org.semtag.concept;
 
 import org.semtag.core.model.Similar;
 

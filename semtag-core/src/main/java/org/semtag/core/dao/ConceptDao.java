@@ -1,6 +1,6 @@
 package org.semtag.core.dao;
 
-import org.semtag.core.model.concept.Concept;
+import org.semtag.concept.Concept;
 
 /**
  * @author Ari Weiland

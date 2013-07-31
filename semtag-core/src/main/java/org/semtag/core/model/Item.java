@@ -1,9 +1,9 @@
 package org.semtag.core.model;
 
+import org.semtag.concept.Concept;
 import org.semtag.core.dao.DaoException;
 import org.semtag.core.dao.DaoFilter;
 import org.semtag.core.dao.TagAppDao;
-import org.semtag.core.model.concept.Concept;
 import org.wikapidia.conf.Configuration;
 import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
