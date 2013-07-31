@@ -1,6 +1,7 @@
 package org.semtag.core.sim;
 
 import com.typesafe.config.Config;
+import org.semtag.core.dao.ConceptDao;
 import org.semtag.core.dao.DaoException;
 import org.semtag.core.dao.DaoFilter;
 import org.semtag.core.dao.TagAppDao;
@@ -19,10 +20,12 @@ import java.util.Set;
 public class TagAppSimilarity implements Similar<TagApp> {
 
     private final TagAppDao helperDao;
+    private final ConceptDao conceptDao;
     private final ConceptSimilarity sim;
 
-    public TagAppSimilarity(TagAppDao helperDao, ConceptSimilarity sim) {
+    public TagAppSimilarity(TagAppDao helperDao, ConceptDao conceptDao, ConceptSimilarity sim) {
         this.helperDao = helperDao;
+        this.conceptDao = conceptDao;
         this.sim = sim;
     }
 
@@ -36,6 +39,8 @@ public class TagAppSimilarity implements Similar<TagApp> {
 
     @Override
     public double similarity(TagApp x, TagApp y) throws DaoException {
+        x.setConcept(conceptDao);
+        y.setConcept(conceptDao);
         if (    x.getConcept() != null && y.getConcept() != null &&
                 x.getConcept().getMetric().equals(y.getConcept().getMetric())) {
             return sim.similarity(x.getConcept(), y.getConcept());
@@ -47,6 +52,7 @@ public class TagAppSimilarity implements Similar<TagApp> {
 
     @Override
     public SimilarResultList mostSimilar(TagApp obj, int maxResults) throws DaoException {
+        obj.setConcept(conceptDao);
         SimilarResultList concepts = sim.mostSimilar(obj.getConcept(), maxResults);
         Set<Integer> conceptIds = new HashSet<Integer>();
         for (SimilarResult result : concepts) {
@@ -65,6 +71,7 @@ public class TagAppSimilarity implements Similar<TagApp> {
     public double[][] cosimilarity(TagApp[] objs) throws DaoException {
         Concept[] concepts = new Concept[objs.length];
         for (int i=0; i<objs.length; i++) {
+            objs[i].setConcept(conceptDao);
             concepts[i] = objs[i].getConcept();
         }
         return sim.cosimilarity(concepts);
@@ -92,7 +99,8 @@ public class TagAppSimilarity implements Similar<TagApp> {
             }
             return new TagAppSimilarity(
                     getConfigurator().get(TagAppDao.class, config.getString("tagAppDao")),
-                    getConfigurator().get(ConceptSimilarity.class, config.getString("concept"))
+                    getConfigurator().get(ConceptDao.class, config.getString("conceptDao")),
+                    getConfigurator().get(ConceptSimilarity.class, config.getString("conceptSim"))
             );
         }
     }

@@ -170,7 +170,7 @@ public class ItemSimilarity implements Similar<Item> {
             }
             return new ItemSimilarity(
                     getConfigurator().get(TagAppDao.class, config.getString("tagAppDao")),
-                    getConfigurator().get(ConceptSimilarity.class, config.getString("concept"))
+                    getConfigurator().get(ConceptSimilarity.class, config.getString("conceptSim"))
             );
         }
     }
