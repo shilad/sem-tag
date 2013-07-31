@@ -66,7 +66,7 @@ public class Benchmark {
 
     }
 
-    @Ignore
+//    @Ignore
     @Test
     public void benchmarkConceptMostSimilar() throws ConfigurationException, DaoException {
         Configurator conf = new Configurator(new Configuration());
