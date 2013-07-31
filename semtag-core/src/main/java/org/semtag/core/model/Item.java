@@ -1,6 +1,5 @@
 package org.semtag.core.model;
 
-import org.semtag.SemTagException;
 import org.semtag.core.dao.DaoException;
 import org.semtag.core.dao.DaoFilter;
 import org.semtag.core.dao.TagAppDao;
@@ -10,7 +9,9 @@ import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Ari Weiland
@@ -40,7 +41,7 @@ public class Item implements Similar<Item> {
     }
 
     @Override
-    public double getSimilarityTo(Item other) throws SemTagException {
+    public double getSimilarityTo(Item other) throws DaoException {
         try {
             Configurator configurator = new Configurator(new Configuration());
             TagAppDao dao = configurator.get(TagAppDao.class);
@@ -125,10 +126,29 @@ public class Item implements Similar<Item> {
             }
             return xDotY / Math.sqrt(xDotX * yDotY);
         } catch (ConfigurationException e) {
-            throw new SemTagException(e);
-        } catch (DaoException e) {
-            throw new SemTagException(e);
+            throw new DaoException(e);
         }
+    }
+
+    @Override
+    public SimilarResultList getMostSimilar(int maxResults, TagAppDao helperDao) throws DaoException {
+        TagAppGroup group = helperDao.getGroup(new DaoFilter().setItemId(this.itemId));
+        Set<Integer> conceptIds = new HashSet<Integer>();
+        for (TagApp t : group) {
+            conceptIds.add(t.getConceptId());
+            SimilarResultList conceptList = t.getMostSimilar(maxResults, helperDao);
+            for (SimilarResult result : conceptList) {
+                conceptIds.add(result.getIntId());
+            }
+        }
+        Iterable<TagApp> iterable = helperDao.get(new DaoFilter().setConceptIds(conceptIds));
+        SimilarResultList list = new SimilarResultList(maxResults);
+        for (TagApp t : iterable) {
+            Item item = t.getItem();
+            list.add(new SimilarResult(item.itemId, this.getSimilarityTo(item)));
+        }
+        list.lock();
+        return list;
     }
 
     @Override
