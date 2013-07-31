@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class Benchmark {
 
-    public static final double SIZE = 1000;
+    public static final double SIZE = 10;
 
     @Ignore
     @Test
@@ -67,6 +67,7 @@ public class Benchmark {
 
     }
 
+    @Ignore
     @Test
     public void benchmarkConceptMostSimilar() throws ConfigurationException, DaoException {
         Configurator conf = new Configurator(new Configuration());
@@ -96,6 +97,7 @@ public class Benchmark {
         System.out.println("Unit time: " + (end-start)/SIZE);
     }
 
+    @Ignore
     @Test
     public void benchmarkTagAppMostSimilar() throws ConfigurationException, DaoException {
         Configurator conf = new Configurator(new Configuration());
@@ -209,7 +211,6 @@ public class Benchmark {
         System.out.println("Unit time: " + (end-start)/SIZE);
     }
 
-    @Ignore
     @Test
     public void benchmarkItemSimilarity() throws ConfigurationException, DaoException {
         Configurator conf = new Configurator(new Configuration());

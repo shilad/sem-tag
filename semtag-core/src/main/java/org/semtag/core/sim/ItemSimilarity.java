@@ -1,6 +1,7 @@
 package org.semtag.core.sim;
 
 import com.typesafe.config.Config;
+import org.apache.commons.lang.ArrayUtils;
 import org.semtag.core.dao.ConceptDao;
 import org.semtag.core.dao.DaoException;
 import org.semtag.core.dao.DaoFilter;
@@ -83,7 +84,7 @@ public class ItemSimilarity implements Similar<Item> {
 
         // convert to vector form
         // concept vector space
-        Integer[] vectorSpace = concepts.keySet().toArray(new Integer[dim]);
+        int[] vectorSpace = ArrayUtils.toPrimitive(concepts.keySet().toArray(new Integer[dim]));
         // alpha vector representation of mapX values in above vector space
         int[] aX = new int[dim];
         // alpha vector representation of mapY values in above vector space
@@ -104,17 +105,11 @@ public class ItemSimilarity implements Similar<Item> {
         }
 
         // build similarity matrix and calculate beta vectors
-        double[][] matrix = new double[dim][dim];
+        double[][] matrix = sim.cosimilarity(vectorSpace);
         double[] bX = new double[dim];
         double[] bY = new double[dim];
         for (int i=0; i<dim; i++) {
             for (int j=0; j<dim; j++) {
-                // For efficiency, only cosimilarity in the upper triangle of the matrix is calculated
-                if (i > j) {
-                    matrix[i][j] = matrix[j][i];
-                } else {
-                    matrix[i][j] = sim.similarity(concepts.get(vectorSpace[i]), concepts.get(vectorSpace[j]));
-                }
                 bX[i] += matrix[i][j] * aX[j];
                 bY[i] += matrix[i][j] * aY[j];
             }

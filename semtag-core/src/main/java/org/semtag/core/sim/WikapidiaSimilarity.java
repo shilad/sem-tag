@@ -86,6 +86,11 @@ public class WikapidiaSimilarity implements ConceptSimilarity<WikapidiaConcept> 
         for (int i=0; i<objs.length; i++) {
             ids[i] = objs[i].getConceptId();
         }
+        return cosimilarity(ids);
+    }
+
+    @Override
+    public double[][] cosimilarity(int[] ids) throws DaoException {
         try {
             return srMetric.cosimilarity(ids, language);
         } catch (org.wikapidia.core.dao.DaoException e) {

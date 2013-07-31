@@ -6,7 +6,6 @@ import org.semtag.core.dao.DaoException;
 import org.semtag.core.dao.DaoFilter;
 import org.semtag.core.dao.TagAppDao;
 import org.semtag.core.model.TagApp;
-import org.semtag.core.model.concept.Concept;
 import org.wikapidia.conf.Configuration;
 import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
@@ -69,12 +68,11 @@ public class TagAppSimilarity implements Similar<TagApp> {
 
     @Override
     public double[][] cosimilarity(TagApp[] objs) throws DaoException {
-        Concept[] concepts = new Concept[objs.length];
+        int[] ids = new int[objs.length];
         for (int i=0; i<objs.length; i++) {
-            objs[i].setConcept(conceptDao);
-            concepts[i] = objs[i].getConcept();
+            ids[i] = objs[i].getConceptId();
         }
-        return sim.cosimilarity(concepts);
+        return sim.cosimilarity(ids);
     }
 
     public static class Provider extends org.wikapidia.conf.Provider<TagAppSimilarity> {
