@@ -29,12 +29,14 @@ import java.util.List;
  */
 public class Benchmark {
 
+    public static final double SIZE = 1000.0;
+
     @Ignore
     @Test
     public void benchmarkTagAppRetrieval() throws ConfigurationException, DaoException {
         TagAppDao dao = new Configurator(new Configuration()).get(TagAppDao.class);
         long start = System.currentTimeMillis();
-        for (int i=0; i<100; i++) {
+        for (int i=0; i<SIZE; i++) {
             System.out.println("Starting #" + (i+1));
             Iterable<TagApp> tagApps = dao.get(new DaoFilter());
             TIntSet set = new TIntHashSet();
@@ -44,7 +46,7 @@ public class Benchmark {
         }
         long end = System.currentTimeMillis();
         System.out.println("Ellapsed time: " + (end-start));
-        System.out.println("Unit time: " + (end-start)/100.0);
+        System.out.println("Unit time: " + (end-start)/SIZE);
     }
 
     @Ignore
@@ -52,7 +54,7 @@ public class Benchmark {
     public void benchmarkLocalPageRetrieval() throws ConfigurationException, org.wikapidia.core.dao.DaoException {
         LocalPageDao dao = new Configurator(new Configuration()).get(LocalPageDao.class);
         long start = System.currentTimeMillis();
-        for (int i=0; i<10; i++) {
+        for (int i=0; i<SIZE; i++) {
             System.out.println("Starting #" + (i+1));
             Iterable<LocalPage> concepts = dao.get(new org.wikapidia.core.dao.DaoFilter().setRedirect(false));
             TIntSet set = new TIntHashSet();
@@ -62,7 +64,7 @@ public class Benchmark {
         }
         long end = System.currentTimeMillis();
         System.out.println("Ellapsed time: " + (end-start));
-        System.out.println("Unit time: " + (end-start)/10.0);
+        System.out.println("Unit time: " + (end-start)/SIZE);
 
     }
 
@@ -76,9 +78,11 @@ public class Benchmark {
         Iterable<Concept> iterable = dao.get(new DaoFilter());
         int i=0;
         for (Concept concept : iterable) {
-            concepts.add(concept);
-            i++;
-            if (i==100) break;
+            if (concept.getConceptId() > -1) {
+                concepts.add(concept);
+                i++;
+            }
+            if (i==SIZE) break;
         }
         System.out.println("Start");
         long start = System.currentTimeMillis();
@@ -91,10 +95,9 @@ public class Benchmark {
         }
         long end = System.currentTimeMillis();
         System.out.println("Ellapsed time: " + (end-start));
-        System.out.println("Unit time: " + (end-start)/100.0);
+        System.out.println("Unit time: " + (end-start)/SIZE);
     }
 
-    @Ignore
     @Test
     public void benchmarkTagAppMostSimilar() throws ConfigurationException, DaoException {
         Configurator conf = new Configurator(new Configuration());
@@ -102,7 +105,7 @@ public class Benchmark {
         TagAppSimilarity sim = conf.get(TagAppSimilarity.class);
         List<TagApp> tagApps = new ArrayList<TagApp>();
         int i=1;
-        while (tagApps.size() < 100) {
+        while (tagApps.size() < SIZE) {
             TagApp tagApp = dao.getByTagAppId(i);
             if (tagApp.getConceptId() > -1) {
                 tagApps.add(tagApp);
@@ -119,6 +122,6 @@ public class Benchmark {
         }
         long end = System.currentTimeMillis();
         System.out.println("Ellapsed time: " + (end-start));
-        System.out.println("Unit time: " + (end-start)/100.0);
+        System.out.println("Unit time: " + (end-start)/SIZE);
     }
 }

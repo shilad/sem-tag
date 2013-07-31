@@ -82,7 +82,7 @@ public class TagAppSimilarity implements Similar<TagApp> {
 
         @Override
         public String getPath() {
-            return "sem-tag.similar";
+            return "sem-tag.similar.tagApp";
         }
 
         @Override
