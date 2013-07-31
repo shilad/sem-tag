@@ -1,6 +1,7 @@
 package org.semtag.core.sim;
 
 import com.typesafe.config.Config;
+import org.semtag.core.dao.ConceptDao;
 import org.semtag.core.dao.DaoException;
 import org.semtag.core.dao.DaoFilter;
 import org.semtag.core.dao.TagAppDao;
@@ -18,15 +19,18 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * TODO: This class is SO UNGODLY SLOW. It runs upwards of 50-100 times slower than the others!
  * @author Ari Weiland
  */
 public class ItemSimilarity implements Similar<Item> {
 
     private final TagAppDao helperDao;
+    private final ConceptDao conceptDao;
     private final ConceptSimilarity sim;
 
-    public ItemSimilarity(TagAppDao helperDao, ConceptSimilarity sim) {
+    public ItemSimilarity(TagAppDao helperDao, ConceptDao conceptDao, ConceptSimilarity sim) {
         this.helperDao = helperDao;
+        this.conceptDao = conceptDao;
         this.sim = sim;
     }
 
@@ -51,23 +55,29 @@ public class ItemSimilarity implements Similar<Item> {
         Map<Integer, Integer> mapY = new HashMap<Integer, Integer>();
         for (TagApp t : groupX.getTagApps()) {
             int cId = t.getConceptId();
-            concepts.put(cId, t.getConcept());
-            int count = 1;
-            if (mapX.containsKey(cId)) {
-                count = mapX.get(cId) + 1;
+            if (cId > -1) {
+                t.setConcept(conceptDao);
+                concepts.put(cId, t.getConcept());
+                int count = 1;
+                if (mapX.containsKey(cId)) {
+                    count = mapX.get(cId) + 1;
+                }
+                mapX.put(cId, count);
             }
-            mapX.put(cId, count);
         }
         for (TagApp t : groupY.getTagApps()) {
             int cId = t.getConceptId();
-            concepts.put(cId, t.getConcept());
-            int count;
-            if (mapY.containsKey(cId)) {
-                count = mapY.get(cId) + 1;
-            } else {
-                count = 1;
+            if (cId > -1) {
+                t.setConcept(conceptDao);
+                concepts.put(cId, t.getConcept());
+                int count;
+                if (mapY.containsKey(cId)) {
+                    count = mapY.get(cId) + 1;
+                } else {
+                    count = 1;
+                }
+                mapY.put(cId, count);
             }
-            mapY.put(cId, count);
         }
         int dim = concepts.size();
 
@@ -127,10 +137,13 @@ public class ItemSimilarity implements Similar<Item> {
         TagAppGroup group = helperDao.getGroup(new DaoFilter().setItemId(obj.getItemId()));
         Set<Integer> conceptIds = new HashSet<Integer>();
         for (TagApp t : group) {
-            conceptIds.add(t.getConceptId());
-            SimilarResultList conceptList = sim.mostSimilar(t.getConcept(), maxResults);
-            for (SimilarResult result : conceptList) {
-                conceptIds.add(result.getIntId());
+            if (t.getConceptId() > -1) {
+                t.setConcept(conceptDao);
+                conceptIds.add(t.getConceptId());
+                SimilarResultList conceptList = sim.mostSimilar(t.getConcept(), maxResults);
+                for (SimilarResult result : conceptList) {
+                    conceptIds.add(result.getIntId());
+                }
             }
         }
         Iterable<TagApp> iterable = helperDao.get(new DaoFilter().setConceptIds(conceptIds));
@@ -143,9 +156,22 @@ public class ItemSimilarity implements Similar<Item> {
         return list;
     }
 
+    // TODO: is there a way to not do this manually?
     @Override
     public double[][] cosimilarity(Item[] objs) throws DaoException {
-        return new double[0][];
+        int dim = objs.length;
+        double[][] matrix = new double[dim][dim];
+        for (int i=0; i<dim; i++) {
+            for (int j=0; j<dim; j++) {
+                // For efficiency, only cosimilarity in the upper triangle of the matrix is calculated
+                if (i > j) {
+                    matrix[i][j] = matrix[j][i];
+                } else {
+                    matrix[i][j] = similarity(objs[i], objs[j]);
+                }
+            }
+        }
+        return matrix;
     }
 
     public static class Provider extends org.wikapidia.conf.Provider<ItemSimilarity> {
@@ -170,6 +196,7 @@ public class ItemSimilarity implements Similar<Item> {
             }
             return new ItemSimilarity(
                     getConfigurator().get(TagAppDao.class, config.getString("tagAppDao")),
+                    getConfigurator().get(ConceptDao.class, config.getString("conceptDao")),
                     getConfigurator().get(ConceptSimilarity.class, config.getString("conceptSim"))
             );
         }
