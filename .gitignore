@@ -17,4 +17,5 @@ log/
 target/
 
 *.db
+db/
 macademia_tag_apps.txt

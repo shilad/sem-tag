@@ -2,12 +2,12 @@ package org.semtag.mapper;
 
 import com.typesafe.config.Config;
 import org.semtag.SemTagException;
-import org.semtag.core.dao.DaoException;
-import org.semtag.core.dao.DaoFilter;
-import org.semtag.core.dao.TagAppDao;
-import org.semtag.core.model.*;
-import org.semtag.core.model.concept.Concept;
-import org.semtag.core.model.concept.WikapidiaConcept;
+import org.semtag.dao.DaoException;
+import org.semtag.dao.DaoFilter;
+import org.semtag.dao.TagAppDao;
+import org.semtag.model.*;
+import org.semtag.model.concept.Concept;
+import org.semtag.model.concept.WikapidiaConcept;
 import org.wikapidia.conf.Configuration;
 import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
@@ -28,14 +28,14 @@ import java.util.Set;
  */
 public class WikapidiaMapper implements ConceptMapper {
 
-    public static final Language LANGUAGE = Language.getByLangCode("simple");
+    private final Configurator configurator;
+    private final Language language;
+    private final Disambiguator disambiguator;
+    private final TagAppDao tagAppDao;
 
-    protected final Configurator configurator;
-    protected final Disambiguator disambiguator;
-    protected final TagAppDao tagAppDao;
-
-    public WikapidiaMapper(Configurator configurator, Disambiguator disambiguator, TagAppDao tagAppDao) {
+    public WikapidiaMapper(Configurator configurator, Language language, Disambiguator disambiguator, TagAppDao tagAppDao) {
         this.configurator = configurator;
+        this.language = language;
         this.disambiguator = disambiguator;
         this.tagAppDao = tagAppDao;
     }
@@ -55,13 +55,13 @@ public class WikapidiaMapper implements ConceptMapper {
             if (tagAppDao != null) {
                 TagAppGroup group = tagAppDao.getGroup(new DaoFilter().setItemId(item.getItemId()));
                 for (TagApp t : group) {
-                    context.add(new LocalString(LANGUAGE, t.getTag().getNormalizedTag()));
+                    context.add(new LocalString(language, t.getTag().getNormalizedTag()));
                 }
             }
-            LocalString tagString = new LocalString(LANGUAGE, tag.getNormalizedTag());
+            LocalString tagString = new LocalString(language, tag.getNormalizedTag());
             LocalId conceptObj = disambiguator.disambiguate(tagString, context);
             if (conceptObj == null) { // TODO: this is not ideal, what should we do?
-                conceptObj = new LocalId(LANGUAGE, -1);
+                conceptObj = new LocalId(language, -1);
             }
             Concept concept = new WikapidiaConcept(conceptObj, configurator.get(LocalSRMetric.class));
             return new TagApp(user, tag, item, timestamp, concept);
@@ -109,6 +109,7 @@ public class WikapidiaMapper implements ConceptMapper {
             }
             return new WikapidiaMapper(
                     getConfigurator(),
+                    Language.getByLangCode(config.getString("lang")),
                     getConfigurator().get(Disambiguator.class, config.getString("disambiguator")),
                     getConfigurator().get(TagAppDao.class, config.getString("tagAppDao"))
             );
