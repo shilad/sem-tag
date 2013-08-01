@@ -6,7 +6,6 @@ import gnu.trove.set.TIntSet;
 import gnu.trove.set.TLongSet;
 import gnu.trove.set.hash.TIntHashSet;
 import gnu.trove.set.hash.TLongHashSet;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.semtag.dao.ConceptDao;
 import org.semtag.dao.DaoException;
@@ -17,8 +16,6 @@ import org.semtag.sim.*;
 import org.wikapidia.conf.Configuration;
 import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
-import org.wikapidia.core.dao.LocalPageDao;
-import org.wikapidia.core.model.LocalPage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,48 +25,11 @@ import java.util.List;
  */
 public class Benchmark {
 
-    public static final double SIZE = 5;
+    public static final double SIZE = 100;
 
-    @Ignore
+//    @Ignore
     @Test
-    public void benchmarkTagAppRetrieval() throws ConfigurationException, DaoException {
-        TagAppDao dao = new Configurator(new Configuration()).get(TagAppDao.class);
-        long start = System.currentTimeMillis();
-        for (int i=0; i<SIZE; i++) {
-            System.out.println("Starting #" + (i+1));
-            Iterable<TagApp> tagApps = dao.get(new DaoFilter());
-            TIntSet set = new TIntHashSet();
-            for (TagApp t : tagApps) {
-                set.add(t.getConceptId());
-            }
-        }
-        long end = System.currentTimeMillis();
-        System.out.println("Ellapsed time: " + (end-start));
-        System.out.println("Unit time: " + (end-start)/SIZE);
-    }
-
-    @Ignore
-    @Test
-    public void benchmarkLocalPageRetrieval() throws ConfigurationException, org.wikapidia.core.dao.DaoException {
-        LocalPageDao dao = new Configurator(new Configuration()).get(LocalPageDao.class);
-        long start = System.currentTimeMillis();
-        for (int i=0; i<SIZE; i++) {
-            System.out.println("Starting #" + (i+1));
-            Iterable<LocalPage> concepts = dao.get(new org.wikapidia.core.dao.DaoFilter().setRedirect(false));
-            TIntSet set = new TIntHashSet();
-            for (LocalPage concept : concepts) {
-                set.add(concept.getLocalId());
-            }
-        }
-        long end = System.currentTimeMillis();
-        System.out.println("Ellapsed time: " + (end-start));
-        System.out.println("Unit time: " + (end-start)/SIZE);
-
-    }
-
-    @Ignore
-    @Test
-    public void benchmarkConceptMostSimilar() throws ConfigurationException, DaoException {
+    public void benchmarkConceptSimilarity()    throws ConfigurationException, DaoException {
         Configurator conf = new Configurator(new Configuration());
         ConceptDao dao = conf.get(ConceptDao.class);
         ConceptSimilarity sim = conf.get(ConceptSimilarity.class);
@@ -83,7 +43,91 @@ public class Benchmark {
             }
             if (i==SIZE) break;
         }
-        System.out.println("Start");
+        TDoubleList list = new TDoubleArrayList();
+        Concept x = concepts.get(0);
+        System.out.println("Start ConceptSimilarity");
+        long start = System.currentTimeMillis();
+        for (Concept y : concepts) {
+            list.add(sim.similarity(x, y));
+        }
+        long end = System.currentTimeMillis();
+        System.out.println("Ellapsed time: " + (end-start));
+        System.out.println("Unit time: " + (end-start)/SIZE);
+    }
+
+//    @Ignore
+    @Test
+    public void benchmarkTagAppSimilarity()     throws ConfigurationException, DaoException {
+        Configurator conf = new Configurator(new Configuration());
+        TagAppDao dao = conf.get(TagAppDao.class);
+        TagAppSimilarity sim = conf.get(TagAppSimilarity.class);
+        List<TagApp> tagApps = new ArrayList<TagApp>();
+        Iterable<TagApp> iterable = dao.get(new DaoFilter());
+        int i=0;
+        for (TagApp t : iterable) {
+            if (t.getConceptId() > -1) {
+                tagApps.add(t);
+                i++;
+            }
+            if (i >= SIZE) break;
+        }
+        TDoubleList list = new TDoubleArrayList();
+        TagApp x = tagApps.get(0);
+        System.out.println("Start TagAppSimilarity");
+        long start = System.currentTimeMillis();
+        for (TagApp y : tagApps) {
+            list.add(sim.similarity(x, y));
+        }
+        long end = System.currentTimeMillis();
+        System.out.println("Ellapsed time: " + (end-start));
+        System.out.println("Unit time: " + (end-start)/SIZE);
+    }
+
+//    @Ignore
+    @Test
+    public void benchmarkItemSimilarity()       throws ConfigurationException, DaoException {
+        Configurator conf = new Configurator(new Configuration());
+        TagAppDao dao = conf.get(TagAppDao.class);
+        ItemSimilarity sim = conf.get(ItemSimilarity.class);
+        List<Item> items = new ArrayList<Item>();
+        Iterable<TagApp> iterable = dao.get(new DaoFilter());
+        int i=0;
+        for (TagApp t : iterable) {
+            if (t.getConceptId() > -1) {
+                items.add(t.getItem());
+                i++;
+            }
+            if (i==SIZE) break;
+        }
+        System.out.println("Start ItemSimilarity");
+        TDoubleList list = new TDoubleArrayList();
+        Item x = items.get(0);
+        long start = System.currentTimeMillis();
+        for (Item y : items) {
+            list.add(sim.similarity(x, y));
+        }
+        long end = System.currentTimeMillis();
+        System.out.println("Ellapsed time: " + (end-start));
+        System.out.println("Unit time: " + (end-start)/SIZE);
+    }
+
+//    @Ignore
+    @Test
+    public void benchmarkConceptMostSimilar()   throws ConfigurationException, DaoException {
+        Configurator conf = new Configurator(new Configuration());
+        ConceptDao dao = conf.get(ConceptDao.class);
+        ConceptSimilarity sim = conf.get(ConceptSimilarity.class);
+        List<Concept> concepts = new ArrayList<Concept>();
+        Iterable<Concept> iterable = dao.get(new DaoFilter());
+        int i=0;
+        for (Concept concept : iterable) {
+            if (concept.getConceptId() > -1) {
+                concepts.add(concept);
+                i++;
+            }
+            if (i==SIZE) break;
+        }
+        System.out.println("Start ConceptMostSimilar");
         long start = System.currentTimeMillis();
         for (Concept c : concepts) {
             TIntSet set = new TIntHashSet();
@@ -97,9 +141,9 @@ public class Benchmark {
         System.out.println("Unit time: " + (end-start)/SIZE);
     }
 
-    @Ignore
+//    @Ignore
     @Test
-    public void benchmarkTagAppMostSimilar() throws ConfigurationException, DaoException {
+    public void benchmarkTagAppMostSimilar()    throws ConfigurationException, DaoException {
         Configurator conf = new Configurator(new Configuration());
         TagAppDao dao = conf.get(TagAppDao.class);
         TagAppSimilarity sim = conf.get(TagAppSimilarity.class);
@@ -113,7 +157,7 @@ public class Benchmark {
             }
             if (i==SIZE) break;
         }
-        System.out.println("Start");
+        System.out.println("Start TagAppMostSimilar");
         long start = System.currentTimeMillis();
         for (TagApp t : tagApps) {
             TLongSet set = new TLongHashSet();
@@ -129,7 +173,7 @@ public class Benchmark {
 
 //    @Ignore
     @Test
-    public void benchmarkItemMostSimilar() throws ConfigurationException, DaoException {
+    public void benchmarkItemMostSimilar()      throws ConfigurationException, DaoException {
         Configurator conf = new Configurator(new Configuration());
         TagAppDao dao = conf.get(TagAppDao.class);
         ItemSimilarity sim = conf.get(ItemSimilarity.class);
@@ -143,7 +187,7 @@ public class Benchmark {
             }
             if (i==SIZE) break;
         }
-        System.out.println("Start");
+        System.out.println("Start ItemMostSimilar");
         long start = System.currentTimeMillis();
         for (Item item : items) {
             TLongSet set = new TLongHashSet();
@@ -151,90 +195,6 @@ public class Benchmark {
             for (SimilarResult result : list) {
                 set.add(result.getLongId());
             }
-        }
-        long end = System.currentTimeMillis();
-        System.out.println("Ellapsed time: " + (end-start));
-        System.out.println("Unit time: " + (end-start)/SIZE);
-    }
-
-    @Ignore
-    @Test
-    public void benchmarkConceptSimilarity() throws ConfigurationException, DaoException {
-        Configurator conf = new Configurator(new Configuration());
-        ConceptDao dao = conf.get(ConceptDao.class);
-        ConceptSimilarity sim = conf.get(ConceptSimilarity.class);
-        List<Concept> concepts = new ArrayList<Concept>();
-        Iterable<Concept> iterable = dao.get(new DaoFilter());
-        int i=0;
-        for (Concept concept : iterable) {
-            if (concept.getConceptId() > -1) {
-                concepts.add(concept);
-                i++;
-            }
-            if (i==SIZE) break;
-        }
-        System.out.println("Start");
-        long start = System.currentTimeMillis();
-        TDoubleList list = new TDoubleArrayList();
-        Concept x = concepts.get(0);
-        for (Concept y : concepts) {
-            list.add(sim.similarity(x, y));
-        }
-        long end = System.currentTimeMillis();
-        System.out.println("Ellapsed time: " + (end-start));
-        System.out.println("Unit time: " + (end-start)/SIZE);
-    }
-
-    @Ignore
-    @Test
-    public void benchmarkTagAppSimilarity() throws ConfigurationException, DaoException {
-        Configurator conf = new Configurator(new Configuration());
-        TagAppDao dao = conf.get(TagAppDao.class);
-        TagAppSimilarity sim = conf.get(TagAppSimilarity.class);
-        List<TagApp> tagApps = new ArrayList<TagApp>();
-        Iterable<TagApp> iterable = dao.get(new DaoFilter());
-        int i=0;
-        for (TagApp tagApp : iterable) {
-            if (tagApp.getConceptId() > -1) {
-                tagApps.add(tagApp);
-                i++;
-            }
-            if (i >= SIZE) break;
-        }
-        System.out.println("Start");
-        long start = System.currentTimeMillis();
-        TDoubleList list = new TDoubleArrayList();
-        TagApp x = tagApps.get(0);
-        for (TagApp y : tagApps) {
-            list.add(sim.similarity(x, y));
-        }
-        long end = System.currentTimeMillis();
-        System.out.println("Ellapsed time: " + (end-start));
-        System.out.println("Unit time: " + (end-start)/SIZE);
-    }
-
-    @Ignore
-    @Test
-    public void benchmarkItemSimilarity() throws ConfigurationException, DaoException {
-        Configurator conf = new Configurator(new Configuration());
-        TagAppDao dao = conf.get(TagAppDao.class);
-        ItemSimilarity sim = conf.get(ItemSimilarity.class);
-        List<Item> items = new ArrayList<Item>();
-        Iterable<TagApp> iterable = dao.get(new DaoFilter());
-        int i=0;
-        for (TagApp t : iterable) {
-            if (t.getConceptId() > -1) {
-                items.add(t.getItem());
-                i++;
-            }
-            if (i==SIZE) break;
-        }
-        System.out.println("Start");
-        long start = System.currentTimeMillis();
-        TDoubleList list = new TDoubleArrayList();
-        Item x = items.get(0);
-        for (Item y : items) {
-            list.add(sim.similarity(x, y));
         }
         long end = System.currentTimeMillis();
         System.out.println("Ellapsed time: " + (end-start));
