@@ -1,7 +1,6 @@
 package org.semtag.model;
 
 /**
- * TODO: ask Shilad about maintaining raw tags
  * @author Ari Weiland
  */
 public class Tag {
@@ -19,6 +18,10 @@ public class Tag {
 
     public String getNormalizedTag() {
         return normalizedTag;
+    }
+
+    public boolean isValid() {
+        return !normalizedTag.isEmpty();
     }
 
     /**
