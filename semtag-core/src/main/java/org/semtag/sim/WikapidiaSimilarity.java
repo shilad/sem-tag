@@ -56,7 +56,7 @@ public class WikapidiaSimilarity implements ConceptSimilarity<WikapidiaConcept> 
                     new LocalId(language, xId).asLocalPage(),
                     new LocalId(language, yId).asLocalPage(),
                     false);
-            return result.getValue();
+            return result.getScore();
         } catch (org.wikapidia.core.dao.DaoException e) {
             throw new DaoException(e);
         }
@@ -86,7 +86,7 @@ public class WikapidiaSimilarity implements ConceptSimilarity<WikapidiaConcept> 
         SimilarResultList list = new SimilarResultList(maxResults);
         for (SRResult r : results) {
             if (r.getId() > -1) {
-                list.add(new SimilarResult(r.getId(), r.getValue()));
+                list.add(new SimilarResult(r.getId(), r.getScore()));
             }
         }
         list.lock();

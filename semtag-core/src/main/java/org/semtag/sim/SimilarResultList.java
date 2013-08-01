@@ -101,7 +101,7 @@ public class SimilarResultList implements Iterable<SimilarResult> {
     }
 
     /**
-     * Returns the similarity value of the specified ID, or 0 if the ID is not found.
+     * Returns the similarity score of the specified ID, or 0 if the ID is not found.
      * This method does NOT lock the list.
      * @param id
      * @return
@@ -116,7 +116,7 @@ public class SimilarResultList implements Iterable<SimilarResult> {
     }
 
     /**
-     * Returns the similarity value of the specified ID, or 0 if the ID is not found.
+     * Returns the similarity score of the specified ID, or 0 if the ID is not found.
      * This method does NOT lock the list.
      * @param id
      * @return
