@@ -1,12 +1,12 @@
 package org.semtag.mapper;
 
 import org.semtag.SemTagException;
-import org.semtag.core.dao.DaoException;
-import org.semtag.core.model.Item;
-import org.semtag.core.model.Tag;
-import org.semtag.core.model.TagApp;
-import org.semtag.core.model.User;
-import org.semtag.core.model.concept.Concept;
+import org.semtag.dao.DaoException;
+import org.semtag.model.Item;
+import org.semtag.model.Tag;
+import org.semtag.model.TagApp;
+import org.semtag.model.User;
+import org.semtag.model.concept.Concept;
 
 import java.sql.Timestamp;
 
@@ -16,7 +16,7 @@ import java.sql.Timestamp;
  * appropriate concept, and returns the assembled TagApp. Additionally, the
  * {@code getConcept} method is used by the ConceptDao to assemble the appropriate
  * concept from the information stored in the database. A subclass should implement
- * these methods to refer to a specific subclass of {@link org.semtag.core.model.concept.Concept}.
+ * these methods to refer to a specific subclass of {@link org.semtag.model.concept.Concept}.
  *
  * This class must be passed to both the loader and any instance of a ConceptDao.
  *

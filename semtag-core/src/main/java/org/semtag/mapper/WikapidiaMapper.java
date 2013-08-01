@@ -2,12 +2,12 @@ package org.semtag.mapper;
 
 import com.typesafe.config.Config;
 import org.semtag.SemTagException;
-import org.semtag.core.dao.DaoException;
-import org.semtag.core.dao.DaoFilter;
-import org.semtag.core.dao.TagAppDao;
-import org.semtag.core.model.*;
-import org.semtag.core.model.concept.Concept;
-import org.semtag.core.model.concept.WikapidiaConcept;
+import org.semtag.dao.DaoException;
+import org.semtag.dao.DaoFilter;
+import org.semtag.dao.TagAppDao;
+import org.semtag.model.*;
+import org.semtag.model.concept.Concept;
+import org.semtag.model.concept.WikapidiaConcept;
 import org.wikapidia.conf.Configuration;
 import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
