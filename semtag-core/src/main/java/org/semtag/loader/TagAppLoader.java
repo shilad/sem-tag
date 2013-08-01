@@ -79,15 +79,18 @@ public class TagAppLoader {
      * @throws SemTagException
      */
     public void load(String userId, String rawTagString, String itemId, Timestamp timestamp) throws SemTagException {
-        TagApp tagApp = mapper.map(
-                new User(userId),
-                new Tag(rawTagString),
-                new Item(itemId),
-                timestamp);
-        try {
-            handler.save(tagApp);
-        } catch (DaoException e) {
-            throw new SemTagException(e);
+        Tag tag = new Tag(rawTagString);
+        if (tag.isValid()) {
+            TagApp tagApp = mapper.map(
+                    new User(userId),
+                    tag,
+                    new Item(itemId),
+                    timestamp);
+            try {
+                handler.save(tagApp);
+            } catch (DaoException e) {
+                throw new SemTagException(e);
+            }
         }
     }
 
