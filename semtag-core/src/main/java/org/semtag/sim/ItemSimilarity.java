@@ -76,12 +76,9 @@ public class ItemSimilarity implements Similar<Item> {
         int dim = cIds.size();
 
         // convert to vector form
-        // concept vector space
-        int[] vectorSpace = cIds.toArray();
-        // alpha vector representation of mapX values in above vector space
-        int[] aX = new int[dim];
-        // alpha vector representation of mapY values in above vector space
-        int[] aY = new int[dim];
+        int[] vectorSpace = cIds.toArray(); // concept vector space
+        int[] aX = new int[dim]; // alpha vector representation of mapX values in above vector space
+        int[] aY = new int[dim]; // alpha vector representation of mapY values in above vector space
         for (int i=0; i<dim; i++) {
             int cId = vectorSpace[i];
             int count = 0;
@@ -154,8 +151,8 @@ public class ItemSimilarity implements Similar<Item> {
         for (TagApp t : group) {
             int cId = t.getConceptId();
             if (cId > -1) {
-                conceptIds.add(cId); // divided by 2 a modification to improve speed
-                SimilarResultList conceptList = sim.mostSimilar(cId, maxResults);
+                conceptIds.add(cId);    // divided by 2 a modification to improve speed
+                SimilarResultList conceptList = sim.mostSimilar(cId, maxResults/2);
                 for (SimilarResult result : conceptList) {
                     if (result.getIntId() > -1) {
                         conceptIds.add(result.getIntId());
