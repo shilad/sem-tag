@@ -25,7 +25,7 @@ import java.util.List;
  */
 public class Benchmark {
 
-    public static final double SIZE = 100;
+    public static final double SIZE = 1000;
 
 //    @Ignore
     @Test
