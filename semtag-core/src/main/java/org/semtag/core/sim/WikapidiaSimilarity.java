@@ -12,6 +12,7 @@ import org.wikapidia.conf.Configuration;
 import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
 import org.wikapidia.core.lang.Language;
+import org.wikapidia.core.lang.LocalId;
 import org.wikapidia.sr.LocalSRMetric;
 import org.wikapidia.sr.SRResult;
 import org.wikapidia.sr.SRResultList;
@@ -45,10 +46,15 @@ public class WikapidiaSimilarity implements ConceptSimilarity<WikapidiaConcept> 
 
     @Override
     public double similarity(WikapidiaConcept x, WikapidiaConcept y) throws DaoException {
+        return similarity(x.getConceptId(), y.getConceptId());
+    }
+
+    @Override
+    public double similarity(int xId, int yId) throws DaoException {
         try {
             SRResult result = srMetric.similarity(
-                    x.getConceptObj().asLocalPage(),
-                    y.getConceptObj().asLocalPage(),
+                    new LocalId(language, xId).asLocalPage(),
+                    new LocalId(language, yId).asLocalPage(),
                     false);
             return result.getValue();
         } catch (org.wikapidia.core.dao.DaoException e) {
@@ -58,6 +64,11 @@ public class WikapidiaSimilarity implements ConceptSimilarity<WikapidiaConcept> 
 
     @Override
     public SimilarResultList mostSimilar(WikapidiaConcept obj, int maxResults) throws DaoException {
+        return mostSimilar(obj.getConceptId(), maxResults);
+    }
+
+    @Override
+    public SimilarResultList mostSimilar(int id, int maxResults) throws DaoException {
         Iterable<Concept> concepts = helperDao.get(new DaoFilter());
         TIntSet validIds = new TIntHashSet();
         for (Concept c : concepts) {
@@ -66,7 +77,7 @@ public class WikapidiaSimilarity implements ConceptSimilarity<WikapidiaConcept> 
         SRResultList results;
         try {
             results = srMetric.mostSimilar(
-                    obj.getConceptObj().asLocalPage(),
+                    new LocalId(language, id).asLocalPage(),
                     maxResults,
                     validIds);
         } catch (org.wikapidia.core.dao.DaoException e) {
@@ -74,7 +85,9 @@ public class WikapidiaSimilarity implements ConceptSimilarity<WikapidiaConcept> 
         }
         SimilarResultList list = new SimilarResultList(maxResults);
         for (SRResult r : results) {
-            list.add(new SimilarResult(r.getId(), r.getValue()));
+            if (r.getId() > -1) {
+                list.add(new SimilarResult(r.getId(), r.getValue()));
+            }
         }
         list.lock();
         return list;

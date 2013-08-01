@@ -1,5 +1,6 @@
 package org.semtag.core.dao;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.semtag.core.model.Tag;
 
 import java.util.ArrayList;
@@ -52,6 +53,16 @@ public class DaoFilter {
      */
     public DaoFilter setTagAppIds(Long... tagAppIds) {
         return setTagAppIds(Arrays.asList(tagAppIds));
+    }
+
+    /**
+     * Sets the TagApp filter to the specified array of TagApp IDs.
+     * Used by TagApp.
+     * @param tagAppIds
+     * @return
+     */
+    public DaoFilter setTagAppIds(long... tagAppIds) {
+        return setTagAppIds(ArrayUtils.toObject(tagAppIds));
     }
 
     /**
@@ -144,6 +155,16 @@ public class DaoFilter {
     public DaoFilter setConceptIds(Integer... conceptIds) {
         this.conceptIds = Arrays.asList(conceptIds);
         return this;
+    }
+
+    /**
+     * Sets the concept filter to the specified array of concept IDs.
+     * Used by TagApp, Concept.
+     * @param conceptIds
+     * @return
+     */
+    public DaoFilter setConceptIds(int... conceptIds) {
+        return setConceptIds(ArrayUtils.toObject(conceptIds));
     }
 
     /**

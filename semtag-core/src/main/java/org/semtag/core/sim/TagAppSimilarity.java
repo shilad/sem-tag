@@ -1,7 +1,6 @@
 package org.semtag.core.sim;
 
 import com.typesafe.config.Config;
-import org.semtag.core.dao.ConceptDao;
 import org.semtag.core.dao.DaoException;
 import org.semtag.core.dao.DaoFilter;
 import org.semtag.core.dao.TagAppDao;
@@ -19,12 +18,10 @@ import java.util.Set;
 public class TagAppSimilarity implements Similar<TagApp> {
 
     private final TagAppDao helperDao;
-    private final ConceptDao conceptDao;
     private final ConceptSimilarity sim;
 
-    public TagAppSimilarity(TagAppDao helperDao, ConceptDao conceptDao, ConceptSimilarity sim) {
+    public TagAppSimilarity(TagAppDao helperDao, ConceptSimilarity sim) {
         this.helperDao = helperDao;
-        this.conceptDao = conceptDao;
         this.sim = sim;
     }
 
@@ -38,21 +35,12 @@ public class TagAppSimilarity implements Similar<TagApp> {
 
     @Override
     public double similarity(TagApp x, TagApp y) throws DaoException {
-        x.setConcept(conceptDao);
-        y.setConcept(conceptDao);
-        if (    x.getConcept() != null && y.getConcept() != null &&
-                x.getConcept().getMetric().equals(y.getConcept().getMetric())) {
-            return sim.similarity(x.getConcept(), y.getConcept());
-        } else if (x.getConceptId() == y.getConceptId() && x.getConceptId() > -1) {
-            return 1.0;
-        }
-        return 0.0;
+        return sim.similarity(x.getConceptId(), y.getConceptId());
     }
 
     @Override
     public SimilarResultList mostSimilar(TagApp obj, int maxResults) throws DaoException {
-        obj.setConcept(conceptDao);
-        SimilarResultList concepts = sim.mostSimilar(obj.getConcept(), maxResults);
+        SimilarResultList concepts = sim.mostSimilar(obj.getConceptId(), maxResults);
         Set<Integer> conceptIds = new HashSet<Integer>();
         for (SimilarResult result : concepts) {
             conceptIds.add(result.getIntId());
@@ -97,7 +85,6 @@ public class TagAppSimilarity implements Similar<TagApp> {
             }
             return new TagAppSimilarity(
                     getConfigurator().get(TagAppDao.class, config.getString("tagAppDao")),
-                    getConfigurator().get(ConceptDao.class, config.getString("conceptDao")),
                     getConfigurator().get(ConceptSimilarity.class, config.getString("conceptSim"))
             );
         }

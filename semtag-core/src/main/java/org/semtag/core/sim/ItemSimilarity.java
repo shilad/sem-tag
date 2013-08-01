@@ -1,23 +1,20 @@
 package org.semtag.core.sim;
 
 import com.typesafe.config.Config;
-import org.apache.commons.lang.ArrayUtils;
-import org.semtag.core.dao.ConceptDao;
+import gnu.trove.set.TIntSet;
+import gnu.trove.set.hash.TIntHashSet;
 import org.semtag.core.dao.DaoException;
 import org.semtag.core.dao.DaoFilter;
 import org.semtag.core.dao.TagAppDao;
 import org.semtag.core.model.Item;
 import org.semtag.core.model.TagApp;
 import org.semtag.core.model.TagAppGroup;
-import org.semtag.core.model.concept.Concept;
 import org.wikapidia.conf.Configuration;
 import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * TODO: This class is SO UNGODLY SLOW. It runs upwards of 50-100 times slower than the others!
@@ -26,12 +23,10 @@ import java.util.Set;
 public class ItemSimilarity implements Similar<Item> {
 
     private final TagAppDao helperDao;
-    private final ConceptDao conceptDao;
     private final ConceptSimilarity sim;
 
-    public ItemSimilarity(TagAppDao helperDao, ConceptDao conceptDao, ConceptSimilarity sim) {
+    public ItemSimilarity(TagAppDao helperDao, ConceptSimilarity sim) {
         this.helperDao = helperDao;
-        this.conceptDao = conceptDao;
         this.sim = sim;
     }
 
@@ -48,8 +43,8 @@ public class ItemSimilarity implements Similar<Item> {
         TagAppGroup groupX = helperDao.getGroup(new DaoFilter().setItemId(x.getItemId()));
         TagAppGroup groupY = helperDao.getGroup(new DaoFilter().setItemId(y.getItemId()));
 
-        // map concept IDs to concepts
-        Map<Integer, Concept> concepts = new HashMap<Integer, Concept>();
+        // set of concept IDs to become the vector space
+        TIntSet cIds = new TIntHashSet();
         // maps X's concept IDs to amount they are tagged
         Map<Integer, Integer> mapX = new HashMap<Integer, Integer>();
         // maps Y's concept IDs to amount they are tagged
@@ -57,8 +52,7 @@ public class ItemSimilarity implements Similar<Item> {
         for (TagApp t : groupX.getTagApps()) {
             int cId = t.getConceptId();
             if (cId > -1) {
-                t.setConcept(conceptDao);
-                concepts.put(cId, t.getConcept());
+                cIds.add(cId);
                 int count = 1;
                 if (mapX.containsKey(cId)) {
                     count = mapX.get(cId) + 1;
@@ -69,8 +63,7 @@ public class ItemSimilarity implements Similar<Item> {
         for (TagApp t : groupY.getTagApps()) {
             int cId = t.getConceptId();
             if (cId > -1) {
-                t.setConcept(conceptDao);
-                concepts.put(cId, t.getConcept());
+                cIds.add(cId);
                 int count;
                 if (mapY.containsKey(cId)) {
                     count = mapY.get(cId) + 1;
@@ -80,11 +73,11 @@ public class ItemSimilarity implements Similar<Item> {
                 mapY.put(cId, count);
             }
         }
-        int dim = concepts.size();
+        int dim = cIds.size();
 
         // convert to vector form
         // concept vector space
-        int[] vectorSpace = ArrayUtils.toPrimitive(concepts.keySet().toArray(new Integer[dim]));
+        int[] vectorSpace = cIds.toArray();
         // alpha vector representation of mapX values in above vector space
         int[] aX = new int[dim];
         // alpha vector representation of mapY values in above vector space
@@ -127,25 +120,75 @@ public class ItemSimilarity implements Similar<Item> {
         return xDotY / Math.sqrt(xDotX * yDotY);
     }
 
-    @Override
-    public SimilarResultList mostSimilar(Item obj, int maxResults) throws DaoException {
-        TagAppGroup group = helperDao.getGroup(new DaoFilter().setItemId(obj.getItemId()));
-        Set<Integer> conceptIds = new HashSet<Integer>();
-        for (TagApp t : group) {
-            if (t.getConceptId() > -1) {
-                t.setConcept(conceptDao);
-                conceptIds.add(t.getConceptId());
-                SimilarResultList conceptList = sim.mostSimilar(t.getConcept(), maxResults);
-                for (SimilarResult result : conceptList) {
-                    conceptIds.add(result.getIntId());
+    public double similarity(Item x, Item y, int[] vectorSpace, double[][] matrix) throws DaoException {
+        TagAppGroup groupX = helperDao.getGroup(new DaoFilter().setItemId(x.getItemId()));
+        TagAppGroup groupY = helperDao.getGroup(new DaoFilter().setItemId(y.getItemId()));
+        int dim = vectorSpace.length;
+
+        // convert to vector form
+        // alpha vector representation of groupX concepts in specified vector space
+        int[] aX = new int[dim];
+        // alpha vector representation of groupY concepts in specified vector space
+        int[] aY = new int[dim];
+        for (int i=0; i<dim; i++) {
+            int cId = vectorSpace[i];
+            for (TagApp t : groupX) {
+                if (cId == t.getConceptId()) {
+                    aX[i]++;
+                }
+            }
+            for (TagApp t : groupY) {
+                if (cId == t.getConceptId()) {
+                    aY[i]++;
                 }
             }
         }
-        Iterable<TagApp> iterable = helperDao.get(new DaoFilter().setConceptIds(conceptIds));
+
+        // build similarity matrix and calculate beta vectors
+        double[] bX = new double[dim];
+        double[] bY = new double[dim];
+        for (int i=0; i<dim; i++) {
+            for (int j=0; j<dim; j++) {
+                bX[i] += matrix[i][j] * aX[j];
+                bY[i] += matrix[i][j] * aY[j];
+            }
+        }
+
+        // calculate and return cosine similarity between beta vectors
+        double xDotX = 0.0;
+        double yDotY = 0.0;
+        double xDotY = 0.0;
+        for (int i=0; i<dim; i++) {
+            xDotX += bX[i] * bX[i];
+            yDotY += bY[i] * bY[i];
+            xDotY += bX[i] * bY[i];
+        }
+        return xDotY / Math.sqrt(xDotX * yDotY);
+    }
+
+    @Override
+    public SimilarResultList mostSimilar(Item obj, int maxResults) throws DaoException {
+        TagAppGroup group = helperDao.getGroup(new DaoFilter().setItemId(obj.getItemId()));
+        TIntSet conceptIds = new TIntHashSet();
+        for (TagApp t : group) {
+            int cId = t.getConceptId();
+            if (cId > -1) {
+                conceptIds.add(cId);
+                SimilarResultList conceptList = sim.mostSimilar(cId, maxResults);
+                for (SimilarResult result : conceptList) {
+                    if (result.getIntId() > -1) {
+                        conceptIds.add(result.getIntId());
+                    }
+                }
+            }
+        }
+        int[] vectorSpace = conceptIds.toArray();
+        double[][] matrix = sim.cosimilarity(vectorSpace);
+        Iterable<TagApp> iterable = helperDao.get(new DaoFilter().setConceptIds(vectorSpace));
         SimilarResultList list = new SimilarResultList(maxResults);
         for (TagApp t : iterable) {
             Item item = t.getItem();
-            list.add(new SimilarResult(item.getItemId(), similarity(obj, item)));
+            list.add(new SimilarResult(item.getItemId(), similarity(obj, item, vectorSpace, matrix)));
         }
         list.lock();
         return list;
@@ -191,7 +234,6 @@ public class ItemSimilarity implements Similar<Item> {
             }
             return new ItemSimilarity(
                     getConfigurator().get(TagAppDao.class, config.getString("tagAppDao")),
-                    getConfigurator().get(ConceptDao.class, config.getString("conceptDao")),
                     getConfigurator().get(ConceptSimilarity.class, config.getString("conceptSim"))
             );
         }
