@@ -11,6 +11,9 @@ import org.wikapidia.conf.Configuration;
 import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author Ari Weiland
  */
@@ -45,8 +48,12 @@ public class TagAppSimilarity implements Similar<TagApp> {
             conceptIds.add(result.getIntId());
         }
         Iterable<TagApp> iterable = helperDao.get(new DaoFilter().setConceptIds(conceptIds.toArray()));
-        SimilarResultList list = new SimilarResultList(maxResults);
+        Map<String, TagApp> tags = new HashMap<String, TagApp>();
         for (TagApp t : iterable) {
+            tags.put(t.getTag().getNormalizedTag(), t);
+        }
+        SimilarResultList list = new SimilarResultList(maxResults);
+        for (TagApp t : tags.values()) {
             list.add(new SimilarResult(t.getTagAppId(), concepts.getValue(t.getConceptId())));
         }
         list.lock();
@@ -55,11 +62,20 @@ public class TagAppSimilarity implements Similar<TagApp> {
 
     @Override
     public double[][] cosimilarity(TagApp[] objs) throws DaoException {
+        return sim.cosimilarity(getVector(objs));
+    }
+
+    @Override
+    public double[][] cosimilarity(TagApp[] xObjs, TagApp[] yObjs) throws DaoException {
+        return sim.cosimilarity(getVector(xObjs), getVector(yObjs));
+    }
+
+    private int[] getVector(TagApp[] objs) {
         int[] ids = new int[objs.length];
         for (int i=0; i<objs.length; i++) {
             ids[i] = objs[i].getConceptId();
         }
-        return sim.cosimilarity(ids);
+        return ids;
     }
 
     public static class Provider extends org.wikapidia.conf.Provider<TagAppSimilarity> {

@@ -94,11 +94,12 @@ public class WikapidiaSimilarity implements ConceptSimilarity {
 
     @Override
     public double[][] cosimilarity(Concept[] objs) throws DaoException {
-        int[] ids = new int[objs.length];
-        for (int i=0; i<objs.length; i++) {
-            ids[i] = objs[i].getConceptId();
-        }
-        return cosimilarity(ids);
+        return cosimilarity(getVector(objs));
+    }
+
+    @Override
+    public double[][] cosimilarity(Concept[] xObjs, Concept[] yObjs) throws DaoException {
+        return cosimilarity(getVector(xObjs), getVector(yObjs));
     }
 
     @Override
@@ -108,6 +109,23 @@ public class WikapidiaSimilarity implements ConceptSimilarity {
         } catch (org.wikapidia.core.dao.DaoException e) {
             throw new DaoException(e);
         }
+    }
+
+    @Override
+    public double[][] cosimilarity(int[] xIds, int[] yIds) throws DaoException {
+        try {
+            return srMetric.cosimilarity(xIds, yIds, language);
+        } catch (org.wikapidia.core.dao.DaoException e) {
+            throw new DaoException(e);
+        }
+    }
+
+    private int[] getVector(Concept[] objs) {
+        int[] ids = new int[objs.length];
+        for (int i=0; i<objs.length; i++) {
+            ids[i] = objs[i].getConceptId();
+        }
+        return ids;
     }
 
     public static class Provider extends org.wikapidia.conf.Provider<ConceptSimilarity> {

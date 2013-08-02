@@ -3,6 +3,7 @@ package org.semtag.sim;
 import com.typesafe.config.Config;
 import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.TIntHashSet;
+import org.apache.commons.lang.ArrayUtils;
 import org.semtag.dao.DaoException;
 import org.semtag.dao.DaoFilter;
 import org.semtag.dao.TagAppDao;
@@ -12,6 +13,9 @@ import org.semtag.model.TagAppGroup;
 import org.wikapidia.conf.Configuration;
 import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * TODO: This class is SO UNGODLY SLOW. It runs upwards of 50-100 times slower than the others!
@@ -37,7 +41,10 @@ public class ItemSimilarity implements Similar<Item> {
 
     @Override
     public double similarity(Item x, Item y) throws DaoException {
-        int[] vectorSpace = getVectorSpace(x, y);
+        if (x.equals(y)) {
+            return 1;
+        }
+        int[] vectorSpace = getVector(x, y);
         double[][] matrix = sim.cosimilarity(vectorSpace);
         return similarity(x, y, vectorSpace, matrix);
     }
@@ -86,27 +93,6 @@ public class ItemSimilarity implements Similar<Item> {
         return xDotY / Math.sqrt(xDotX * yDotY);
     }
 
-    private double itemSimAlg(int[] aX, int[] aY, double[][] matrix) {
-        int dim = aX.length;
-        double[] bX = new double[dim];
-        double[] bY = new double[dim];
-        double xDotX = 0.0;
-        double yDotY = 0.0;
-        double xDotY = 0.0;
-        for (int i=0; i<dim; i++) {
-            // calculate beta vectors
-            for (int j=0; j<dim; j++) {
-                bX[i] += matrix[i][j] * aX[j];
-                bY[i] += matrix[i][j] * aY[j];
-            }
-            // calculate cosine similarity between beta vectors
-            xDotX += bX[i] * bX[i];
-            yDotY += bY[i] * bY[i];
-            xDotY += bX[i] * bY[i];
-        }
-        return xDotY / Math.sqrt(xDotX * yDotY);
-    }
-
     @Override
     public SimilarResultList mostSimilar(Item obj, int maxResults) throws DaoException {
         TagAppGroup group = helperDao.getGroup(new DaoFilter().setItemId(obj.getItemId()));
@@ -115,7 +101,7 @@ public class ItemSimilarity implements Similar<Item> {
             int cId = t.getConceptId();
             if (cId > -1) {
                 conceptIds.add(cId);    // divided by 2 a modification to improve speed
-                SimilarResultList conceptList = sim.mostSimilar(cId, maxResults/2);
+                SimilarResultList conceptList = sim.mostSimilar(cId, maxResults);
                 for (SimilarResult result : conceptList) {
                     if (result.getIntId() > -1) {
                         conceptIds.add(result.getIntId());
@@ -126,20 +112,22 @@ public class ItemSimilarity implements Similar<Item> {
         int[] vectorSpace = conceptIds.toArray();
         double[][] matrix = sim.cosimilarity(vectorSpace);
         Iterable<TagApp> iterable = helperDao.get(new DaoFilter().setConceptIds(vectorSpace));
-        SimilarResultList list = new SimilarResultList(maxResults);
+        Map<String, Item> items = new HashMap<String, Item>();
         for (TagApp t : iterable) {
-            Item item = t.getItem();
+            items.put(t.getItem().getItemId(), t.getItem());
+        }
+        SimilarResultList list = new SimilarResultList(maxResults);
+        for (Item item : items.values()) {
             list.add(new SimilarResult(item.getItemId(), similarity(obj, item, vectorSpace, matrix)));
         }
         list.lock();
         return list;
     }
 
-    // TODO: is there a way to not do this manually?
     @Override
     public double[][] cosimilarity(Item[] objs) throws DaoException {
         int dim = objs.length;
-        int[] vectorSpace = getVectorSpace(objs);
+        int[] vectorSpace = getVector(objs);
         double[][] matrix = sim.cosimilarity(vectorSpace);
         double[][] output = new double[dim][dim];
         for (int i=0; i<dim; i++) {
@@ -152,7 +140,20 @@ public class ItemSimilarity implements Similar<Item> {
         return output;
     }
 
-    private int[] getVectorSpace(Item... items) throws DaoException {
+    @Override
+    public double[][] cosimilarity(Item[] xObjs, Item[] yObjs) throws DaoException {
+        int[] vectorSpace = getVector((Item[]) ArrayUtils.addAll(xObjs, yObjs));
+        double[][] matrix = sim.cosimilarity(vectorSpace);
+        double[][] output = new double[xObjs.length][yObjs.length];
+        for (int i=0; i<xObjs.length; i++) {
+            for (int j=0; j<yObjs.length; j++) {
+                output[i][j] = similarity(xObjs[i], yObjs[j], vectorSpace, matrix);
+            }
+        }
+        return output;
+    }
+
+    private int[] getVector(Item... items) throws DaoException {
         TIntSet conceptIds = new TIntHashSet();
         for (Item item : items) {
             TagAppGroup group = helperDao.getGroup(new DaoFilter().setItemId(item.getItemId()));

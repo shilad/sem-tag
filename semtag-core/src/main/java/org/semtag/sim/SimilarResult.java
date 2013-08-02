@@ -44,4 +44,15 @@ public class SimilarResult implements Comparable<SimilarResult> {
             return -1;
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SimilarResult)) return false;
+
+        SimilarResult that = (SimilarResult) o;
+
+        return Double.compare(that.value, value) == 0 && id.equals(that.id);
+
+    }
 }

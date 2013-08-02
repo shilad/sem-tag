@@ -10,7 +10,6 @@ public interface Similar<T> {
     /**
      * Describes a method for returning the similarity between two
      * instances of a specified class.
-     *
      * @param x
      * @param y
      * @return a double between 0.0 and 1.0 inclusive.
@@ -38,4 +37,13 @@ public interface Similar<T> {
      * @throws DaoException
      */
     public double[][] cosimilarity(T[] objs) throws  DaoException;
+
+    /**
+     * Returns a cosimilarity matrix of T xObjs to yObjs.
+     * @param xObjs
+     * @param yObjs
+     * @return
+     * @throws DaoException
+     */
+    public double[][] cosimilarity(T[] xObjs, T[] yObjs) throws  DaoException;
 }

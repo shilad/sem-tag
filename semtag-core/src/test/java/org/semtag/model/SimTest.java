@@ -1,29 +1,24 @@
 package org.semtag.model;
 
-import org.junit.Ignore;
 import org.junit.Test;
-import org.semtag.dao.ConceptDao;
-import org.semtag.dao.DaoException;
-import org.semtag.dao.DaoFilter;
-import org.semtag.dao.TagAppDao;
+import org.semtag.dao.*;
 import org.semtag.model.concept.Concept;
-import org.semtag.sim.ConceptSimilarity;
-import org.semtag.sim.SimilarResult;
-import org.semtag.sim.SimilarResultList;
-import org.semtag.sim.TagAppSimilarity;
+import org.semtag.sim.*;
 import org.wikapidia.conf.Configuration;
 import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Ari Weiland
  */
 public class SimTest {
 
-    @Ignore
+//    @Ignore
     @Test
     public void testConceptSim() throws ConfigurationException, DaoException {
         Configurator conf = new Configurator(new Configuration());
@@ -48,14 +43,19 @@ public class SimTest {
             }
         }
         double[][] matrix = sim.cosimilarity(concepts.toArray(new Concept[concepts.size()]));
+        for (Concept c : concepts) {
+            System.out.print(c.getConceptId() + " \t");
+        }
+        System.out.println();
         for (double[] row : matrix) {
             for (double value : row) {
-                System.out.print(value + " ");
+                System.out.printf("%.4f\t", value);
             }
             System.out.println();
         }
     }
 
+//    @Ignore
     @Test
     public void testTagAppSim() throws ConfigurationException, DaoException {
         Configurator conf = new Configurator(new Configuration());
@@ -69,7 +69,7 @@ public class SimTest {
                 tagApps.add(t);
                 i++;
             }
-            if (i>=10) break;
+            if (i>=20) break;
         }
         TagApp x = tagApps.get(0);
         for (TagApp y : tagApps) {
@@ -80,9 +80,51 @@ public class SimTest {
             }
         }
         double[][] matrix = sim.cosimilarity(tagApps.toArray(new TagApp[tagApps.size()]));
+        for (TagApp t : tagApps) {
+            System.out.print(t.getTagAppId() + "   \t");
+        }
+        System.out.println();
         for (double[] row : matrix) {
             for (double value : row) {
-                System.out.print(value + " ");
+                System.out.printf("%.4f\t", value);
+            }
+            System.out.println();
+        }
+    }
+
+//    @Ignore
+    @Test
+    public void testItemSim() throws ConfigurationException, DaoException {
+        Configurator conf = new Configurator(new Configuration());
+        TagAppDao dao = conf.get(TagAppDao.class);
+        ItemDao itemDao = conf.get(ItemDao.class);
+        ItemSimilarity sim = conf.get(ItemSimilarity.class);
+        Set<Item> items = new HashSet<Item>();
+        Iterable<TagApp> iterable = dao.get(new DaoFilter());
+        int i=0;
+        for (TagApp t : iterable) {
+            if (t.getConceptId() > -1) {
+                items.add(t.getItem());
+                i++;
+            }
+            if (items.size()>=20) break;
+        }
+        Item x = items.iterator().next();
+        for (Item y : items) {
+            System.out.println(x.getItemId() + " to " + y.getItemId() + " : " + sim.similarity(x, y));
+            SimilarResultList list = sim.mostSimilar(y, 10);
+            for (SimilarResult result : list) {
+                System.out.println("Most sim to " + y.getItemId() + ": " + itemDao.getByItemId(result.getStringId()).getItemId() + " - " + result.getValue());
+            }
+        }
+        double[][] matrix = sim.cosimilarity(items.toArray(new Item[items.size()]));
+        for (Item item : items) {
+            System.out.print(item.getItemId() + "  \t");
+        }
+        System.out.println();
+        for (double[] row : matrix) {
+            for (double value : row) {
+                System.out.printf("%.4f\t", value);
             }
             System.out.println();
         }

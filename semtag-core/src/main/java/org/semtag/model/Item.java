@@ -37,6 +37,11 @@ public class Item {
     }
 
     @Override
+    public int hashCode() {
+        return itemId.hashCode();
+    }
+
+    @Override
     public String toString() {
         return itemId;
     }

@@ -165,9 +165,9 @@ public class TagApp {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof TagApp)) {
-            return false;
-        }
+        if (this == o) return true;
+        if (!(o instanceof TagApp)) return false;
+
         TagApp t = (TagApp) o;
         if (tagAppId != -1 && t.tagAppId != -1) {
             return tagAppId == t.tagAppId;
@@ -178,6 +178,16 @@ public class TagApp {
                     timestamp.equals(t.timestamp) &&
                     conceptId == t.conceptId;
         }
+    }
+
+    @Override
+    public int hashCode() {
+        int result = user.hashCode();
+        result = 31 * result + tag.hashCode();
+        result = 31 * result + item.hashCode();
+        result = 31 * result + timestamp.hashCode();
+        result = 31 * result + conceptId;
+        return result;
     }
 
     @Override

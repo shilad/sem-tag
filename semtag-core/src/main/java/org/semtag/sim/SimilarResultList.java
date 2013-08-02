@@ -170,18 +170,10 @@ public class SimilarResultList implements Iterable<SimilarResult> {
         return Iterators.limit(getResults().iterator(), maxSize);
     }
 
-    /**
-     * This method sorts and truncates the underlying list.
-     * It is called upon locking, and has no effect once locked
-     * as the list cannot change. Efficiency will not be lost in
-     * that situation, however.
-     */
-    public void sortAndTruncate() {
-        if (!locked) {
-            Collections.sort(this.results, Collections.reverseOrder());
-            if (results.size() > maxSize) {
-                results = results.subList(0, maxSize);
-            }
+    private void sortAndTruncate() {
+        Collections.sort(this.results, Collections.reverseOrder());
+        while (results.size() > maxSize) {
+            results.remove(maxSize);
         }
     }
 }
