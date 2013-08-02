@@ -35,6 +35,9 @@ public class TagAppSimilarity implements Similar<TagApp> {
 
     @Override
     public double similarity(TagApp x, TagApp y) throws DaoException {
+        if (x.equals(y)) {
+            return 1.0;
+        }
         return sim.similarity(x.getConceptId(), y.getConceptId());
     }
 

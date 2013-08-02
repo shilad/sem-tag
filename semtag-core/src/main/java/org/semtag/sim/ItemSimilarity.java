@@ -13,9 +13,6 @@ import org.wikapidia.conf.Configuration;
 import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * TODO: This class is SO UNGODLY SLOW. It runs upwards of 50-100 times slower than the others!
  * @author Ari Weiland
@@ -40,64 +37,18 @@ public class ItemSimilarity implements Similar<Item> {
 
     @Override
     public double similarity(Item x, Item y) throws DaoException {
-        TagAppGroup groupX = helperDao.getGroup(new DaoFilter().setItemId(x.getItemId()));
-        TagAppGroup groupY = helperDao.getGroup(new DaoFilter().setItemId(y.getItemId()));
-
-        // set of concept IDs to become the vector space
-        TIntSet cIds = new TIntHashSet();
-        // maps X's concept IDs to amount they are tagged
-        Map<Integer, Integer> mapX = new HashMap<Integer, Integer>();
-        // maps Y's concept IDs to amount they are tagged
-        Map<Integer, Integer> mapY = new HashMap<Integer, Integer>();
-        for (TagApp t : groupX.getTagApps()) {
-            int cId = t.getConceptId();
-            if (cId > -1) {
-                cIds.add(cId);
-                int count = 1;
-                if (mapX.containsKey(cId)) {
-                    count = mapX.get(cId) + 1;
-                }
-                mapX.put(cId, count);
-            }
+        if (x.equals(y)) {
+            return 1.0;
         }
-        for (TagApp t : groupY.getTagApps()) {
-            int cId = t.getConceptId();
-            if (cId > -1) {
-                cIds.add(cId);
-                int count;
-                if (mapY.containsKey(cId)) {
-                    count = mapY.get(cId) + 1;
-                } else {
-                    count = 1;
-                }
-                mapY.put(cId, count);
-            }
-        }
-        int dim = cIds.size();
-
-        // convert to vector form
-        int[] vectorSpace = cIds.toArray(); // concept vector space
-        int[] aX = new int[dim]; // alpha vector representation of mapX values in above vector space
-        int[] aY = new int[dim]; // alpha vector representation of mapY values in above vector space
-        for (int i=0; i<dim; i++) {
-            int cId = vectorSpace[i];
-            int count = 0;
-            if (mapX.containsKey(cId)) {
-                count = mapX.get(cId);
-            }
-            aX[i] = count;
-            count = 0;
-            if (mapY.containsKey(cId)) {
-                count = mapY.get(cId);
-            }
-            aY[i] = count;
-            i++;
-        }
+        int[] vectorSpace = getVectorSpace(x, y);
         double[][] matrix = sim.cosimilarity(vectorSpace);
-        return itemSimAlg(aX, aY, matrix);
+        return similarity(x, y, vectorSpace, matrix);
     }
 
     public double similarity(Item x, Item y, int[] vectorSpace, double[][] matrix) throws DaoException {
+        if (x.equals(y)) {
+            return 1.0;
+        }
         TagAppGroup groupX = helperDao.getGroup(new DaoFilter().setItemId(x.getItemId()));
         TagAppGroup groupY = helperDao.getGroup(new DaoFilter().setItemId(y.getItemId()));
         int dim = vectorSpace.length;
@@ -176,18 +127,30 @@ public class ItemSimilarity implements Similar<Item> {
     @Override
     public double[][] cosimilarity(Item[] objs) throws DaoException {
         int dim = objs.length;
-        double[][] matrix = new double[dim][dim];
+        int[] vectorSpace = getVectorSpace(objs);
+        double[][] matrix = sim.cosimilarity(vectorSpace);
+        double[][] output = new double[dim][dim];
         for (int i=0; i<dim; i++) {
-            for (int j=0; j<dim; j++) {
-                // For efficiency, only cosimilarity in the upper triangle of the matrix is calculated
-                if (i > j) {
-                    matrix[i][j] = matrix[j][i];
-                } else {
-                    matrix[i][j] = similarity(objs[i], objs[j]);
+            for (int j=0; j<=i; j++) {
+                // For efficiency, only calculate cosimilarity in the upper triangle of the matrix
+                output[i][j] = similarity(objs[i], objs[j], vectorSpace, matrix);
+                output[j][i] = output[i][j];
+            }
+        }
+        return output;
+    }
+
+    private int[] getVectorSpace(Item... items) throws DaoException {
+        TIntSet conceptIds = new TIntHashSet();
+        for (Item item : items) {
+            TagAppGroup group = helperDao.getGroup(new DaoFilter().setItemId(item.getItemId()));
+            for (TagApp t : group.getTagApps()) {
+                if (t.getConceptId() > -1) {
+                    conceptIds.add(t.getConceptId());
                 }
             }
         }
-        return matrix;
+        return conceptIds.toArray();
     }
 
     public static class Provider extends org.wikapidia.conf.Provider<ItemSimilarity> {

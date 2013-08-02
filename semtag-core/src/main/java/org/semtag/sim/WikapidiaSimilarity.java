@@ -7,7 +7,6 @@ import org.semtag.dao.ConceptDao;
 import org.semtag.dao.DaoException;
 import org.semtag.dao.DaoFilter;
 import org.semtag.model.concept.Concept;
-import org.semtag.model.concept.WikapidiaConcept;
 import org.wikapidia.conf.Configuration;
 import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
@@ -20,7 +19,7 @@ import org.wikapidia.sr.SRResultList;
 /**
  * @author Ari Weiland
  */
-public class WikapidiaSimilarity implements ConceptSimilarity<WikapidiaConcept> {
+public class WikapidiaSimilarity implements ConceptSimilarity {
 
     private final ConceptDao helperDao;
     private final Language language;
@@ -45,12 +44,18 @@ public class WikapidiaSimilarity implements ConceptSimilarity<WikapidiaConcept> 
     }
 
     @Override
-    public double similarity(WikapidiaConcept x, WikapidiaConcept y) throws DaoException {
+    public double similarity(Concept x, Concept y) throws DaoException {
+        if (x.equals(y)) {
+            return 1.0;
+        }
         return similarity(x.getConceptId(), y.getConceptId());
     }
 
     @Override
     public double similarity(int xId, int yId) throws DaoException {
+        if (xId == yId) {
+            return 1.0;
+        }
         try {
             SRResult result = srMetric.similarity(
                     new LocalId(language, xId).asLocalPage(),
@@ -63,7 +68,7 @@ public class WikapidiaSimilarity implements ConceptSimilarity<WikapidiaConcept> 
     }
 
     @Override
-    public SimilarResultList mostSimilar(WikapidiaConcept obj, int maxResults) throws DaoException {
+    public SimilarResultList mostSimilar(Concept obj, int maxResults) throws DaoException {
         return mostSimilar(obj.getConceptId(), maxResults);
     }
 
@@ -94,7 +99,7 @@ public class WikapidiaSimilarity implements ConceptSimilarity<WikapidiaConcept> 
     }
 
     @Override
-    public double[][] cosimilarity(WikapidiaConcept[] objs) throws DaoException {
+    public double[][] cosimilarity(Concept[] objs) throws DaoException {
         int[] ids = new int[objs.length];
         for (int i=0; i<objs.length; i++) {
             ids[i] = objs[i].getConceptId();

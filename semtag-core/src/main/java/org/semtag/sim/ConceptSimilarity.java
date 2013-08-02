@@ -6,7 +6,7 @@ import org.semtag.model.concept.Concept;
 /**
  * @author Ari Weiland
  */
-public interface ConceptSimilarity<T extends Concept> extends Similar<T> {
+public interface ConceptSimilarity extends Similar<Concept> {
 
     public double similarity(int xId, int yId) throws DaoException;
 

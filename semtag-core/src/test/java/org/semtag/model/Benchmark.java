@@ -41,7 +41,7 @@ public class Benchmark {
                 concepts.add(concept);
                 i++;
             }
-            if (i==SIZE) break;
+            if (i>=SIZE) break;
         }
         TDoubleList list = new TDoubleArrayList();
         Concept x = concepts.get(0);
@@ -97,7 +97,7 @@ public class Benchmark {
                 items.add(t.getItem());
                 i++;
             }
-            if (i==SIZE) break;
+            if (i>=SIZE) break;
         }
         System.out.println("Start ItemSimilarity");
         TDoubleList list = new TDoubleArrayList();
@@ -125,7 +125,7 @@ public class Benchmark {
                 concepts.add(concept);
                 i++;
             }
-            if (i==SIZE) break;
+            if (i>=SIZE) break;
         }
         System.out.println("Start ConceptMostSimilar");
         long start = System.currentTimeMillis();
@@ -155,7 +155,7 @@ public class Benchmark {
                 tagApps.add(tagApp);
                 i++;
             }
-            if (i==SIZE) break;
+            if (i>=SIZE) break;
         }
         System.out.println("Start TagAppMostSimilar");
         long start = System.currentTimeMillis();
@@ -185,7 +185,7 @@ public class Benchmark {
                 items.add(t.getItem());
                 i++;
             }
-            if (i==SIZE) break;
+            if (i>=SIZE) break;
         }
         System.out.println("Start ItemMostSimilar");
         long start = System.currentTimeMillis();
@@ -199,5 +199,77 @@ public class Benchmark {
         long end = System.currentTimeMillis();
         System.out.println("Ellapsed time: " + (end-start));
         System.out.println("Unit time: " + (end-start)/SIZE);
+    }
+
+//    @Ignore
+    @Test
+    public void benchmarkConceptCosimilarity()  throws ConfigurationException, DaoException {
+        Configurator conf = new Configurator(new Configuration());
+        ConceptDao dao = conf.get(ConceptDao.class);
+        ConceptSimilarity sim = conf.get(ConceptSimilarity.class);
+        List<Concept> concepts = new ArrayList<Concept>();
+        Iterable<Concept> iterable = dao.get(new DaoFilter());
+        int i=0;
+        for (Concept concept : iterable) {
+            if (concept.getConceptId() > -1) {
+                concepts.add(concept);
+                i++;
+            }
+            if (i>=SIZE) break;
+        }
+        System.out.println("Start ConceptCosimilarity");
+        long start = System.currentTimeMillis();
+        double[][] matrix = sim.cosimilarity(concepts.toArray(new Concept[concepts.size()]));
+        long end = System.currentTimeMillis();
+        System.out.println("Ellapsed time: " + (end-start));
+        System.out.println("for a " + SIZE + "x" + SIZE + " matrix");
+    }
+
+//    @Ignore
+    @Test
+    public void benchmarkTagAppCosimilarity()   throws ConfigurationException, DaoException {
+        Configurator conf = new Configurator(new Configuration());
+        TagAppDao dao = conf.get(TagAppDao.class);
+        TagAppSimilarity sim = conf.get(TagAppSimilarity.class);
+        List<TagApp> tagApps = new ArrayList<TagApp>();
+        Iterable<TagApp> iterable = dao.get(new DaoFilter());
+        int i=0;
+        for (TagApp t : iterable) {
+            if (t.getConceptId() > -1) {
+                tagApps.add(t);
+                i++;
+            }
+            if (i >= SIZE) break;
+        }
+        System.out.println("Start TagAppCosimilarity");
+        long start = System.currentTimeMillis();
+        double[][] matrix = sim.cosimilarity(tagApps.toArray(new TagApp[tagApps.size()]));
+        long end = System.currentTimeMillis();
+        System.out.println("Ellapsed time: " + (end-start));
+        System.out.println("for a " + SIZE + "x" + SIZE + " matrix");
+    }
+
+    //    @Ignore
+    @Test
+    public void benchmarkItemCosimilarity()     throws ConfigurationException, DaoException {
+        Configurator conf = new Configurator(new Configuration());
+        TagAppDao dao = conf.get(TagAppDao.class);
+        ItemSimilarity sim = conf.get(ItemSimilarity.class);
+        List<Item> items = new ArrayList<Item>();
+        Iterable<TagApp> iterable = dao.get(new DaoFilter());
+        int i=0;
+        for (TagApp t : iterable) {
+            if (t.getConceptId() > -1) {
+                items.add(t.getItem());
+                i++;
+            }
+            if (i>=SIZE) break;
+        }
+        System.out.println("Start ItemCosimilarity");
+        long start = System.currentTimeMillis();
+        double[][] matrix = sim.cosimilarity(items.toArray(new Item[items.size()]));
+        long end = System.currentTimeMillis();
+        System.out.println("Ellapsed time: " + (end-start));
+        System.out.println("for a " + SIZE + "x" + SIZE + " matrix");
     }
 }
