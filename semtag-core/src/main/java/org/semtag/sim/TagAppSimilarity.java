@@ -1,6 +1,8 @@
 package org.semtag.sim;
 
 import com.typesafe.config.Config;
+import gnu.trove.set.TIntSet;
+import gnu.trove.set.hash.TIntHashSet;
 import org.semtag.dao.DaoException;
 import org.semtag.dao.DaoFilter;
 import org.semtag.dao.TagAppDao;
@@ -8,9 +10,6 @@ import org.semtag.model.TagApp;
 import org.wikapidia.conf.Configuration;
 import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * @author Ari Weiland
@@ -35,23 +34,20 @@ public class TagAppSimilarity implements Similar<TagApp> {
 
     @Override
     public double similarity(TagApp x, TagApp y) throws DaoException {
-        if (x.equals(y)) {
-            return 1.0;
-        }
         return sim.similarity(x.getConceptId(), y.getConceptId());
     }
 
     @Override
     public SimilarResultList mostSimilar(TagApp obj, int maxResults) throws DaoException {
         SimilarResultList concepts = sim.mostSimilar(obj.getConceptId(), maxResults);
-        Set<Integer> conceptIds = new HashSet<Integer>();
+        TIntSet conceptIds = new TIntHashSet();
         for (SimilarResult result : concepts) {
             conceptIds.add(result.getIntId());
         }
-        Iterable<TagApp> iterable = helperDao.get(new DaoFilter().setConceptIds(conceptIds));
-        SimilarResultList list = new SimilarResultList(concepts.getMaxSize());
+        Iterable<TagApp> iterable = helperDao.get(new DaoFilter().setConceptIds(conceptIds.toArray()));
+        SimilarResultList list = new SimilarResultList(maxResults);
         for (TagApp t : iterable) {
-            list.add(new SimilarResult(t.getTagAppId(), concepts.getValue(t.getTagAppId())));
+            list.add(new SimilarResult(t.getTagAppId(), concepts.getValue(t.getConceptId())));
         }
         list.lock();
         return list;

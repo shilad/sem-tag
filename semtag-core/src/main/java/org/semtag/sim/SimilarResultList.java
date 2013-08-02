@@ -1,5 +1,7 @@
 package org.semtag.sim;
 
+import com.google.common.collect.Iterators;
+
 import java.util.*;
 
 /**
@@ -14,7 +16,7 @@ import java.util.*;
 public class SimilarResultList implements Iterable<SimilarResult> {
 
     private final int maxSize;
-    private final List<SimilarResult> results;
+    private List<SimilarResult> results;
     private boolean locked = false;
 
     /**
@@ -84,7 +86,7 @@ public class SimilarResultList implements Iterable<SimilarResult> {
      * Returns the current size of this list.
      * This method does NOT lock the list.
      * This method will never exceed max size after the list has been locked,
-     * though it need not equal max size. Before lock, it may be any value > 0.
+     * though it need not equal max size. Before lock, it may be any value >= 0.
      * @return
      */
     public int size() {
@@ -165,7 +167,7 @@ public class SimilarResultList implements Iterable<SimilarResult> {
     @Override
     public Iterator<SimilarResult> iterator() {
         lock();
-        return getResults().iterator();
+        return Iterators.limit(getResults().iterator(), maxSize);
     }
 
     /**
@@ -177,8 +179,8 @@ public class SimilarResultList implements Iterable<SimilarResult> {
     public void sortAndTruncate() {
         if (!locked) {
             Collections.sort(this.results, Collections.reverseOrder());
-            while (this.results.size() > maxSize) {
-                this.results.remove(maxSize);
+            if (results.size() > maxSize) {
+                results = results.subList(0, maxSize);
             }
         }
     }

@@ -45,17 +45,11 @@ public class WikapidiaSimilarity implements ConceptSimilarity {
 
     @Override
     public double similarity(Concept x, Concept y) throws DaoException {
-        if (x.equals(y)) {
-            return 1.0;
-        }
         return similarity(x.getConceptId(), y.getConceptId());
     }
 
     @Override
     public double similarity(int xId, int yId) throws DaoException {
-        if (xId == yId) {
-            return 1.0;
-        }
         try {
             SRResult result = srMetric.similarity(
                     new LocalId(language, xId).asLocalPage(),

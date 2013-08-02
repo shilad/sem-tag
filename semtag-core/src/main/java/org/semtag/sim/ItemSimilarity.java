@@ -37,18 +37,12 @@ public class ItemSimilarity implements Similar<Item> {
 
     @Override
     public double similarity(Item x, Item y) throws DaoException {
-        if (x.equals(y)) {
-            return 1.0;
-        }
         int[] vectorSpace = getVectorSpace(x, y);
         double[][] matrix = sim.cosimilarity(vectorSpace);
         return similarity(x, y, vectorSpace, matrix);
     }
 
     public double similarity(Item x, Item y, int[] vectorSpace, double[][] matrix) throws DaoException {
-        if (x.equals(y)) {
-            return 1.0;
-        }
         TagAppGroup groupX = helperDao.getGroup(new DaoFilter().setItemId(x.getItemId()));
         TagAppGroup groupY = helperDao.getGroup(new DaoFilter().setItemId(y.getItemId()));
         int dim = vectorSpace.length;
@@ -71,7 +65,25 @@ public class ItemSimilarity implements Similar<Item> {
                 }
             }
         }
-        return itemSimAlg(aX, aY, matrix);
+
+        // calculate cosine similarity
+        double xDotX = 0.0;
+        double yDotY = 0.0;
+        double xDotY = 0.0;
+        for (int i=0; i<dim; i++) {
+            // calculate beta vector values
+            double bX = 0;
+            double bY = 0;
+            for (int j=0; j<dim; j++) {
+                bX += matrix[i][j] * aX[j];
+                bY += matrix[i][j] * aY[j];
+            }
+            // calculate cosine similarity between beta vector values
+            xDotX += bX * bX;
+            yDotY += bY * bY;
+            xDotY += bX * bY;
+        }
+        return xDotY / Math.sqrt(xDotX * yDotY);
     }
 
     private double itemSimAlg(int[] aX, int[] aY, double[][] matrix) {
