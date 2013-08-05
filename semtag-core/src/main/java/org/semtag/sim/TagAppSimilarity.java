@@ -6,6 +6,7 @@ import gnu.trove.set.hash.TIntHashSet;
 import org.semtag.dao.DaoException;
 import org.semtag.dao.DaoFilter;
 import org.semtag.dao.TagAppDao;
+import org.semtag.model.Tag;
 import org.semtag.model.TagApp;
 import org.wikapidia.conf.Configuration;
 import org.wikapidia.conf.ConfigurationException;
@@ -42,7 +43,15 @@ public class TagAppSimilarity implements Similar<TagApp> {
 
     @Override
     public SimilarResultList mostSimilar(TagApp obj, int maxResults) throws DaoException {
-        SimilarResultList concepts = sim.mostSimilar(obj.getConceptId(), maxResults);
+        return buildResultList(sim.mostSimilar(obj.getConceptId(), maxResults));
+    }
+
+    @Override
+    public SimilarResultList mostSimilar(Tag tag, int maxResults) throws DaoException {
+        return buildResultList(sim.mostSimilar(tag, maxResults));
+    }
+
+    private SimilarResultList buildResultList(SimilarResultList concepts) throws DaoException {
         TIntSet conceptIds = new TIntHashSet();
         for (SimilarResult result : concepts) {
             conceptIds.add(result.getIntId());
@@ -52,7 +61,7 @@ public class TagAppSimilarity implements Similar<TagApp> {
         for (TagApp t : iterable) {
             tags.put(t.getTag().getNormalizedTag(), t);
         }
-        SimilarResultList list = new SimilarResultList(maxResults);
+        SimilarResultList list = new SimilarResultList(concepts.getMaxSize());
         for (TagApp t : tags.values()) {
             list.add(new SimilarResult(t.getTagAppId(), concepts.getValue(t.getConceptId())));
         }

@@ -6,12 +6,14 @@ import gnu.trove.set.hash.TIntHashSet;
 import org.semtag.dao.ConceptDao;
 import org.semtag.dao.DaoException;
 import org.semtag.dao.DaoFilter;
+import org.semtag.model.Tag;
 import org.semtag.model.concept.Concept;
 import org.wikapidia.conf.Configuration;
 import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
 import org.wikapidia.core.lang.Language;
 import org.wikapidia.core.lang.LocalId;
+import org.wikapidia.core.lang.LocalString;
 import org.wikapidia.sr.LocalSRMetric;
 import org.wikapidia.sr.SRResult;
 import org.wikapidia.sr.SRResultList;
@@ -77,6 +79,32 @@ public class WikapidiaSimilarity implements ConceptSimilarity {
         try {
             results = srMetric.mostSimilar(
                     new LocalId(language, id).asLocalPage(),
+                    maxResults,
+                    validIds);
+        } catch (org.wikapidia.core.dao.DaoException e) {
+            throw new DaoException(e);
+        }
+        SimilarResultList list = new SimilarResultList(maxResults);
+        for (SRResult r : results) {
+            if (r.getId() > -1) {
+                list.add(new SimilarResult(r.getId(), r.getScore()));
+            }
+        }
+        list.lock();
+        return list;
+    }
+
+    @Override
+    public SimilarResultList mostSimilar(Tag tag, int maxResults) throws DaoException {
+        Iterable<Concept> concepts = helperDao.get(new DaoFilter());
+        TIntSet validIds = new TIntHashSet();
+        for (Concept c : concepts) {
+            validIds.add(c.getConceptId());
+        }
+        SRResultList results;
+        try {
+            results = srMetric.mostSimilar(
+                    new LocalString(language, tag.getNormalizedTag()),
                     maxResults,
                     validIds);
         } catch (org.wikapidia.core.dao.DaoException e) {

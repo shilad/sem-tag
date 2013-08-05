@@ -1,6 +1,7 @@
 package org.semtag.sim;
 
 import org.semtag.dao.DaoException;
+import org.semtag.model.Tag;
 
 /**
  * @author Ari Weiland
@@ -8,8 +9,7 @@ import org.semtag.dao.DaoException;
 public interface Similar<T> {
 
     /**
-     * Describes a method for returning the similarity between two
-     * instances of a specified class.
+     * Returns the similarity between two instances of a specified class.
      * @param x
      * @param y
      * @return a double between 0.0 and 1.0 inclusive.
@@ -21,14 +21,22 @@ public interface Similar<T> {
     public double similarity(T x, T y) throws DaoException;
 
     /**
-     * Describes a method for returning a list of the most similar
-     * items to this item.
+     * Returns a list of the most similar objects to this objects.
      * @param obj
      * @param maxResults the maximum amount of items to return
      * @return
      * @throws DaoException
      */
     public SimilarResultList mostSimilar(T obj, int maxResults) throws DaoException;
+
+    /**
+     * Returns a list of the most similar objects to this string.
+     * @param tag
+     * @param maxResults
+     * @return
+     * @throws DaoException
+     */
+    public SimilarResultList mostSimilar(Tag tag, int maxResults) throws DaoException;
 
     /**
      * Returns a symmetric cosimilarity matrix of T objects.

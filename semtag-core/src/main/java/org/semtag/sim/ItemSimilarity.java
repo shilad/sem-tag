@@ -1,8 +1,8 @@
 package org.semtag.sim;
 
 import com.typesafe.config.Config;
-import gnu.trove.map.TIntIntMap;
-import gnu.trove.map.hash.TIntIntHashMap;
+import gnu.trove.map.TIntDoubleMap;
+import gnu.trove.map.hash.TIntDoubleHashMap;
 import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.TIntHashSet;
 import org.apache.commons.lang.ArrayUtils;
@@ -10,12 +10,14 @@ import org.semtag.dao.DaoException;
 import org.semtag.dao.DaoFilter;
 import org.semtag.dao.TagAppDao;
 import org.semtag.model.Item;
+import org.semtag.model.Tag;
 import org.semtag.model.TagApp;
 import org.semtag.model.TagAppGroup;
 import org.wikapidia.conf.Configuration;
 import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -97,7 +99,7 @@ public class ItemSimilarity implements Similar<Item> {
      * @return
      * @throws DaoException
      */
-    public double similarity(TIntIntMap vector, Item item) throws DaoException {
+    public double similarity(TIntDoubleMap vector, Item item) throws DaoException {
         TIntSet set = new TIntHashSet(getVectorSpace(item));
         set.addAll(vector.keys());
         int[] vectorSpace = set.toArray();
@@ -119,7 +121,7 @@ public class ItemSimilarity implements Similar<Item> {
      * @return
      * @throws DaoException
      */
-    public double similarity(TIntIntMap vector, Item item, int[] vectorSpace, double[][] matrix) throws DaoException {
+    public double similarity(TIntDoubleMap vector, Item item, int[] vectorSpace, double[][] matrix) throws DaoException {
         TagAppGroup group = helperDao.getGroup(new DaoFilter().setItemId(item.getItemId()));
         int dim = vectorSpace.length;
 
@@ -213,7 +215,7 @@ public class ItemSimilarity implements Similar<Item> {
      * @return
      * @throws DaoException
      */
-    public SimilarResultList mostSimilar(TIntIntMap vector, int maxResults) throws DaoException {
+    public SimilarResultList mostSimilar(TIntDoubleMap vector, int maxResults) throws DaoException {
         TIntSet conceptIds = new TIntHashSet();
         for (int id : vector.keys()) {
             if (id > -1) {
@@ -241,6 +243,42 @@ public class ItemSimilarity implements Similar<Item> {
         return list;
     }
 
+    @Override
+    public SimilarResultList mostSimilar(Tag tag, int maxResults) throws DaoException {
+        throw new UnsupportedOperationException("This method would be meaningless. " +
+                "Instead, use mostSimilar(TagApp[], int) or mostSimilar(Collection<TagApp>, int)");
+    }
+
+    public SimilarResultList mostSimilar(TagApp[] tagApps, int maxResults) throws DaoException {
+        TIntDoubleMap vector = new TIntDoubleHashMap();
+        for (TagApp t : tagApps) {
+            int cId = t.getConceptId();
+            if (cId > -1) {
+                int value = 1;
+                if (vector.containsKey(cId)) {
+                    value += vector.get(cId);
+                }
+                vector.put(cId, value);
+            }
+        }
+        return mostSimilar(vector, maxResults);
+    }
+
+    public SimilarResultList mostSimilar(Collection<TagApp> tagApps, int maxResults) throws DaoException {
+        TIntDoubleMap vector = new TIntDoubleHashMap();
+        for (TagApp t : tagApps) {
+            int cId = t.getConceptId();
+            if (cId > -1) {
+                int value = 1;
+                if (vector.containsKey(cId)) {
+                    value += vector.get(cId);
+                }
+                vector.put(cId, value);
+            }
+        }
+        return mostSimilar(vector, maxResults);
+    }
+
     /**
      * Returns the most similar items to a concept ID vector.
      * The vector should have concept IDs mapped to the amount of occurrences
@@ -250,9 +288,9 @@ public class ItemSimilarity implements Similar<Item> {
      * @return
      * @throws DaoException
      */
-    public SimilarResultList mostSimilar(Map<Integer, Integer> vector, int maxResults) throws DaoException {
-        TIntIntMap tVector = new TIntIntHashMap();
-        for (Map.Entry<Integer, Integer> entry : vector.entrySet()) {
+    public SimilarResultList mostSimilar(Map<Integer, Double> vector, int maxResults) throws DaoException {
+        TIntDoubleMap tVector = new TIntDoubleHashMap();
+        for (Map.Entry<Integer, Double> entry : vector.entrySet()) {
             tVector.put(entry.getKey(), entry.getValue());
         }
         return mostSimilar(tVector, maxResults);
