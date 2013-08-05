@@ -16,7 +16,7 @@
 log/
 target/
 
-.tmp/
+*/.tmp/
 *.db
 db/
 macademia_tag_apps.txt
