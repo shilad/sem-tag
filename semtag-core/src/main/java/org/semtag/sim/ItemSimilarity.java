@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * TODO: This class is SO UNGODLY SLOW. It runs upwards of 50-100 times slower than the others!
  * @author Ari Weiland
  */
 public class ItemSimilarity implements Similar<Item> {
