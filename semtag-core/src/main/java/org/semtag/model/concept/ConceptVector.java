@@ -16,6 +16,11 @@ import java.util.Map;
  * standard map methods. Still, the double implementation
  * allows other usages.
  *
+ * This class also offers add(), addAll(), and contains()
+ * methods so that it can be used as a concept set to define
+ * a vector space. These methods add the ID with value 1 unless
+ * it is already in the vector.
+ *
  * This class operates on a TIntDoubleMap.
  *
  * @author Ari Weiland
@@ -30,6 +35,10 @@ public class ConceptVector {
         vector = new TIntDoubleHashMap();
     }
 
+    public ConceptVector(ConceptVector vector) {
+        this.vector = vector.vector;
+    }
+
     /**
      * Constructs a ConceptVector with concept mappings defined
      * by the input TIntDoubleMap.
@@ -37,6 +46,7 @@ public class ConceptVector {
      */
     public ConceptVector(TIntDoubleMap vector) {
         this.vector = vector;
+        prune();
     }
 
     /**
@@ -47,6 +57,7 @@ public class ConceptVector {
     public ConceptVector(Map<Integer, Double> vector) {
         this();
         this.vector.putAll(vector);
+        prune();
     }
 
     /**
@@ -59,6 +70,7 @@ public class ConceptVector {
         for (Concept concept : concepts) {
             increment(concept.getConceptId());
         }
+        prune();
     }
 
     /**
@@ -71,6 +83,7 @@ public class ConceptVector {
         for (Concept concept : concepts) {
             increment(concept.getConceptId());
         }
+        prune();
     }
 
     /**
@@ -79,7 +92,9 @@ public class ConceptVector {
      * @param value
      */
     public void put(int id, double value) {
-        vector.put(id, value);
+        if (id >= 0) {
+            vector.put(id, value);
+        }
     }
 
     /**
@@ -89,6 +104,7 @@ public class ConceptVector {
      */
     public void putAll(TIntDoubleMap vector) {
         this.vector.putAll(vector);
+        prune();
     }
 
     /**
@@ -98,6 +114,7 @@ public class ConceptVector {
      */
     public void putAll(Map<Integer, Double> vector) {
         this.vector.putAll(vector);
+        prune();
     }
 
     /**
@@ -105,11 +122,34 @@ public class ConceptVector {
      * @param id
      */
     public void increment(int id) {
-        int value = 1;
-        if (vector.containsKey(id)) {
-            value += vector.get(id);
+        if (id >= 0) {
+            int value = 1;
+            if (vector.containsKey(id)) {
+                value += vector.get(id);
+            }
+            vector.put(id, value);
         }
-        vector.put(id, value);
+    }
+
+    /**
+     * Adds the ID to the vector with a value of 1 if it is not
+     * already in the vector. Useful if values are irrelevant.
+     * @param id
+     */
+    public void add(int id) {
+        if (id >= 0 && !vector.containsKey(id)) {
+            vector.put(id, 1);
+        }
+    }
+
+    /**
+     * Adds an array of IDs according to the add method.
+     * @param ids
+     */
+    public void addAll(int[] ids) {
+        for (int id : ids) {
+            add(id);
+        }
     }
 
     /**
@@ -119,6 +159,15 @@ public class ConceptVector {
      */
     public double get(int id) {
         return vector.get(id);
+    }
+
+    /**
+     * Returns whether or not the vector contains the concept ID.
+     * @param id
+     * @return
+     */
+    public boolean containsConcept(int id) {
+        return vector.containsKey(id);
     }
 
     /**
@@ -170,5 +219,11 @@ public class ConceptVector {
      */
     public TIntDoubleMap asTroveMap() {
         return vector;
+    }
+
+    private void prune() {
+        if (vector.containsKey(-1)) {
+            vector.remove(-1);
+        }
     }
 }
