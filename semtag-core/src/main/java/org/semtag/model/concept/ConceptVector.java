@@ -147,6 +147,15 @@ public class ConceptVector {
     }
 
     /**
+     * Returns the dimension of this vector.
+     * ie the number of unique concepts in this vector.
+     * @return
+     */
+    public int size() {
+        return vector.size();
+    }
+
+    /**
      * Returns an arbitrarily ordered array of the concepts
      * mapped in this vector. This includes concepts mapped to 0.
      * @return
