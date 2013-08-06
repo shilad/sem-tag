@@ -16,5 +16,6 @@
 log/
 target/
 
-# WikAPIdia
-wikAPIdia-*
+*.db
+db/
+macademia_tag_apps.txt
