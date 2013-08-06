@@ -14,7 +14,6 @@ import org.wikapidia.conf.Configurator;
 import org.wikapidia.core.lang.Language;
 import org.wikapidia.core.lang.LocalId;
 import org.wikapidia.core.lang.LocalString;
-import org.wikapidia.sr.LocalSRMetric;
 import org.wikapidia.sr.disambig.Disambiguator;
 
 import java.sql.Timestamp;
@@ -28,16 +27,18 @@ import java.util.Set;
  */
 public class WikapidiaMapper implements ConceptMapper {
 
-    private final Configurator configurator;
     private final Language language;
     private final Disambiguator disambiguator;
     private final TagAppDao tagAppDao;
 
-    public WikapidiaMapper(Configurator configurator, Language language, Disambiguator disambiguator, TagAppDao tagAppDao) {
-        this.configurator = configurator;
+    public WikapidiaMapper(Language language, Disambiguator disambiguator, TagAppDao tagAppDao) {
         this.language = language;
         this.disambiguator = disambiguator;
         this.tagAppDao = tagAppDao;
+    }
+
+    public Language getLanguage() {
+        return language;
     }
 
     public Disambiguator getDisambiguator() {
@@ -63,10 +64,8 @@ public class WikapidiaMapper implements ConceptMapper {
             if (conceptObj == null) { // TODO: this is not ideal, what should we do?
                 conceptObj = new LocalId(language, -1);
             }
-            Concept concept = new WikapidiaConcept(conceptObj, configurator.get(LocalSRMetric.class));
+            Concept concept = new WikapidiaConcept(conceptObj, "wikapidia");
             return new TagApp(user, tag, item, timestamp, concept);
-        } catch (ConfigurationException e) {
-            throw new SemTagException(e);
         } catch (org.wikapidia.core.dao.DaoException e) {
             throw new SemTagException(e);
         } catch (DaoException e) {
@@ -76,15 +75,10 @@ public class WikapidiaMapper implements ConceptMapper {
 
     @Override
     public Concept getConcept(int conceptId, String metric, byte[] objBytes) throws DaoException {
-        try {
-            return new WikapidiaConcept(
-                    conceptId,
-                    configurator.get(LocalSRMetric.class, metric),
-                    objBytes
-            );
-        } catch (ConfigurationException e) {
-            throw new DaoException(e);
-        }
+        return new WikapidiaConcept(
+                conceptId,
+                "wikapidia",
+                objBytes);
     }
 
     public static class Provider extends org.wikapidia.conf.Provider<ConceptMapper> {
@@ -108,11 +102,9 @@ public class WikapidiaMapper implements ConceptMapper {
                 return null;
             }
             return new WikapidiaMapper(
-                    getConfigurator(),
                     Language.getByLangCode(config.getString("lang")),
                     getConfigurator().get(Disambiguator.class, config.getString("disambiguator")),
-                    getConfigurator().get(TagAppDao.class, config.getString("tagAppDao"))
-            );
+                    getConfigurator().get(TagAppDao.class, config.getString("tagAppDao")));
         }
     }
 }

@@ -179,7 +179,7 @@ public class WikapidiaSimilarity implements ConceptSimilarity {
             return new WikapidiaSimilarity(
                     getConfigurator().get(ConceptDao.class, config.getString("conceptDao")),
                     Language.getByLangCode(config.getString("lang")),
-                    getConfigurator().get(LocalSRMetric.class, config.getString("srMetric"))
+                    getConfigurator().get(LocalSRMetric.class, config.getString("metric"))
             );
         }
     }

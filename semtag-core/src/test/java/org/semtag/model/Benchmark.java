@@ -6,6 +6,7 @@ import gnu.trove.set.TIntSet;
 import gnu.trove.set.TLongSet;
 import gnu.trove.set.hash.TIntHashSet;
 import gnu.trove.set.hash.TLongHashSet;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.semtag.dao.ConceptDao;
 import org.semtag.dao.DaoException;
@@ -27,7 +28,7 @@ public class Benchmark {
 
     public static final double SIZE = 10;
 
-//    @Ignore
+    @Ignore
     @Test
     public void benchmarkConceptSimilarity()    throws ConfigurationException, DaoException {
         Configurator conf = new Configurator(new Configuration());
@@ -55,7 +56,7 @@ public class Benchmark {
         System.out.println("Unit time: " + (end-start)/SIZE);
     }
 
-//    @Ignore
+    @Ignore
     @Test
     public void benchmarkTagAppSimilarity()     throws ConfigurationException, DaoException {
         Configurator conf = new Configurator(new Configuration());
@@ -83,7 +84,7 @@ public class Benchmark {
         System.out.println("Unit time: " + (end-start)/SIZE);
     }
 
-//    @Ignore
+    @Ignore
     @Test
     public void benchmarkItemSimilarity()       throws ConfigurationException, DaoException {
         Configurator conf = new Configurator(new Configuration());
@@ -111,7 +112,7 @@ public class Benchmark {
         System.out.println("Unit time: " + (end-start)/SIZE);
     }
 
-//    @Ignore
+    @Ignore
     @Test
     public void benchmarkConceptMostSimilar()   throws ConfigurationException, DaoException {
         Configurator conf = new Configurator(new Configuration());
@@ -141,7 +142,7 @@ public class Benchmark {
         System.out.println("Unit time: " + (end-start)/SIZE);
     }
 
-//    @Ignore
+    @Ignore
     @Test
     public void benchmarkTagAppMostSimilar()    throws ConfigurationException, DaoException {
         Configurator conf = new Configurator(new Configuration());
@@ -171,7 +172,7 @@ public class Benchmark {
         System.out.println("Unit time: " + (end-start)/SIZE);
     }
 
-//    @Ignore
+    @Ignore
     @Test
     public void benchmarkItemMostSimilar()      throws ConfigurationException, DaoException {
         Configurator conf = new Configurator(new Configuration());
@@ -201,7 +202,7 @@ public class Benchmark {
         System.out.println("Unit time: " + (end-start)/SIZE);
     }
 
-//    @Ignore
+    @Ignore
     @Test
     public void benchmarkConceptCosimilarity()  throws ConfigurationException, DaoException {
         Configurator conf = new Configurator(new Configuration());
@@ -225,7 +226,7 @@ public class Benchmark {
         System.out.println("for a " + SIZE + "x" + SIZE + " matrix");
     }
 
-//    @Ignore
+    @Ignore
     @Test
     public void benchmarkTagAppCosimilarity()   throws ConfigurationException, DaoException {
         Configurator conf = new Configurator(new Configuration());
@@ -249,7 +250,7 @@ public class Benchmark {
         System.out.println("for a " + SIZE + "x" + SIZE + " matrix");
     }
 
-    //    @Ignore
+    @Ignore
     @Test
     public void benchmarkItemCosimilarity()     throws ConfigurationException, DaoException {
         Configurator conf = new Configurator(new Configuration());

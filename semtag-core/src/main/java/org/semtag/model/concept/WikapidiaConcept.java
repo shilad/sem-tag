@@ -2,32 +2,23 @@ package org.semtag.model.concept;
 
 import org.wikapidia.core.lang.Language;
 import org.wikapidia.core.lang.LocalId;
-import org.wikapidia.sr.LocalSRMetric;
 
 /**
  * @author Ari Weiland
  */
 public class WikapidiaConcept extends Concept<LocalId> {
 
-    private final LocalSRMetric srMetric;
-
-    public WikapidiaConcept(int conceptId, LocalSRMetric srMetric, byte[] objBytes) {
-        super(conceptId, srMetric.getName(), objBytes);
-        this.srMetric = srMetric;
+    public WikapidiaConcept(int conceptId, String type, byte[] objBytes) {
+        super(conceptId, type, objBytes);
     }
 
-    public WikapidiaConcept(LocalId conceptObj, LocalSRMetric srMetric) {
-        super(conceptObj.getId(), srMetric.getName(), conceptObj);
-        this.srMetric = srMetric;
-    }
-
-    public LocalSRMetric getSrMetric() {
-        return srMetric;
+    public WikapidiaConcept(LocalId conceptObj, String type) {
+        super(conceptObj.getId(), type, conceptObj);
     }
 
     @Override
     protected String conceptObjToString() {
-        return conceptObj.getId() + " " +conceptObj.getLanguage().getId();
+        return conceptObj.getId() + " " + conceptObj.getLanguage().getId();
     }
 
     @Override

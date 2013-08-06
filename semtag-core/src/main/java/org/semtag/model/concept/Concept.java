@@ -1,36 +1,48 @@
 package org.semtag.model.concept;
 
 /**
+ * An abstract concept in SemTag that TagApps are mapped to.
+ * It has an int ID, a String type identifier which describes
+ * what type of concept it is, and a specifiable object that
+ * represents the concept. The ID does not necessarily need to
+ * relate to the concept object, but it should when possible.
+ *
+ * SemTag comes with a predefined WikapidiaConcept of type
+ * "wikapidia", but a SemTag user may create their own. To do
+ * so, you must create a Concept subclass, a class that implements
+ * ConceptMapper and maps to your concept type, and a class that
+ * implements ConceptSimilarity to compare your concept type.
+ *
  * @author Ari Weiland
  * @author Yulun Li
  */
 public abstract class Concept<I> {
     protected final int conceptId;
-    protected final String metric;
+    protected final String type;
     protected final I conceptObj;
 
     /**
-     * Constructs a concept with given ID, metric, and concept object.
+     * Constructs a concept with given ID, type, and concept object.
      * @param conceptId
-     * @param metric
+     * @param type
      * @param conceptObj
      */
-    public Concept(int conceptId, String metric, I conceptObj) {
+    public Concept(int conceptId, String type, I conceptObj) {
         this.conceptId = conceptId;
-        this.metric = metric;
+        this.type = type;
         this.conceptObj = conceptObj;
     }
 
     /**
-     * Constructs a concept with given ID, metric, and concept object
+     * Constructs a concept with given ID, type, and concept object
      * extracted by the {@code bytesToConceptObj} method.
      * @param conceptId
-     * @param metric
+     * @param type
      * @param objBytes
      */
-    public Concept(int conceptId, String metric, byte[] objBytes) {
+    public Concept(int conceptId, String type, byte[] objBytes) {
         this.conceptId = conceptId;
-        this.metric = metric;
+        this.type = type;
         this.conceptObj = bytesToConceptObj(objBytes);
     }
 
@@ -38,8 +50,8 @@ public abstract class Concept<I> {
         return conceptId;
     }
 
-    public String getMetric() {
-        return metric;
+    public String getType() {
+        return type;
     }
 
     public I getConceptObj() {
@@ -90,7 +102,7 @@ public abstract class Concept<I> {
 
         Concept concept = (Concept) o;
 
-        return conceptId == concept.conceptId && metric.equals(concept.metric);
+        return conceptId == concept.conceptId && type.equals(concept.type);
 
     }
 
@@ -98,7 +110,7 @@ public abstract class Concept<I> {
     public String toString() {
         return "Concept{" +
                 "conceptId=" + conceptId +
-                ", metric=\'" + metric + '\'' +
+                ", type=\'" + type + '\'' +
                 ", conceptObj=" + conceptObj +
                 '}';
     }

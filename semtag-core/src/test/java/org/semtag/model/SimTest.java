@@ -1,5 +1,6 @@
 package org.semtag.model;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.semtag.dao.*;
 import org.semtag.model.concept.Concept;
@@ -18,7 +19,7 @@ import java.util.Set;
  */
 public class SimTest {
 
-//    @Ignore
+    @Ignore
     @Test
     public void testConceptSim() throws ConfigurationException, DaoException {
         Configurator conf = new Configurator(new Configuration());
@@ -53,7 +54,7 @@ public class SimTest {
         }
     }
 
-//    @Ignore
+    @Ignore
     @Test
     public void testTagAppSim() throws ConfigurationException, DaoException {
         Configurator conf = new Configurator(new Configuration());
@@ -88,7 +89,7 @@ public class SimTest {
         }
     }
 
-//    @Ignore
+    @Ignore
     @Test
     public void testItemSim() throws ConfigurationException, DaoException {
         Configurator conf = new Configurator(new Configuration());

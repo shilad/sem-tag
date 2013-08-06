@@ -36,7 +36,7 @@ public class ConceptSqlDao extends BaseSqLDao<Concept> implements ConceptDao {
         if (getCount(new DaoFilter().setConceptId(concept.getConceptId())) == 0) {
             insert(
                     concept.getConceptId(),
-                    concept.getMetric(),
+                    concept.getType(),
                     concept.conceptObjToBytes());
         }
     }
@@ -47,7 +47,7 @@ public class ConceptSqlDao extends BaseSqLDao<Concept> implements ConceptDao {
             insert(
                     conn,
                     concept.getConceptId(),
-                    concept.getMetric(),
+                    concept.getType(),
                     concept.conceptObjToBytes());
         }
     }
@@ -89,7 +89,7 @@ public class ConceptSqlDao extends BaseSqLDao<Concept> implements ConceptDao {
     private Concept buildConcept(Record record) throws DaoException {
         return mapper.getConcept(
                 record.getValue(Tables.CONCEPTS.CONCEPT_ID),
-                record.getValue(Tables.CONCEPTS.METRIC),
+                record.getValue(Tables.CONCEPTS.TYPE),
                 record.getValue(Tables.CONCEPTS.CONCEPT_OBJ));
     }
 
