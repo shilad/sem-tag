@@ -26,13 +26,11 @@ public class SimTest {
         ConceptSimilarity sim = conf.get(ConceptSimilarity.class);
         List<Concept> concepts = new ArrayList<Concept>();
         Iterable<Concept> iterable = dao.get(new DaoFilter());
-        int i=0;
         for (Concept concept : iterable) {
             if (concept.getConceptId() > -1) {
                 concepts.add(concept);
-                i++;
             }
-            if (i>=20) break;
+            if (concepts.size()>=20) break;
         }
         Concept x = concepts.get(0);
         for (Concept y : concepts) {
@@ -63,13 +61,11 @@ public class SimTest {
         TagAppSimilarity sim = conf.get(TagAppSimilarity.class);
         List<TagApp> tagApps = new ArrayList<TagApp>();
         Iterable<TagApp> iterable = dao.get(new DaoFilter());
-        int i=0;
         for (TagApp t : iterable) {
             if (t.getConceptId() > -1) {
                 tagApps.add(t);
-                i++;
             }
-            if (i>=20) break;
+            if (tagApps.size()>=20) break;
         }
         TagApp x = tagApps.get(0);
         for (TagApp y : tagApps) {
@@ -101,11 +97,9 @@ public class SimTest {
         ItemSimilarity sim = conf.get(ItemSimilarity.class);
         Set<Item> items = new HashSet<Item>();
         Iterable<TagApp> iterable = dao.get(new DaoFilter());
-        int i=0;
         for (TagApp t : iterable) {
             if (t.getConceptId() > -1) {
                 items.add(t.getItem());
-                i++;
             }
             if (items.size()>=20) break;
         }
