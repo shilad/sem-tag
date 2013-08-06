@@ -1,7 +1,7 @@
 package org.semtag.sim;
 
 import com.typesafe.config.Config;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.semtag.dao.DaoException;
 import org.semtag.dao.DaoFilter;
 import org.semtag.dao.TagAppDao;

@@ -1,6 +1,6 @@
 package org.semtag.dao;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.semtag.model.Tag;
 
 import java.util.ArrayList;
