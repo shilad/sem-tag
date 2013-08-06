@@ -1,6 +1,18 @@
 package org.semtag.model.concept;
 
 /**
+ * An abstract concept in SemTag that TagApps are mapped to.
+ * It has an int ID, a String type identifier which describes
+ * what type of concept it is, and a specifiable object that
+ * represents the concept. The ID does not necessarily need to
+ * relate to the concept object, but it should when possible.
+ *
+ * SemTag comes with a predefined WikapidiaConcept of type
+ * "wikapidia", but a SemTag user may create their own. To do
+ * so, you must create a Concept subclass, a class that implements
+ * ConceptMapper and maps to your concept type, and a class that
+ * implements ConceptSimilarity to compare your concept type.
+ *
  * @author Ari Weiland
  * @author Yulun Li
  */
