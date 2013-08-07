@@ -61,7 +61,13 @@ public class TagAppSimilarity implements Similar<TagApp> {
         return list;
     }
 
-    @Override
+    /**
+     * Returns a list of the most similar raw tags to this tag.
+     * @param tag
+     * @param maxResults
+     * @return
+     * @throws DaoException
+     */
     public SimilarResultList mostSimilar(Tag tag, int maxResults) throws DaoException {
         SimilarResultList concepts = sim.mostSimilar(tag, maxResults);
         TIntSet conceptIds = new TIntHashSet();

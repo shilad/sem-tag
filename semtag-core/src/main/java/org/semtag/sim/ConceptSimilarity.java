@@ -1,6 +1,7 @@
 package org.semtag.sim;
 
 import org.semtag.dao.DaoException;
+import org.semtag.model.Tag;
 import org.semtag.model.concept.Concept;
 
 /**
@@ -28,6 +29,15 @@ public interface ConceptSimilarity extends Similar<Concept> {
      * @throws DaoException
      */
     public SimilarResultList mostSimilar(int id, int maxResults) throws DaoException;
+
+    /**
+     * Returns a list of the most similar concepts to this tag.
+     * @param tag
+     * @param maxResults
+     * @return
+     * @throws DaoException
+     */
+    public SimilarResultList mostSimilar(Tag tag, int maxResults) throws DaoException;
 
     /**
      * Returns a cosimilarity matrix of concept IDs ids.

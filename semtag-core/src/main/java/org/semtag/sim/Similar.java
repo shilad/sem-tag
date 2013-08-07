@@ -1,7 +1,6 @@
 package org.semtag.sim;
 
 import org.semtag.dao.DaoException;
-import org.semtag.model.Tag;
 
 /**
  * A general-purpose interface that defines how to test similarity in SemTag
@@ -40,15 +39,6 @@ public interface Similar<T> {
      * @throws DaoException
      */
     public SimilarResultList mostSimilar(T obj, int maxResults) throws DaoException;
-
-    /**
-     * Returns a list of the most similar objects to this tag.
-     * @param tag
-     * @param maxResults
-     * @return
-     * @throws DaoException
-     */
-    public SimilarResultList mostSimilar(Tag tag, int maxResults) throws DaoException;
 
     /**
      * Returns a symmetric cosimilarity matrix of T objects.
