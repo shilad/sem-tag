@@ -19,6 +19,41 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * This class applies the methods from the Similar interface to items.
+ * Unlike TagApps which rely directly on a single concept, items have
+ * multiple concepts applied to them through their TagApps, so the
+ * similarity algorithms must be more complex.
+ *
+ * To calculate similarity, it first gathers a concept vector space that
+ * consists of all the concepts applied to both items in question. Next,
+ * it generates a concept cosimilarity matrix on that vector space for
+ * later use. The vector space is then used to generate initial alpha
+ * vectors of the items. Generally an alpha vector is a double[] the
+ * length of the vector space where aX[n] is the amount of occurences in
+ * item X of the nth concept in the vector space, though it can have
+ * other meanings. The alpha vectors and matrix are then used to generate
+ * beta vectors by multiplying the matrix times the alpha vectors. Finally,
+ * cosine similarity is calculated on the beta vectors and returned.
+ *
+ * To find most similar items, it first gathers potentially similar items.
+ * This is done by gathering the most similar concepts to the specified
+ * item's concepts and gathering all items that have those concepts. It
+ * then calculates the similarity between the first item and each of the
+ * gathered items and returns the ones with the highest similarity score.
+ * Here, rather than using the normal vector space described above, it
+ * uses an aggregated vector space of all the gathered items so that it
+ * only needs to generate one underlying concept cosimilarity matrix.
+ *
+ * To calculate a cosimilarity matrix, it runs a brute force algorithm
+ * that manually calculates similarity between each pair of items. Again,
+ * rather than using the standard vector space, we use an aggregated
+ * vector space so that only one underlying concept cosimilarity matrix
+ * must be generated. Only the one triangle of the matrix is actually
+ * calculated, the other is copied from the one.
+ *
+ * In many situations, this class also allows ConceptVectors to be used
+ * in place of items, as an item at its core is simply a vector of concepts.
+ *
  * @author Ari Weiland
  */
 public class ItemSimilarity implements Similar<Item> {
@@ -67,10 +102,8 @@ public class ItemSimilarity implements Similar<Item> {
         int dim = vectorSpace.length;
 
         // convert to vector form
-        // alpha vector representation of groupX concepts in specified vector space
-        int[] aX = new int[dim];
-        // alpha vector representation of groupY concepts in specified vector space
-        int[] aY = new int[dim];
+        double[] aX = new double[dim]; // alpha vector representation of groupX concepts in specified vector space
+        double[] aY = new double[dim]; // alpha vector representation of groupY concepts in specified vector space
         for (int i=0; i<dim; i++) {
             for (TagApp t : groupX) {
                 if (vectorSpace[i] == t.getConceptId()) {
@@ -120,8 +153,8 @@ public class ItemSimilarity implements Similar<Item> {
         int dim = vectorSpace.length;
 
         // convert to alpha vector form
-        int[] aX = new int[dim]; // alpha vector representation of groupX concepts in specified vector space
-        int[] aY = new int[dim]; // alpha vector representation of groupY concepts in specified vector space
+        double[] aX = new double[dim]; // alpha vector representation of vector concepts in specified vector space
+        double[] aY = new double[dim]; // alpha vector representation of item concepts in specified vector space
         for (int i=0; i<dim; i++) {
             for (int id : vector.getVectorSpace()) {
                 if (vectorSpace[i] == id) {
@@ -145,9 +178,8 @@ public class ItemSimilarity implements Similar<Item> {
      * @param matrix
      * @return
      */
-    private double cosineSimilarity(int[] aX, int[] aY, double[][] matrix) {
+    private double cosineSimilarity(double[] aX, double[] aY, double[][] matrix) {
         int dim = aX.length;
-        // calculate cosine similarity
         double xDotX = 0.0;
         double yDotY = 0.0;
         double xDotY = 0.0;
