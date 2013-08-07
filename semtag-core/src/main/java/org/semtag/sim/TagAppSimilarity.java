@@ -43,15 +43,7 @@ public class TagAppSimilarity implements Similar<TagApp> {
 
     @Override
     public SimilarResultList mostSimilar(TagApp obj, int maxResults) throws DaoException {
-        return buildResultList(sim.mostSimilar(obj.getConceptId(), maxResults));
-    }
-
-    @Override
-    public SimilarResultList mostSimilar(Tag tag, int maxResults) throws DaoException {
-        return buildResultList(sim.mostSimilar(tag, maxResults));
-    }
-
-    private SimilarResultList buildResultList(SimilarResultList concepts) throws DaoException {
+        SimilarResultList concepts = sim.mostSimilar(obj.getConceptId(), maxResults);
         TIntSet conceptIds = new TIntHashSet();
         for (SimilarResult result : concepts) {
             conceptIds.add(result.getIntId());
@@ -64,6 +56,26 @@ public class TagAppSimilarity implements Similar<TagApp> {
         SimilarResultList list = new SimilarResultList(concepts.getMaxSize());
         for (TagApp t : tags.values()) {
             list.add(new SimilarResult(t.getTagAppId(), concepts.getValue(t.getConceptId())));
+        }
+        list.lock();
+        return list;
+    }
+
+    @Override
+    public SimilarResultList mostSimilar(Tag tag, int maxResults) throws DaoException {
+        SimilarResultList concepts = sim.mostSimilar(tag, maxResults);
+        TIntSet conceptIds = new TIntHashSet();
+        for (SimilarResult result : concepts) {
+            conceptIds.add(result.getIntId());
+        }
+        Iterable<TagApp> iterable = helperDao.get(new DaoFilter().setConceptIds(conceptIds.toArray()));
+        Map<String, TagApp> tags = new HashMap<String, TagApp>();
+        for (TagApp t : iterable) {
+            tags.put(t.getTag().getNormalizedTag(), t);
+        }
+        SimilarResultList list = new SimilarResultList(concepts.getMaxSize());
+        for (TagApp t : tags.values()) {
+            list.add(new SimilarResult(t.getTag().getRawTag(), concepts.getValue(t.getConceptId())));
         }
         list.lock();
         return list;
