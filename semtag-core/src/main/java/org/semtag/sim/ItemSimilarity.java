@@ -6,7 +6,6 @@ import org.semtag.dao.DaoException;
 import org.semtag.dao.DaoFilter;
 import org.semtag.dao.TagAppDao;
 import org.semtag.model.Item;
-import org.semtag.model.Tag;
 import org.semtag.model.TagApp;
 import org.semtag.model.TagAppGroup;
 import org.semtag.model.concept.ConceptVector;
@@ -268,12 +267,6 @@ public class ItemSimilarity implements Similar<Item> {
         }
         list.lock();
         return list;
-    }
-
-    @Override
-    public SimilarResultList mostSimilar(Tag tag, int maxResults) throws DaoException {
-        throw new UnsupportedOperationException("This method would be meaningless. " +
-                "Instead, use mostSimilar(TagApp[], int) or mostSimilar(Collection<TagApp>, int)");
     }
 
     @Override
