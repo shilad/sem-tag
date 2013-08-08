@@ -116,7 +116,26 @@ public class TagAppSqlDao extends BaseSqLDao<TagApp> implements TagAppDao {
             conditions.add(Tables.TAGAPPS.CONCEPT_ID.eq(filter.getConceptId()));
         }
         Result<Record> result = fetch(conditions);
-        return buildTagAppGroup(filter, result);
+        return buildTagAppGroup(filter, result, 0);
+    }
+
+    @Override
+    public TagAppGroup getGroup(DaoFilter filter, int maxSize) throws DaoException {
+        Collection<Condition> conditions = new ArrayList<Condition>();
+        if (filter.getUserId() != null) {
+            conditions.add(Tables.TAGAPPS.USER_ID.eq(filter.getUserId()));
+        }
+        if (filter.getTag() != null) {
+            conditions.add(Tables.TAGAPPS.NORM_TAG.eq(filter.getTag()));
+        }
+        if (filter.getItemId() != null) {
+            conditions.add(Tables.TAGAPPS.ITEM_ID.eq(filter.getItemId()));
+        }
+        if (filter.getConceptId() != null) {
+            conditions.add(Tables.TAGAPPS.CONCEPT_ID.eq(filter.getConceptId()));
+        }
+        Result<Record> result = fetch(conditions);
+        return buildTagAppGroup(filter, result, maxSize);
     }
 
     private Iterable<TagApp> buildTagAppIterable(Cursor<Record> cursor) {
@@ -128,10 +147,14 @@ public class TagAppSqlDao extends BaseSqLDao<TagApp> implements TagAppDao {
         };
     }
 
-    private TagAppGroup buildTagAppGroup(DaoFilter filter, Result<Record> result) {
+    private TagAppGroup buildTagAppGroup(DaoFilter filter, Result<Record> result, int maxSize) {
         Set<TagApp> tagApps = new HashSet<TagApp>();
+        int i=0;
         for (Record record : result) {
-            tagApps.add(buildTagApp(record));
+            if (i < maxSize || maxSize < 1) {
+                tagApps.add(buildTagApp(record));
+                i++;
+            }
         }
         return new TagAppGroup(filter, tagApps);
     }

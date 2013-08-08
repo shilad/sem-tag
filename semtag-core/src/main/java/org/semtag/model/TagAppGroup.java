@@ -135,8 +135,25 @@ public class TagAppGroup implements Iterable<TagApp> {
         return Collections.unmodifiableSet(tagApps);
     }
 
+    /**
+     * Returns an arbitrary TagApp from the group, based on iterator.next().
+     * Returns null if the group is empty.
+     * @return
+     */
+    public TagApp getAnyTagApp() {
+        if (isEmpty()) {
+            return null;
+        } else {
+            return iterator().next();
+        }
+    }
+
     public int size() {
         return tagApps.size();
+    }
+
+    public boolean isEmpty() {
+        return tagApps.isEmpty();
     }
 
     /**

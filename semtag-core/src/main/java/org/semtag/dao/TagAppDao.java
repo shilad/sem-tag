@@ -24,4 +24,6 @@ public interface TagAppDao extends Dao<TagApp> {
      * @throws DaoException
      */
     public TagAppGroup getGroup(DaoFilter filter) throws DaoException;
+
+    TagAppGroup getGroup(DaoFilter filter, int maxSize) throws DaoException;
 }
