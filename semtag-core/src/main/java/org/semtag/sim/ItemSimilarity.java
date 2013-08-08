@@ -263,7 +263,7 @@ public class ItemSimilarity implements Similar<Item> {
         }
         SimilarResultList list = new SimilarResultList(maxResults);
         for (Item item : items.values()) {
-            list.add(new SimilarResult(item.getItemId(), similarity(vector, item, vectorSpace, matrix)));
+            list.add(new SimilarResult<Item>(item.getItemId(), item, similarity(vector, item, vectorSpace, matrix)));
         }
         list.lock();
         return list;

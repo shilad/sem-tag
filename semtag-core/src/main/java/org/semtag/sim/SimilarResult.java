@@ -3,18 +3,29 @@ package org.semtag.sim;
 /**
  * @author Ari Weiland
  */
-public class SimilarResult implements Comparable<SimilarResult> {
+public class SimilarResult<T> implements Comparable<SimilarResult> {
 
     private final String id;
+    private final T obj;
     private final double value;
 
     public SimilarResult(long id, double value) {
-        this.id = String.valueOf(id);
-        this.value = value;
+        this(id, null, value);
     }
 
     public SimilarResult(String id, double value) {
+        this(id, null, value);
+    }
+
+    public SimilarResult(long id, T obj, double value) {
+        this.id = String.valueOf(id);
+        this.obj = obj;
+        this.value = value;
+    }
+
+    public SimilarResult(String id, T obj, double value) {
         this.id = id;
+        this.obj = obj;
         this.value = value;
     }
 
@@ -28,6 +39,10 @@ public class SimilarResult implements Comparable<SimilarResult> {
 
     public String getStringId() {
         return id;
+    }
+
+    public T getObj() {
+        return obj;
     }
 
     public double getValue() {

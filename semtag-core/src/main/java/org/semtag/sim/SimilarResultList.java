@@ -6,16 +6,18 @@ import java.util.*;
 
 /**
  * This class is represents a list of SimilarResult items. It has a specified
- * maximum size and is sorted. It contains a locking mechanism that activates
- * either when manually called or by either the get or iterator methods. Upon
- * locking, the list is sorted and truncated down to max size, and add methods
- * can no longer be called.
+ * maximum size, optional minimal threshold score, and is sorted. It contains
+ * a locking mechanism that activates either when manually called or by either
+ * the get or iterator methods. Upon locking, the list is sorted, values below
+ * the threshold are removed, and it is truncated down to max size. Add methods
+ * also can no longer be called.
  *
  * @author Ari Weiland
  */
 public class SimilarResultList implements Iterable<SimilarResult> {
 
     private final int maxSize;
+    private final double threshold;
     private List<SimilarResult> results;
     private boolean locked = false;
 
@@ -24,8 +26,15 @@ public class SimilarResultList implements Iterable<SimilarResult> {
      * @param maxSize
      */
     public SimilarResultList(int maxSize) {
-        this.maxSize = maxSize;
-        this.results = new ArrayList<SimilarResult>(maxSize);
+        this(maxSize, 0);
+    }
+
+    /**
+     * Constructs an empty SimilarResultList with specified max size.
+     * @param maxSize
+     */
+    public SimilarResultList(int maxSize, double threshold) {
+        this(maxSize, threshold, new ArrayList<SimilarResult>());
     }
 
     /**
@@ -34,7 +43,26 @@ public class SimilarResultList implements Iterable<SimilarResult> {
      * @param results
      */
     public SimilarResultList(int maxSize, SimilarResult... results) {
+        this(maxSize, 0, results);
+    }
+
+    /**
+     * Constructs a SimilarResultList containing results with a specified max size.
+     * @param maxSize
+     * @param results
+     */
+    public SimilarResultList(int maxSize, Collection<SimilarResult> results) {
+        this(maxSize, 0, results);
+    }
+
+    /**
+     * Constructs a SimilarResultList containing results with a specified max size.
+     * @param maxSize
+     * @param results
+     */
+    public SimilarResultList(int maxSize, double threshold, SimilarResult... results) {
         this.maxSize = maxSize;
+        this.threshold = threshold;
         this.results = new ArrayList<SimilarResult>(maxSize);
         add(results);
     }
@@ -44,8 +72,9 @@ public class SimilarResultList implements Iterable<SimilarResult> {
      * @param maxSize
      * @param results
      */
-    public SimilarResultList(int maxSize, Collection<SimilarResult> results) {
+    public SimilarResultList(int maxSize, double threshold, Collection<SimilarResult> results) {
         this.maxSize = maxSize;
+        this.threshold = threshold;
         this.results = new ArrayList<SimilarResult>(maxSize);
         add(results);
     }
@@ -80,6 +109,14 @@ public class SimilarResultList implements Iterable<SimilarResult> {
      */
     public int getMaxSize() {
         return maxSize;
+    }
+
+    /**
+     * Returns the minimum threshold value of this list.
+     * @return
+     */
+    public double getThreshold() {
+        return threshold;
     }
 
     /**
@@ -172,8 +209,14 @@ public class SimilarResultList implements Iterable<SimilarResult> {
 
     private void sortAndTruncate() {
         Collections.sort(this.results, Collections.reverseOrder());
-        while (results.size() > maxSize) {
-            results.remove(maxSize);
+        int truncateSize = maxSize;
+        for (int i=0; i<results.size() && i<truncateSize; i++) {
+            if (results.get(i).getValue() < threshold) {
+                truncateSize = i;
+            }
+        }
+        while (results.size() > truncateSize) {
+            results.remove(truncateSize);
         }
     }
 }

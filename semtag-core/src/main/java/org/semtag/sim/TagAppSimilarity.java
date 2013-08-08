@@ -55,7 +55,7 @@ public class TagAppSimilarity implements Similar<TagApp> {
         }
         SimilarResultList list = new SimilarResultList(concepts.getMaxSize());
         for (TagApp t : tags.values()) {
-            list.add(new SimilarResult(t.getTagAppId(), concepts.getValue(t.getConceptId())));
+            list.add(new SimilarResult(t.getTagAppId(), obj, concepts.getValue(t.getConceptId())));
         }
         list.lock();
         return list;
@@ -81,7 +81,7 @@ public class TagAppSimilarity implements Similar<TagApp> {
         }
         SimilarResultList list = new SimilarResultList(concepts.getMaxSize());
         for (TagApp t : tags.values()) {
-            list.add(new SimilarResult(t.getTag().getRawTag(), concepts.getValue(t.getConceptId())));
+            list.add(new SimilarResult<TagApp>(t.getTag().getRawTag(), t, concepts.getValue(t.getConceptId())));
         }
         list.lock();
         return list;

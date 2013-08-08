@@ -84,14 +84,7 @@ public class WikapidiaSimilarity implements ConceptSimilarity {
         } catch (org.wikapidia.core.dao.DaoException e) {
             throw new DaoException(e);
         }
-        SimilarResultList list = new SimilarResultList(maxResults);
-        for (SRResult r : results) {
-            if (r.getId() > -1) {
-                list.add(new SimilarResult(r.getId(), r.getScore()));
-            }
-        }
-        list.lock();
-        return list;
+        return buildSimilarResultList(results, maxResults);
     }
 
     @Override
@@ -110,6 +103,10 @@ public class WikapidiaSimilarity implements ConceptSimilarity {
         } catch (org.wikapidia.core.dao.DaoException e) {
             throw new DaoException(e);
         }
+        return buildSimilarResultList(results, maxResults);
+    }
+
+    private SimilarResultList buildSimilarResultList(SRResultList results, int maxResults) {
         SimilarResultList list = new SimilarResultList(maxResults);
         for (SRResult r : results) {
             if (r.getId() > -1) {

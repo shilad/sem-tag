@@ -28,7 +28,8 @@ import java.util.Set;
  */
 public class Benchmark {
 
-    public static final double SIZE = 1000;
+    public static final double SIZE = 100;
+    public static final int MAX_RESULTS = 1000;
 
     @Ignore
     @Test
@@ -114,7 +115,7 @@ public class Benchmark {
         System.out.println("Unit time: " + (end-start)/SIZE);
     }
 
-    @Ignore
+//    @Ignore
     @Test
     public void benchmarkConceptMostSimilar()   throws ConfigurationException, DaoException {
         Configurator conf = new Configurator(new Configuration());
@@ -134,7 +135,7 @@ public class Benchmark {
         long start = System.currentTimeMillis();
         for (Concept c : concepts) {
             TIntSet set = new TIntHashSet();
-            SimilarResultList list = sim.mostSimilar(c, 10);
+            SimilarResultList list = sim.mostSimilar(c, MAX_RESULTS);
             for (SimilarResult result : list) {
                 set.add(result.getIntId());
             }
@@ -164,7 +165,7 @@ public class Benchmark {
         long start = System.currentTimeMillis();
         for (TagApp t : tagApps) {
             TLongSet set = new TLongHashSet();
-            SimilarResultList list = sim.mostSimilar(t, 1000);
+            SimilarResultList list = sim.mostSimilar(t, MAX_RESULTS);
             for (SimilarResult result : list) {
                 set.add(result.getLongId());
             }
@@ -176,7 +177,7 @@ public class Benchmark {
         start = System.currentTimeMillis();
         for (TagApp t : tagApps) {
             Set<String> set = new HashSet<String>();
-            SimilarResultList list = sim.mostSimilar(t.getTag(), 1000);
+            SimilarResultList list = sim.mostSimilar(t.getTag(), MAX_RESULTS);
             for (SimilarResult result : list) {
                 set.add(result.getStringId());
             }
@@ -206,7 +207,7 @@ public class Benchmark {
         long start = System.currentTimeMillis();
         for (Item item : items) {
             TLongSet set = new TLongHashSet();
-            SimilarResultList list = sim.mostSimilar(item, 10);
+            SimilarResultList list = sim.mostSimilar(item, MAX_RESULTS);
             for (SimilarResult result : list) {
                 set.add(result.getLongId());
             }
