@@ -28,7 +28,7 @@ import java.util.Set;
  */
 public class Benchmark {
 
-    public static final double SIZE = 100;
+    public static final double SIZE = 1000;
 
     @Ignore
     @Test
