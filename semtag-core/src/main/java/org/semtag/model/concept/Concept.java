@@ -11,7 +11,7 @@ package org.semtag.model.concept;
  * "wikapidia", but a SemTag user may create their own. To do
  * so, you must create a Concept subclass, a class that implements
  * ConceptMapper and maps to your concept type, and a class that
- * implements ConceptSimilarity to compare your concept type.
+ * implements ConceptRelator to compare your concept type.
  *
  * @author Ari Weiland
  * @author Yulun Li
