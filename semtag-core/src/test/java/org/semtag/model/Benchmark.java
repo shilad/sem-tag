@@ -29,7 +29,7 @@ import java.util.Set;
 public class Benchmark {
 
     public static final double SIZE = 100;
-    public static final int MAX_RESULTS = 1000;
+    public static final int MAX_RESULTS = 500;
 
     @Ignore
     @Test
@@ -115,7 +115,7 @@ public class Benchmark {
         System.out.println("Unit time: " + (end-start)/SIZE);
     }
 
-//    @Ignore
+    @Ignore
     @Test
     public void benchmarkConceptMostSimilar()   throws ConfigurationException, DaoException {
         Configurator conf = new Configurator(new Configuration());
@@ -145,7 +145,7 @@ public class Benchmark {
         System.out.println("Unit time: " + (end-start)/SIZE);
     }
 
-//    @Ignore
+    @Ignore
     @Test
     public void benchmarkTagAppMostSimilar()    throws ConfigurationException, DaoException {
         Configurator conf = new Configurator(new Configuration());
@@ -180,6 +180,59 @@ public class Benchmark {
             SimilarResultList list = sim.mostSimilar(t.getTag(), MAX_RESULTS);
             for (SimilarResult result : list) {
                 set.add(result.getStringId());
+            }
+        }
+        end = System.currentTimeMillis();
+        System.out.println("Ellapsed time: " + (end-start));
+        System.out.println("Unit time: " + (end-start)/SIZE);
+    }
+
+//    @Ignore
+    @Test
+    public void benchmarkMacademia()    throws ConfigurationException, DaoException {
+        Configurator conf = new Configurator(new Configuration());
+        TagAppDao dao = conf.get(TagAppDao.class);
+        TagAppSimilarity sim = conf.get(TagAppSimilarity.class);
+        List<TagApp> tagApps = new ArrayList<TagApp>();
+        Iterable<TagApp> iterable = dao.get(new DaoFilter());
+        int i=0;
+        for (TagApp tagApp : iterable) {
+            if (tagApp.getConceptId() > -1) {
+                tagApps.add(tagApp);
+                i++;
+            }
+            if (i>=SIZE) break;
+        }
+        System.out.println("Start Macademia");
+        long start = System.currentTimeMillis();
+        for (TagApp t : tagApps) {
+            SimilarResultList tagAppIds = sim.mostSimilar(t, MAX_RESULTS);
+            List<SimilarResult> result = new ArrayList<SimilarResult>();
+            for (SimilarResult sr : tagAppIds) {
+                TagApp app = dao.getByTagAppId(sr.getLongId());
+                String tag = app.getTag().getRawTag();
+                if (tag == null) {
+                } else {
+                    result.add(new SimilarResult(tag, sr.getValue()));
+                }
+            }
+        }
+        long end = System.currentTimeMillis();
+        System.out.println("Ellapsed time: " + (end-start));
+        System.out.println("Unit time: " + (end-start)/SIZE);
+
+        System.out.println("Start SimpleMacademia");
+        start = System.currentTimeMillis();
+        for (TagApp t : tagApps) {
+            SimilarResultList tagAppIds = sim.mostSimilar(t, MAX_RESULTS);
+            List<SimilarResult> result = new ArrayList<SimilarResult>();
+            for (SimilarResult sr : tagAppIds) {
+                TagApp app = (TagApp) sr.getObj();
+                String tag = app.getTag().getRawTag();
+                if (tag == null) {
+                } else {
+                    result.add(new SimilarResult(tag, sr.getValue()));
+                }
             }
         }
         end = System.currentTimeMillis();
