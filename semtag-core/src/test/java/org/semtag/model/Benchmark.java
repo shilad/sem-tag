@@ -19,14 +19,16 @@ import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Ari Weiland
  */
 public class Benchmark {
 
-    public static final double SIZE = 10;
+    public static final double SIZE = 100;
 
     @Ignore
     @Test
@@ -142,7 +144,7 @@ public class Benchmark {
         System.out.println("Unit time: " + (end-start)/SIZE);
     }
 
-    @Ignore
+//    @Ignore
     @Test
     public void benchmarkTagAppMostSimilar()    throws ConfigurationException, DaoException {
         Configurator conf = new Configurator(new Configuration());
@@ -162,12 +164,24 @@ public class Benchmark {
         long start = System.currentTimeMillis();
         for (TagApp t : tagApps) {
             TLongSet set = new TLongHashSet();
-            SimilarResultList list = sim.mostSimilar(t, 10);
+            SimilarResultList list = sim.mostSimilar(t, 1000);
             for (SimilarResult result : list) {
                 set.add(result.getLongId());
             }
         }
         long end = System.currentTimeMillis();
+        System.out.println("Ellapsed time: " + (end-start));
+        System.out.println("Unit time: " + (end-start)/SIZE);
+        System.out.println("Start TagMostSimilar");
+        start = System.currentTimeMillis();
+        for (TagApp t : tagApps) {
+            Set<String> set = new HashSet<String>();
+            SimilarResultList list = sim.mostSimilar(t.getTag(), 1000);
+            for (SimilarResult result : list) {
+                set.add(result.getStringId());
+            }
+        }
+        end = System.currentTimeMillis();
         System.out.println("Ellapsed time: " + (end-start));
         System.out.println("Unit time: " + (end-start)/SIZE);
     }
