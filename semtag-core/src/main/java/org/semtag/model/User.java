@@ -10,7 +10,7 @@ public class User {
      * Constructs a user from a given ID.
      * @param userId
      */
-    public User(int userId) {
+    public User(long userId) {
         this.userId = String.valueOf(userId);
     }
 

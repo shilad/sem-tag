@@ -10,7 +10,7 @@ public class Item {
      * Constructs an item from a given ID.
      * @param itemId
      */
-    public Item(int itemId) {
+    public Item(long itemId) {
         this.itemId = String.valueOf(itemId);
     }
 
