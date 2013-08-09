@@ -103,7 +103,14 @@ public abstract class Concept<I> {
         Concept concept = (Concept) o;
 
         return conceptId == concept.conceptId && type.equals(concept.type);
+    }
 
+    @Override
+    public int hashCode() {
+        int result = conceptId;
+        result = 31 * result + type.hashCode();
+        result = 31 * result + (conceptObj != null ? conceptObj.hashCode() : 0);
+        return result;
     }
 
     @Override

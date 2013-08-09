@@ -101,7 +101,7 @@ public class TagAppSimilar implements Similar<TagApp> {
         }
         SimilarResultList list = new SimilarResultList(maxResults, threshold);
         for (TagApp t : tags.values()) {
-            list.add(new SimilarResult<TagApp>(t.getTag().getRawTag(), t, concepts.getValue(t.getConceptId())));
+            list.add(new SimilarResult<TagApp>(t.getTagAppId(), t, concepts.getValue(t.getConceptId())));
         }
         list.lock();
         return list;
