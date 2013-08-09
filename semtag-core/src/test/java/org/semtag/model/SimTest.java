@@ -4,7 +4,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.semtag.dao.*;
 import org.semtag.model.concept.Concept;
-import org.semtag.relate.*;
+import org.semtag.sim.*;
 import org.wikapidia.conf.Configuration;
 import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
@@ -24,7 +24,7 @@ public class SimTest {
     public void testConceptSim() throws ConfigurationException, DaoException {
         Configurator conf = new Configurator(new Configuration());
         ConceptDao dao = conf.get(ConceptDao.class);
-        ConceptRelator sim = conf.get(ConceptRelator.class);
+        ConceptSimilar sim = conf.get(ConceptSimilar.class);
         List<Concept> concepts = new ArrayList<Concept>();
         Iterable<Concept> iterable = dao.get(new DaoFilter());
         for (Concept concept : iterable) {
@@ -35,13 +35,13 @@ public class SimTest {
         }
         Concept x = concepts.get(0);
         for (Concept y : concepts) {
-            System.out.println(x.getConceptObj() + " to " + y.getConceptObj() + " : " + sim.relatedness(x, y));
-            RelatedResultList list = sim.mostRelated(y, 10);
-            for (RelatedResult result : list) {
+            System.out.println(x.getConceptObj() + " to " + y.getConceptObj() + " : " + sim.similarity(x, y));
+            SimilarResultList list = sim.mostSimilar(y, 10);
+            for (SimilarResult result : list) {
                 System.out.println("Most sim to " + y.getConceptObj() + ": " + dao.getByConceptId(result.getIntId()).getConceptObj() + " - " + result.getValue());
             }
         }
-        double[][] matrix = sim.corelatedness(concepts.toArray(new Concept[concepts.size()]));
+        double[][] matrix = sim.cosimilarity(concepts.toArray(new Concept[concepts.size()]));
         for (Concept c : concepts) {
             System.out.print(c.getConceptId() + " \t");
         }
@@ -59,7 +59,7 @@ public class SimTest {
     public void testTagAppSim() throws ConfigurationException, DaoException {
         Configurator conf = new Configurator(new Configuration());
         TagAppDao dao = conf.get(TagAppDao.class);
-        TagAppRelator sim = conf.get(TagAppRelator.class);
+        TagAppSimilar sim = conf.get(TagAppSimilar.class);
         List<TagApp> tagApps = new ArrayList<TagApp>();
         Iterable<TagApp> iterable = dao.get(new DaoFilter());
         for (TagApp t : iterable) {
@@ -70,13 +70,13 @@ public class SimTest {
         }
         TagApp x = tagApps.get(0);
         for (TagApp y : tagApps) {
-            System.out.println(x.getTag() + " to " + y.getTag() + " : " + sim.relatedness(x, y));
-            RelatedResultList list = sim.mostRelated(y, 10);
-            for (RelatedResult result : list) {
+            System.out.println(x.getTag() + " to " + y.getTag() + " : " + sim.similarity(x, y));
+            SimilarResultList list = sim.mostSimilar(y, 10);
+            for (SimilarResult result : list) {
                 System.out.println("Most sim to " + y.getTag() + ": " + dao.getByTagAppId(result.getIntId()).getTag() + " - " + result.getValue());
             }
         }
-        double[][] matrix = sim.corelatedness(tagApps.toArray(new TagApp[tagApps.size()]));
+        double[][] matrix = sim.cosimilarity(tagApps.toArray(new TagApp[tagApps.size()]));
         for (TagApp t : tagApps) {
             System.out.print(t.getTagAppId() + "   \t");
         }
@@ -95,7 +95,7 @@ public class SimTest {
         Configurator conf = new Configurator(new Configuration());
         TagAppDao dao = conf.get(TagAppDao.class);
         ItemDao itemDao = conf.get(ItemDao.class);
-        ItemRelator sim = conf.get(ItemRelator.class);
+        ItemSimilar sim = conf.get(ItemSimilar.class);
         Set<Item> items = new HashSet<Item>();
         Iterable<TagApp> iterable = dao.get(new DaoFilter());
         for (TagApp t : iterable) {
@@ -106,13 +106,13 @@ public class SimTest {
         }
         Item x = items.iterator().next();
         for (Item y : items) {
-            System.out.println(x.getItemId() + " to " + y.getItemId() + " : " + sim.relatedness(x, y));
-            RelatedResultList list = sim.mostRelated(y, 10);
-            for (RelatedResult result : list) {
+            System.out.println(x.getItemId() + " to " + y.getItemId() + " : " + sim.similarity(x, y));
+            SimilarResultList list = sim.mostSimilar(y, 10);
+            for (SimilarResult result : list) {
                 System.out.println("Most sim to " + y.getItemId() + ": " + itemDao.getByItemId(result.getStringId()).getItemId() + " - " + result.getValue());
             }
         }
-        double[][] matrix = sim.corelatedness(items.toArray(new Item[items.size()]));
+        double[][] matrix = sim.cosimilarity(items.toArray(new Item[items.size()]));
         for (Item item : items) {
             System.out.print(item.getItemId() + "  \t");
         }

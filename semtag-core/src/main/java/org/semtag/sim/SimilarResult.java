@@ -1,29 +1,29 @@
-package org.semtag.relate;
+package org.semtag.sim;
 
 /**
  * @author Ari Weiland
  */
-public class RelatedResult<T> implements Comparable<RelatedResult> {
+public class SimilarResult<T> implements Comparable<SimilarResult> {
 
     private final String id;
     private final T obj;
     private final double value;
 
-    public RelatedResult(long id, double value) {
+    public SimilarResult(long id, double value) {
         this(id, null, value);
     }
 
-    public RelatedResult(String id, double value) {
+    public SimilarResult(String id, double value) {
         this(id, null, value);
     }
 
-    public RelatedResult(long id, T obj, double value) {
+    public SimilarResult(long id, T obj, double value) {
         this.id = String.valueOf(id);
         this.obj = obj;
         this.value = value;
     }
 
-    public RelatedResult(String id, T obj, double value) {
+    public SimilarResult(String id, T obj, double value) {
         this.id = id;
         this.obj = obj;
         this.value = value;
@@ -50,10 +50,10 @@ public class RelatedResult<T> implements Comparable<RelatedResult> {
     }
 
     @Override
-    public int compareTo(RelatedResult relatedResult) {
-        if (this.value > relatedResult.value) {
+    public int compareTo(SimilarResult similarResult) {
+        if (this.value > similarResult.value) {
             return 1;
-        } else if (this.value == relatedResult.value) {
+        } else if (this.value == similarResult.value) {
             return 0;
         } else {
             return -1;
@@ -63,9 +63,9 @@ public class RelatedResult<T> implements Comparable<RelatedResult> {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof RelatedResult)) return false;
+        if (!(o instanceof SimilarResult)) return false;
 
-        RelatedResult that = (RelatedResult) o;
+        SimilarResult that = (SimilarResult) o;
 
         return Double.compare(that.value, value) == 0 && id.equals(that.id);
 
