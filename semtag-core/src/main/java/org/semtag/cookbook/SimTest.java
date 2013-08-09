@@ -29,7 +29,6 @@ public class SimTest {
     private final Set<TagApp> tagApps;
     private final Set<Item> items;
 
-
     public SimTest() throws ConfigurationException, DaoException {
         Configurator conf = new Configurator(new Configuration());
         cSim = conf.get(ConceptSimilar.class);
