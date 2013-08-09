@@ -14,6 +14,10 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
+ * Test the various similarity methods for the Similar classes and
+ * prints out the results. Calculates similarity and most similar
+ * SIZE times and builds a SIZE x SIZE cosimilarity matrix.
+ *
  * @author Ari Weiland
  */
 public class SimTest {
@@ -34,12 +38,12 @@ public class SimTest {
         cSim = conf.get(ConceptSimilar.class);
         tSim = conf.get(TagAppSimilar.class);
         iSim = conf.get(ItemSimilar.class);
+        tDao = conf.get(TagAppDao.class);
         concepts = new HashSet<Concept>();
         tagApps = new HashSet<TagApp>();
         items = new HashSet<Item>();
+        // build concept set
         ConceptDao cDao = conf.get(ConceptDao.class);
-        tDao = conf.get(TagAppDao.class);
-        ItemDao iDao = conf.get(ItemDao.class);
         Iterator<Concept> cIterator = cDao.get(new DaoFilter()).iterator();
         while (concepts.size() < SIZE && cIterator.hasNext()) {
             Concept concept = cIterator.next();
@@ -47,6 +51,7 @@ public class SimTest {
                 concepts.add(concept);
             }
         }
+        // build TagApp set
         Iterator<TagApp> tIterator = tDao.get(new DaoFilter()).iterator();
         while (tagApps.size() < SIZE && tIterator.hasNext()) {
             TagApp t = tIterator.next();
@@ -54,6 +59,8 @@ public class SimTest {
                 tagApps.add(t);
             }
         }
+        // build item set
+        ItemDao iDao = conf.get(ItemDao.class);
         Iterator<Item> iIterator = iDao.get(new DaoFilter()).iterator();
         while (items.size() < SIZE && iIterator.hasNext()) {
             items.add(iIterator.next());
