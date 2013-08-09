@@ -1,6 +1,10 @@
 package org.semtag.sim;
 
 /**
+ * Wraps the result of a most similar call. Contains an ID
+ * of type int, long, or string, a double similarity score,
+ * and an optional object that the ID refers to.
+ *
  * @author Ari Weiland
  */
 public class SimilarResult<T> implements Comparable<SimilarResult> {

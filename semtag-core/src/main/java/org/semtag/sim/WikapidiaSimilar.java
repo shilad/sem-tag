@@ -19,6 +19,8 @@ import org.wikapidia.sr.SRResult;
 import org.wikapidia.sr.SRResultList;
 
 /**
+ * Defines ConceptSimilar methods for WikapidiaConcepts.
+ *
  * @author Ari Weiland
  */
 public class WikapidiaSimilar implements ConceptSimilar {

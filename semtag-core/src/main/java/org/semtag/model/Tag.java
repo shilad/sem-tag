@@ -1,6 +1,10 @@
 package org.semtag.model;
 
 /**
+ * A simple class that wraps a tag string.
+ * Maintains both the raw tag and a normalized tag
+ * without any special characters or excess whitespace.
+ *
  * @author Ari Weiland
  */
 public class Tag {

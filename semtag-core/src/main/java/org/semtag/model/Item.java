@@ -1,6 +1,8 @@
 package org.semtag.model;
 
 /**
+ * An item in a tagging system.
+ *
  * @author Ari Weiland
  */
 public class Item {

@@ -3,6 +3,8 @@ package org.semtag.dao;
 import org.semtag.model.User;
 
 /**
+ * Interface that describes a dao for storing and retrieving users.
+ *
  * @author Ari Weiland
  */
 public interface UserDao extends Dao<User> {
@@ -13,7 +15,7 @@ public interface UserDao extends Dao<User> {
      * @return
      * @throws DaoException
      */
-    public User getByUserId(int userId) throws DaoException;
+    public User getByUserId(long userId) throws DaoException;
 
     /**
      * Fetches a User from the database specified by the given ID.

@@ -16,6 +16,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * Defines Similar methods for TagApps.
+ *
  * @author Ari Weiland
  */
 public class TagAppSimilar implements Similar<TagApp> {

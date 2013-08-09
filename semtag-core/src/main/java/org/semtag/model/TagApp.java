@@ -7,6 +7,10 @@ import org.semtag.model.concept.Concept;
 import java.sql.Timestamp;
 
 /**
+ * A specific application of a tag.
+ * Maintains the user who applied it, the tag they applied, the
+ * item to which they applied it, and the application timestamp.
+ *
  * @author Ari Weiland
  */
 public class TagApp {

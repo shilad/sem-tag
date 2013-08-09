@@ -1,6 +1,8 @@
 package org.semtag.model;
 
 /**
+ * A user in a tagging system.
+ *
  * @author Ari Weiland
  */
 public class User {

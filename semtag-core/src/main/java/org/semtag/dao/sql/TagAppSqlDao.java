@@ -22,12 +22,14 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
-* @author Ari Weiland
-*/
+ * A SQL implementation of TagAppDao.
+ *
+ * @author Ari Weiland
+ */
 public class TagAppSqlDao extends BaseSqLDao<TagApp> implements TagAppDao {
 
     public TagAppSqlDao(DataSource dataSource) throws DaoException {
-        super(dataSource, "tagapps", Tables.TAGAPPS);
+        super(dataSource, "/db/tagapps", Tables.TAGAPPS);
     }
 
     @Override

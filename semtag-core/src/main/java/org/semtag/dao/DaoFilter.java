@@ -9,6 +9,26 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
+ * Specifies filters to apply to the various SemTag Daos.
+ * When passed to a Dao.get() method, all returned results
+ * will be within the space of the applied filters. Filters
+ * include :
+ *
+ * - TagApp IDs  (used by TagApp)
+ * - User IDs    (used by TagApp and User)
+ * - Item IDs    (used by TagApp and Item)
+ * - Concept IDs (used by TagApp and Concept)
+ * - Tag         (used by TagApp)
+ *
+ * Note that the tag filter will apply the filter by the
+ * normalized string, not the raw string.
+ *
+ * This DaoFilter also contains special singleton methods
+ * that also set additional singleton fields. These are used
+ * by the TagAppDao.getGroup() method to retrieve a group of
+ * TagApps with certain parameters (specified by the singleton
+ * methods) in common.
+ *
  * @author Ari Weiland
  * @author Yulun Li
  */
