@@ -8,6 +8,7 @@ import gnu.trove.set.hash.TIntHashSet;
 import gnu.trove.set.hash.TLongHashSet;
 import org.semtag.dao.*;
 import org.semtag.model.Item;
+import org.semtag.model.Tag;
 import org.semtag.model.TagApp;
 import org.semtag.model.concept.Concept;
 import org.semtag.sim.*;
@@ -27,11 +28,12 @@ import java.util.*;
  */
 public class Benchmark {
 
-    public static final double SIZE = 100;
+    public static final int SIZE = 1000;
     public static final int MAX_RESULTS = 500;
 
     private final ConceptSimilar cSim;
-    private final TagAppSimilar tSim;
+    private final TagAppSimilar taSim;
+    private final TagSimilar tSim;
     private final ItemSimilar iSim;
 
     private final Set<Concept> concepts;
@@ -41,51 +43,38 @@ public class Benchmark {
     public Benchmark() throws ConfigurationException, DaoException {
         Configurator conf = new Configurator(new Configuration());
         cSim = conf.get(ConceptSimilar.class);
-        tSim = conf.get(TagAppSimilar.class);
+        taSim = conf.get(TagAppSimilar.class);
         iSim = conf.get(ItemSimilar.class);
-        concepts = new HashSet<Concept>();
-        tagApps = new HashSet<TagApp>();
-        items = new HashSet<Item>();
+        tSim = conf.get(TagSimilar.class);
+
         // build concept set
         ConceptDao cDao = conf.get(ConceptDao.class);
-        Iterator<Concept> cIterator = cDao.get(new DaoFilter()).iterator();
-        while (concepts.size() < SIZE && cIterator.hasNext()) {
-            Concept concept = cIterator.next();
-            if (concept.getConceptId() > -1) {
-                concepts.add(concept);
-            }
-        }
+        concepts = sample(cDao.get(new DaoFilter()));
+
         // build TagApp set
         TagAppDao tDao = conf.get(TagAppDao.class);
-        Iterator<TagApp> tIterator = tDao.get(new DaoFilter()).iterator();
-        while (tagApps.size() < SIZE && tIterator.hasNext()) {
-            TagApp t = tIterator.next();
-            if (t.getConceptId() > -1) {
-                tagApps.add(t);
-            }
-        }
+        tagApps = sample(tDao.get(new DaoFilter()));
+
         // build item set
         ItemDao iDao = conf.get(ItemDao.class);
-        Iterator<Item> iIterator = iDao.get(new DaoFilter()).iterator();
-        while (items.size() < SIZE && iIterator.hasNext()) {
-            items.add(iIterator.next());
-        }
+        items = sample(iDao.get(new DaoFilter()));
     }
+
 
     public static void main(String[] args)     throws ConfigurationException, DaoException {
         Benchmark benchmark = new Benchmark();
-
-        benchmark.benchmarkConceptSimilarity();
-        benchmark.benchmarkTagAppSimilarity();
-        benchmark.benchmarkItemSimilarity();
-
-        benchmark.benchmarkConceptMostSimilar();
-        benchmark.benchmarkTagAppMostSimilar();
-        benchmark.benchmarkItemMostSimilar();
-
-        benchmark.benchmarkConceptCosimilarity();
-        benchmark.benchmarkTagAppCosimilarity();
-        benchmark.benchmarkItemCosimilarity();
+//
+//        benchmark.benchmarkConceptSimilarity();
+//        benchmark.benchmarkTagAppSimilarity();
+//        benchmark.benchmarkItemSimilarity();
+//
+//        benchmark.benchmarkConceptMostSimilar();
+//        benchmark.benchmarkTagAppMostSimilar();
+//        benchmark.benchmarkItemMostSimilar();
+//
+//        benchmark.benchmarkConceptCosimilarity();
+//        benchmark.benchmarkTagAppCosimilarity();
+//        benchmark.benchmarkItemCosimilarity();
 
         benchmark.benchmarkMacademia();
     }
@@ -109,7 +98,7 @@ public class Benchmark {
         System.out.println("Start TagAppSimilarity");
         long start = System.currentTimeMillis();
         for (TagApp y : tagApps) {
-            list.add(tSim.similarity(x, y));
+            list.add(taSim.similarity(x, y));
         }
         long end = System.currentTimeMillis();
         System.out.println("Ellapsed time: " + (end-start));
@@ -134,8 +123,8 @@ public class Benchmark {
         long start = System.currentTimeMillis();
         for (Concept c : concepts) {
             TIntSet set = new TIntHashSet();
-            SimilarResultList list = cSim.mostSimilar(c, MAX_RESULTS);
-            for (SimilarResult result : list) {
+            SimilarResultList<Concept> list = cSim.mostSimilar(c, MAX_RESULTS);
+            for (SimilarResult<Concept> result : list) {
                 set.add(result.getIntId());
             }
         }
@@ -149,8 +138,8 @@ public class Benchmark {
         long start = System.currentTimeMillis();
         for (TagApp t : tagApps) {
             TLongSet set = new TLongHashSet();
-            SimilarResultList list = tSim.mostSimilar(t, MAX_RESULTS);
-            for (SimilarResult result : list) {
+            SimilarResultList<TagApp> list = taSim.mostSimilar(t, MAX_RESULTS);
+            for (SimilarResult<TagApp> result : list) {
                 set.add(result.getLongId());
             }
         }
@@ -161,8 +150,8 @@ public class Benchmark {
         start = System.currentTimeMillis();
         for (TagApp t : tagApps) {
             TLongSet set = new TLongHashSet();
-            SimilarResultList list = tSim.mostSimilar(t.getTag(), MAX_RESULTS);
-            for (SimilarResult result : list) {
+            SimilarResultList<TagApp> list = taSim.mostSimilar(t, MAX_RESULTS);
+            for (SimilarResult<TagApp> result : list) {
                 set.add(result.getLongId());
             }
         }
@@ -175,19 +164,20 @@ public class Benchmark {
         System.out.println("Start Macademia");
         long start = System.currentTimeMillis();
         for (TagApp t : tagApps) {
-            SimilarResultList tagAppIds = tSim.mostSimilar(t, MAX_RESULTS);
-            List<SimilarResult> result = new ArrayList<SimilarResult>();
-            for (SimilarResult sr : tagAppIds) {
-                TagApp app = (TagApp) sr.getObj();
-                String tag = app.getTag().getRawTag();
+            SimilarResultList<Tag> tagAppIds = tSim.mostSimilar(t.getTag(), MAX_RESULTS);
+            List<SimilarResult<Tag>> result = new ArrayList<SimilarResult<Tag>>();
+            System.out.println("similar tags for " + t.getTag().getRawTag() + " are " + tagAppIds.size());
+            for (SimilarResult<Tag> sr : tagAppIds) {
+                Tag app = (Tag) sr.getObj();
+                String tag = app.getRawTag();
                 if (tag != null) {
-                    result.add(new SimilarResult(tag, sr.getValue()));
+                    result.add(new SimilarResult<Tag>(tag, sr.getValue()));
                 }
             }
         }
         long end = System.currentTimeMillis();
         System.out.println("Ellapsed time: " + (end-start));
-        System.out.println("Unit time: " + (end-start)/SIZE);
+        System.out.println("Unit time: " + (end-start)/tagApps.size());
     }
 
     public void benchmarkItemMostSimilar()     throws ConfigurationException, DaoException {
@@ -195,8 +185,8 @@ public class Benchmark {
         long start = System.currentTimeMillis();
         for (Item item : items) {
             TLongSet set = new TLongHashSet();
-            SimilarResultList list = iSim.mostSimilar(item, MAX_RESULTS);
-            for (SimilarResult result : list) {
+            SimilarResultList<Item> list = iSim.mostSimilar(item, MAX_RESULTS);
+            for (SimilarResult<Item> result : list) {
                 set.add(result.getLongId());
             }
         }
@@ -217,7 +207,7 @@ public class Benchmark {
     public void benchmarkTagAppCosimilarity()  throws ConfigurationException, DaoException {
         System.out.println("Start TagAppCosimilarity");
         long start = System.currentTimeMillis();
-        double[][] matrix = tSim.cosimilarity(tagApps.toArray(new TagApp[tagApps.size()]));
+        double[][] matrix = taSim.cosimilarity(tagApps.toArray(new TagApp[tagApps.size()]));
         long end = System.currentTimeMillis();
         System.out.println("Ellapsed time: " + (end-start));
         System.out.println("for a " + SIZE + "x" + SIZE + " matrix");
@@ -230,5 +220,30 @@ public class Benchmark {
         long end = System.currentTimeMillis();
         System.out.println("Ellapsed time: " + (end-start));
         System.out.println("for a " + SIZE + "x" + SIZE + " matrix");
+    }
+
+    private static  <T> Set<T> sample(Iterable<T> iter) {
+        Set<T> sample = new HashSet<T>();
+
+        for (T t : iter) {
+            if (t instanceof Concept) {
+                if (t != null && ((Concept)t).getConceptId() > -1) {
+                    sample.add(t);
+                }
+            } else if (t instanceof TagApp) {
+                if (((TagApp)t).getConcept() != null) {
+                    sample.add(t);
+                }
+            } else {
+                sample.add(t);
+            }
+        }
+        if (sample.size() > SIZE) {
+            List<T> sl = new ArrayList<T>(sample);
+            Collections.shuffle(sl);
+            sample.clear();
+            sample.addAll(sl.subList(0, SIZE));
+        }
+        return sample;
     }
 }

@@ -1,5 +1,6 @@
 package org.semtag.model;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.semtag.dao.ConceptDao;
 import org.semtag.dao.DaoException;
 import org.semtag.model.concept.Concept;
@@ -20,10 +21,7 @@ public class TagApp {
     private final Item item;
     private final Timestamp timestamp;
 
-    private int conceptId;
     private Concept concept;
-
-    //TODO: most popular unnormalized tag
 
     /**
      * Constructs a TagApp without an ID and without any concept references.
@@ -70,7 +68,7 @@ public class TagApp {
      * @param conceptId
      */
     public TagApp(long tagAppId, User user, Tag tag, Item item, Timestamp timestamp, int conceptId) {
-        this(tagAppId, user, tag, item, timestamp, conceptId, null);
+        this(tagAppId, user, tag, item, timestamp, new Concept(conceptId));
     }
 
     /**
@@ -83,16 +81,11 @@ public class TagApp {
      * @param concept
      */
     public TagApp(long tagAppId, User user, Tag tag, Item item, Timestamp timestamp, Concept concept) {
-        this(tagAppId, user, tag, item, timestamp, concept.getConceptId(), concept);
-    }
-
-    private TagApp(long tagAppId, User user, Tag tag, Item item, Timestamp timestamp, int conceptId, Concept concept) {
         this.tagAppId = tagAppId < 0 ? -1 : tagAppId;
         this.user = user;
         this.tag = tag;
         this.item = item;
         this.timestamp = timestamp;
-        this.conceptId = conceptId;
         this.concept = concept;
     }
 
@@ -115,27 +108,12 @@ public class TagApp {
     public Timestamp getTimestamp() {
         return timestamp;
     }
-
-    public int getConceptId() {
-        return conceptId;
-    }
-
     public Concept getConcept() {
         return concept;
     }
 
-    /**
-     * Sets the concept ID only if the concept ID was not previously set.
-     * Returns whether or not the concept ID was set
-     * @param conceptId
-     * @return true only if the concept ID was not previously set.
-     */
-    public boolean setConceptId(int conceptId) {
-        if (conceptId > -1) {
-            this.conceptId = conceptId;
-            return true;
-        }
-        return false;
+    public boolean hasConcept() {
+        return concept != null;
     }
 
     /**
@@ -145,25 +123,7 @@ public class TagApp {
      * @return true only if the concept was not previously set and the input concept is valid
      */
     public boolean setConcept(Concept concept) {
-        if (concept != null && this.concept == null && setConceptId(concept.getConceptId())) {
-            this.concept = concept;
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Sets the concept to the concept retrieved by the specified ConceptDao, as long as
-     * the concept was not previously set. Returns whether or not the concept was set.
-     * @param dao
-     * @return true only if the concept was not previously set and the dao returned a valid concept
-     * @throws DaoException
-     */
-    public boolean setConcept(ConceptDao dao) throws DaoException {
-        if (concept == null) {
-            concept = dao.getByConceptId(conceptId);
-            return concept != null;
-        }
+        this.concept = concept;
         return false;
     }
 
@@ -180,7 +140,7 @@ public class TagApp {
                     tag.equals(t.tag) &&
                     item.equals(t.item) &&
                     timestamp.equals(t.timestamp) &&
-                    conceptId == t.conceptId;
+                    ObjectUtils.equals(concept, t.concept);
         }
     }
 
@@ -190,7 +150,7 @@ public class TagApp {
         result = 31 * result + tag.hashCode();
         result = 31 * result + item.hashCode();
         result = 31 * result + timestamp.hashCode();
-        result = 31 * result + conceptId;
+        result = 31 * result + ((concept == null) ? -1 : concept.hashCode());
         return result;
     }
 
@@ -202,7 +162,6 @@ public class TagApp {
                 ", tag=" + tag +
                 ", item=" + item +
                 ", timestamp=" + timestamp +
-                ", conceptId=" + conceptId +
                 ", concept=" + concept +
                 '}';
     }

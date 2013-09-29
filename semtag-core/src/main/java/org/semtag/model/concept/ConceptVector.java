@@ -1,7 +1,9 @@
 package org.semtag.model.concept;
 
 import gnu.trove.map.TIntDoubleMap;
+import gnu.trove.map.TLongDoubleMap;
 import gnu.trove.map.hash.TIntDoubleHashMap;
+import gnu.trove.map.hash.TLongDoubleHashMap;
 
 import java.util.Collection;
 import java.util.Map;
@@ -26,13 +28,13 @@ import java.util.Map;
  * @author Ari Weiland
  */
 public class ConceptVector {
-    private final TIntDoubleMap vector;
+    private final TLongDoubleMap vector;
 
     /**
      * Constructs an empty ConceptVector.
      */
     public ConceptVector() {
-        vector = new TIntDoubleHashMap();
+        vector = new TLongDoubleHashMap();
     }
 
     public ConceptVector(ConceptVector vector) {
@@ -44,7 +46,7 @@ public class ConceptVector {
      * by the input TIntDoubleMap.
      * @param vector
      */
-    public ConceptVector(TIntDoubleMap vector) {
+    public ConceptVector(TLongDoubleMap vector) {
         this.vector = vector;
         prune();
     }
@@ -54,7 +56,7 @@ public class ConceptVector {
      * by the input Map.
      * @param vector
      */
-    public ConceptVector(Map<Integer, Double> vector) {
+    public ConceptVector(Map<Long, Double> vector) {
         this();
         this.vector.putAll(vector);
         prune();
@@ -91,7 +93,7 @@ public class ConceptVector {
      * @param id
      * @param value
      */
-    public void put(int id, double value) {
+    public void put(long id, double value) {
         if (id >= 0) {
             vector.put(id, value);
         }
@@ -102,7 +104,7 @@ public class ConceptVector {
      * TIntDoubleMap into the vector.
      * @param vector
      */
-    public void putAll(TIntDoubleMap vector) {
+    public void putAll(TLongDoubleMap vector) {
         this.vector.putAll(vector);
         prune();
     }
@@ -112,7 +114,7 @@ public class ConceptVector {
      * Map into the vector.
      * @param vector
      */
-    public void putAll(Map<Integer, Double> vector) {
+    public void putAll(Map<Long, Double> vector) {
         this.vector.putAll(vector);
         prune();
     }
@@ -121,7 +123,7 @@ public class ConceptVector {
      * Increments the value of the ID by one.
      * @param id
      */
-    public void increment(int id) {
+    public void increment(long id) {
         if (id >= 0) {
             int value = 1;
             if (vector.containsKey(id)) {
@@ -136,7 +138,7 @@ public class ConceptVector {
      * already in the vector. Useful if values are irrelevant.
      * @param id
      */
-    public void add(int id) {
+    public void add(long id) {
         if (id >= 0 && !vector.containsKey(id)) {
             vector.put(id, 1);
         }
@@ -146,8 +148,8 @@ public class ConceptVector {
      * Adds an array of IDs according to the add method.
      * @param ids
      */
-    public void addAll(int[] ids) {
-        for (int id : ids) {
+    public void addAll(long[] ids) {
+        for (long id : ids) {
             add(id);
         }
     }
@@ -157,7 +159,7 @@ public class ConceptVector {
      * @param id
      * @return
      */
-    public double get(int id) {
+    public double get(long id) {
         return vector.get(id);
     }
 
@@ -166,7 +168,7 @@ public class ConceptVector {
      * @param id
      * @return
      */
-    public boolean containsConcept(int id) {
+    public boolean containsConcept(long id) {
         return vector.containsKey(id);
     }
 
@@ -176,7 +178,7 @@ public class ConceptVector {
      * down the road, while a removed ID will not.
      * @param id
      */
-    public void remove(int id) {
+    public void remove(long id) {
         vector.remove(id);
     }
 
@@ -209,15 +211,24 @@ public class ConceptVector {
      * mapped in this vector. This includes concepts mapped to 0.
      * @return
      */
-    public int[] getVectorSpace() {
+    public long[] getVectorSpace() {
         return vector.keys();
+    }
+
+    public Concept[] getVectorSpaceConcepts() {
+        Concept concepts[] = new Concept[vector.size()];
+        int i = 0;
+        for (long id : vector.keys()) {
+            concepts[i++] = new Concept(id);
+        }
+        return concepts;
     }
 
     /**
      * Returns this vector as a TIntDoubleMap.
      * @return
      */
-    public TIntDoubleMap asTroveMap() {
+    public TLongDoubleMap asTroveMap() {
         return vector;
     }
 

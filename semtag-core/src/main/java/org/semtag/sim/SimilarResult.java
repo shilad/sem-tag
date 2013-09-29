@@ -7,7 +7,7 @@ package org.semtag.sim;
  *
  * @author Ari Weiland
  */
-public class SimilarResult<T> implements Comparable<SimilarResult> {
+public class SimilarResult<T> implements Comparable<SimilarResult<T>> {
 
     private final String id;
     private final T obj;

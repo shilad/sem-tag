@@ -35,22 +35,15 @@ public class ConceptSqlDao extends BaseSqLDao<Concept> implements ConceptDao {
 
     @Override
     public void save(Concept concept) throws DaoException {
-        if (getCount(new DaoFilter().setConceptId(concept.getConceptId())) == 0) {
-            insert(
-                    concept.getConceptId(),
-                    concept.getType(),
-                    concept.conceptObjToBytes());
+        if (getCount(new DaoFilter().setConcept(concept)) == 0) {
+            insert(concept.getConceptId());
         }
     }
 
     @Override
     public void save(Connection conn, Concept concept) throws DaoException {
-        if (getCount(new DaoFilter().setConceptId(concept.getConceptId())) == 0) {
-            insert(
-                    conn,
-                    concept.getConceptId(),
-                    concept.getType(),
-                    concept.conceptObjToBytes());
+        if (getCount(new DaoFilter().setConcept(concept)) == 0) {
+            insert(conn, concept.getConceptId());
         }
     }
 
@@ -73,12 +66,6 @@ public class ConceptSqlDao extends BaseSqLDao<Concept> implements ConceptDao {
         return fetchCount(conditions);
     }
 
-    @Override
-    public Concept getByConceptId(int conceptId) throws DaoException {
-        Record record = fetchOne(Tables.CONCEPTS.CONCEPT_ID.eq(conceptId));
-        return buildConcept(record);
-    }
-
     private Iterable<Concept> buildConceptIterable(Cursor<Record> cursor) {
         return new SqlDaoIterable<Concept>(cursor) {
             @Override
@@ -89,10 +76,7 @@ public class ConceptSqlDao extends BaseSqLDao<Concept> implements ConceptDao {
     } 
     
     private Concept buildConcept(Record record) throws DaoException {
-        return mapper.getConcept(
-                record.getValue(Tables.CONCEPTS.CONCEPT_ID),
-                record.getValue(Tables.CONCEPTS.TYPE),
-                record.getValue(Tables.CONCEPTS.CONCEPT_OBJ));
+        return new Concept(record.getValue(Tables.CONCEPTS.CONCEPT_ID));
     }
 
     public static class Provider extends org.wikapidia.conf.Provider<ConceptDao> {

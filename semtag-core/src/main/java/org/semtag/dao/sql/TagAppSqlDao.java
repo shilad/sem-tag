@@ -10,6 +10,7 @@ import org.semtag.dao.DaoException;
 import org.semtag.dao.DaoFilter;
 import org.semtag.dao.TagAppDao;
 import org.semtag.model.*;
+import org.semtag.model.concept.Concept;
 import org.wikapidia.conf.Configuration;
 import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
@@ -41,7 +42,7 @@ public class TagAppSqlDao extends BaseSqLDao<TagApp> implements TagAppDao {
                 tagApp.getTag().getNormalizedTag(),
                 tagApp.getItem().getItemId(),
                 tagApp.getTimestamp(),
-                tagApp.getConceptId()
+                tagApp.getConcept().getConceptId()
         );
     }
 
@@ -55,7 +56,7 @@ public class TagAppSqlDao extends BaseSqLDao<TagApp> implements TagAppDao {
                 tagApp.getTag().getNormalizedTag(),
                 tagApp.getItem().getItemId(),
                 tagApp.getTimestamp(),
-                tagApp.getConceptId()
+                tagApp.getConcept().getConceptId()
         );
     }
 
@@ -114,7 +115,7 @@ public class TagAppSqlDao extends BaseSqLDao<TagApp> implements TagAppDao {
         if (filter.getItemId() != null) {
             conditions.add(Tables.TAGAPPS.ITEM_ID.eq(filter.getItemId()));
         }
-        if (filter.getConceptId() != null) {
+        if (filter.getConcept() != null) {
             conditions.add(Tables.TAGAPPS.CONCEPT_ID.eq(filter.getConceptId()));
         }
         Result<Record> result = fetch(conditions);
@@ -133,7 +134,7 @@ public class TagAppSqlDao extends BaseSqLDao<TagApp> implements TagAppDao {
         if (filter.getItemId() != null) {
             conditions.add(Tables.TAGAPPS.ITEM_ID.eq(filter.getItemId()));
         }
-        if (filter.getConceptId() != null) {
+        if (filter.getConcept() != null) {
             conditions.add(Tables.TAGAPPS.CONCEPT_ID.eq(filter.getConceptId()));
         }
         Result<Record> result = fetch(conditions);
@@ -171,7 +172,7 @@ public class TagAppSqlDao extends BaseSqLDao<TagApp> implements TagAppDao {
                 new Tag(record.getValue(Tables.TAGAPPS.RAW_TAG)),
                 new Item(record.getValue(Tables.TAGAPPS.ITEM_ID)),
                 record.getValue(Tables.TAGAPPS.TIMESTAMP),
-                record.getValue(Tables.TAGAPPS.CONCEPT_ID));
+                new Concept(record.getValue(Tables.TAGAPPS.CONCEPT_ID)));
     }
 
     public static class Provider extends org.wikapidia.conf.Provider<TagAppDao> {

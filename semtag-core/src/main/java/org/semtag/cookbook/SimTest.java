@@ -2,6 +2,7 @@ package org.semtag.cookbook;
 
 import org.semtag.dao.*;
 import org.semtag.model.Item;
+import org.semtag.model.Tag;
 import org.semtag.model.TagApp;
 import org.semtag.model.concept.Concept;
 import org.semtag.sim.*;
@@ -55,7 +56,7 @@ public class SimTest {
         Iterator<TagApp> tIterator = tDao.get(new DaoFilter()).iterator();
         while (tagApps.size() < SIZE && tIterator.hasNext()) {
             TagApp t = tIterator.next();
-            if (t.getConceptId() > -1) {
+            if (t.getConcept() != null) {
                 tagApps.add(t);
             }
         }
@@ -77,9 +78,9 @@ public class SimTest {
     public void testConceptSim() throws ConfigurationException, DaoException {
         Concept x = concepts.iterator().next();
         for (Concept y : concepts) {
-            System.out.println(x.getConceptObj() + " to " + y.getConceptObj() + " : " + cSim.similarity(x, y));
-            SimilarResultList list = cSim.mostSimilar(y, 10);
-            for (SimilarResult result : list) {
+            System.out.println(x + " to " + y + " : " + cSim.similarity(x, y));
+            SimilarResultList<Concept> list = cSim.mostSimilar(y, 10);
+            for (SimilarResult<Concept> result : list) {
                 System.out.println("Most sim to " + y.getConceptId() + ": " + result.getIntId() + " - " + result.getValue());
             }
         }
@@ -100,8 +101,8 @@ public class SimTest {
         TagApp x = tagApps.iterator().next();
         for (TagApp y : tagApps) {
             System.out.println(x.getTag() + " to " + y.getTag() + " : " + tSim.similarity(x, y));
-            SimilarResultList list = tSim.mostSimilar(y, 10);
-            for (SimilarResult result : list) {
+            SimilarResultList<TagApp> list = tSim.mostSimilar(y, 10);
+            for (SimilarResult<TagApp> result : list) {
                 System.out.println("Most sim to " + y.getTag() + ": " + tDao.getByTagAppId(result.getIntId()).getTag() + " - " + result.getValue());
             }
         }
@@ -122,8 +123,8 @@ public class SimTest {
         Item x = items.iterator().next();
         for (Item y : items) {
             System.out.println(x.getItemId() + " to " + y.getItemId() + " : " + iSim.similarity(x, y));
-            SimilarResultList list = iSim.mostSimilar(y, 10);
-            for (SimilarResult result : list) {
+            SimilarResultList<Item> list = iSim.mostSimilar(y, 10);
+            for (SimilarResult<Item> result : list) {
                 System.out.println("Most sim to " + y.getItemId() + ": " + result.getStringId() + " - " + result.getValue());
             }
         }

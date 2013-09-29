@@ -38,14 +38,11 @@ public interface ConceptMapper {
     public abstract TagApp map(User user, Tag tag, Item item, Timestamp timestamp) throws SemTagException;
 
     /**
-     * This method is used in the ConceptDao to retrieve the correct type of concept
-     * based on the information in the database.
-     * @param conceptId
-     * @param metric
-     * @param objBytes
+     * Maps a tag without any context to a concept.
+     * Sets the concept id of the tag to the concept as a side-effect.
+     * @param tag
      * @return
+     * @throws SemTagException
      */
-    public abstract Concept getConcept(int conceptId, String metric, byte[] objBytes) throws DaoException;
-
-
+    public Concept map(Tag tag) throws SemTagException;
 }

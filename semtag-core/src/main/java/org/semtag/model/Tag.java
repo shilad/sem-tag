@@ -1,5 +1,7 @@
 package org.semtag.model;
 
+import org.semtag.model.concept.Concept;
+
 /**
  * A simple class that wraps a tag string.
  * Maintains both the raw tag and a normalized tag
@@ -11,9 +13,27 @@ public class Tag {
     private final String rawTag;
     private final String normalizedTag;
 
+    // these fields will be filled in iff
+    // the tag is mapped or if it comes from the dao
+    private final long tagId;
+    private final int count;
+    private Concept concept;
+
+
     public Tag(String rawTagString) {
         this.rawTag = rawTagString;
         this.normalizedTag = normalize(rawTagString);
+        this.tagId = -1;
+        this.count = 0;
+    }
+
+
+    public Tag(String rawTagString, long id, int count, Concept concept) {
+        this.rawTag = rawTagString;
+        this.normalizedTag = normalize(rawTagString);
+        this.tagId = id;
+        this.count = count;
+        this.concept = concept;
     }
 
     public String getRawTag() {
@@ -54,5 +74,25 @@ public class Tag {
     @Override
     public String toString() {
         return normalizedTag + " (" + rawTag + ")";
+    }
+
+    public void setConcept(Concept concept) {
+        this.concept = concept;
+    }
+
+    public boolean hasConcept() {
+        return concept != null;
+    }
+
+    public long getTagId() {
+        return tagId;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public Concept getConcept() {
+        return concept;
     }
 }

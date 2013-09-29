@@ -23,8 +23,8 @@ public class SqlSaveHandler extends SaveHandler {
     
     private final DataSource dataSource;
     
-    public SqlSaveHandler(TagAppDao tagAppDao, UserDao userDao, ItemDao itemDao, ConceptDao conceptDao, DataSource dataSource) {
-        super(tagAppDao, userDao, itemDao, conceptDao);
+    public SqlSaveHandler(TagDao tagDao, TagAppDao tagAppDao, UserDao userDao, ItemDao itemDao, ConceptDao conceptDao, DataSource dataSource) {
+        super(tagDao, tagAppDao, userDao, itemDao, conceptDao);
         this.dataSource = dataSource;
     }
 
@@ -34,6 +34,7 @@ public class SqlSaveHandler extends SaveHandler {
         try {
             conn = dataSource.getConnection();
             conn.setAutoCommit(false);
+            ((TagSqlDao) tagDao).save(conn, tagApp);
             ((TagAppSqlDao) tagAppDao).save(conn, tagApp);
             ((UserSqLDao) userDao).save(conn, tagApp.getUser());
             ((ItemSqlDao) itemDao).save(conn, tagApp.getItem());
@@ -81,6 +82,7 @@ public class SqlSaveHandler extends SaveHandler {
                 return null;
             }
             return new SqlSaveHandler(
+                    getConfigurator().get(TagDao.class, "sql"),
                     getConfigurator().get(TagAppDao.class, "sql"),
                     getConfigurator().get(UserDao.class, "sql"),
                     getConfigurator().get(ItemDao.class, "sql"),

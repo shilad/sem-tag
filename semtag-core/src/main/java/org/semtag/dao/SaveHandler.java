@@ -20,8 +20,10 @@ public abstract class SaveHandler {
     protected final UserDao userDao;
     protected final ItemDao itemDao;
     protected final ConceptDao conceptDao;
+    protected final TagDao tagDao;
 
-    public SaveHandler(TagAppDao tagAppDao, UserDao userDao, ItemDao itemDao, ConceptDao conceptDao) {
+    public SaveHandler(TagDao tagDao, TagAppDao tagAppDao, UserDao userDao, ItemDao itemDao, ConceptDao conceptDao) {
+        this.tagDao = tagDao;
         this.tagAppDao = tagAppDao;
         this.userDao = userDao;
         this.itemDao = itemDao;
@@ -33,9 +35,11 @@ public abstract class SaveHandler {
      * @throws DaoException
      */
     public void clear() throws DaoException {
+        this.tagDao.clear();
         this.tagAppDao.clear();
         this.userDao.clear();
         this.itemDao.clear();
+        this.conceptDao.clear();
         this.conceptDao.clear();
     }
 
@@ -44,6 +48,7 @@ public abstract class SaveHandler {
      * @throws DaoException
      */
     public void beginLoad() throws DaoException {
+        this.tagDao.beginLoad();
         this.tagAppDao.beginLoad();
         this.userDao.beginLoad();
         this.itemDao.beginLoad();
@@ -61,6 +66,7 @@ public abstract class SaveHandler {
      * @throws DaoException
      */
     public void endLoad() throws DaoException {
+        this.tagDao.endLoad();
         this.tagAppDao.endLoad();
         this.userDao.endLoad();
         this.itemDao.endLoad();
