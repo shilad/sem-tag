@@ -23,7 +23,7 @@ import org.wikapidia.sr.SRResultList;
  *
  * @author Ari Weiland
  */
-public class WikapidiaSimilar implements Similar<Concept> {
+public class WikapidiaSimilar implements ConceptSimilar {
 
     private final ConceptDao helperDao;
     private final Language language;
@@ -70,7 +70,9 @@ public class WikapidiaSimilar implements Similar<Concept> {
         Iterable<Concept> concepts = helperDao.get(new DaoFilter());
         TIntSet validIds = new TIntHashSet();
         for (Concept c : concepts) {
-            validIds.add(c.getLocalId().getId());
+            if (c.getConceptId() != -1) {
+                validIds.add(c.getLocalId().getId());
+            }
         }
         SRResultList results;
         try {

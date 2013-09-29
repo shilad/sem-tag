@@ -90,6 +90,9 @@ public class TagSqlDao extends BaseSqLDao<Tag> implements TagDao {
         if (filter.getTags() != null) {
             conditions.add(Tables.TAGS.RAW_TAG.in(filter.getTags()));
         }
+        if (filter.getConcepts() != null) {
+            conditions.add(Tables.TAGS.CONCEPT_ID.in(filter.getConceptIds()));
+        }
         Cursor<Record> cursor = fetchLazy(conditions);
         return buildTagIterable(cursor);
     }
