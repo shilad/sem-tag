@@ -171,6 +171,9 @@ public class Benchmark {
                 Tag app = (Tag) sr.getObj();
                 String tag = app.getRawTag();
                 if (tag != null) {
+//                    if (result.size() < 50) {
+//                        System.out.println("\t" + tag);
+//                    }
                     result.add(new SimilarResult<Tag>(tag, sr.getValue()));
                 }
             }
