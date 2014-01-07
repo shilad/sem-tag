@@ -3,6 +3,7 @@ package org.semtag.dao.sql;
 import com.typesafe.config.Config;
 import org.jooq.Condition;
 import org.jooq.Cursor;
+import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.semtag.core.jooq.Tables;
 import org.semtag.dao.ConceptDao;
@@ -13,11 +14,13 @@ import org.semtag.model.concept.Concept;
 import org.wikapidia.conf.Configuration;
 import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
+import org.wikapidia.core.dao.sql.WpDataSource;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * A SQL implementation of ConceptDao.
@@ -28,7 +31,7 @@ public class ConceptSqlDao extends BaseSqLDao<Concept> implements ConceptDao {
 
     private final ConceptMapper mapper;
 
-    public ConceptSqlDao(DataSource dataSource, ConceptMapper mapper) throws DaoException {
+    public ConceptSqlDao(WpDataSource dataSource, ConceptMapper mapper) throws DaoException {
         super(dataSource, "/db/concepts", Tables.CONCEPTS);
         this.mapper = mapper;
     }
@@ -41,7 +44,7 @@ public class ConceptSqlDao extends BaseSqLDao<Concept> implements ConceptDao {
     }
 
     @Override
-    public void save(Connection conn, Concept concept) throws DaoException {
+    public void save(DSLContext conn, Concept concept) throws DaoException {
         if (getCount(new DaoFilter().setConcept(concept)) == 0) {
             insert(conn, concept.getConceptId());
         }
@@ -95,13 +98,13 @@ public class ConceptSqlDao extends BaseSqLDao<Concept> implements ConceptDao {
         }
 
         @Override
-        public ConceptSqlDao get(String name, Config config) throws ConfigurationException {
+        public ConceptSqlDao get(String name, Config config, Map<String, String> runtimeParams) throws ConfigurationException {
             if (!config.getString("type").equals("sql")) {
                 return null;
             }
             try {
                 return new ConceptSqlDao(
-                        getConfigurator().get(DataSource.class, config.getString("datasource")),
+                        getConfigurator().get(WpDataSource.class, config.getString("datasource")),
                         getConfigurator().get(ConceptMapper.class, config.getString("mapper"))
                 );
             } catch (DaoException e) {

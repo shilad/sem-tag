@@ -15,6 +15,8 @@ import org.semtag.sim.*;
 import org.wikapidia.conf.Configuration;
 import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
+import org.wikapidia.core.cmd.Env;
+import org.wikapidia.core.cmd.EnvBuilder;
 
 import java.util.*;
 
@@ -41,7 +43,8 @@ public class Benchmark {
     private final Set<Item> items;
 
     public Benchmark() throws ConfigurationException, DaoException {
-        Configurator conf = new Configurator(new Configuration());
+        Env env = new EnvBuilder().build();
+        Configurator conf = env.getConfigurator();
         cSim = conf.get(ConceptSimilar.class);
         taSim = conf.get(TagAppSimilar.class);
         iSim = conf.get(ItemSimilar.class);

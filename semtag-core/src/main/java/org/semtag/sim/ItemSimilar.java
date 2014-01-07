@@ -380,7 +380,7 @@ public class ItemSimilar implements Similar<Item> {
         }
 
         @Override
-        public ItemSimilar get(String name, Config config) throws ConfigurationException {
+        public ItemSimilar get(String name, Config config, Map<String, String> runtimeParams) throws ConfigurationException {
             if (!config.getString("type").equals("item")) {
                 return null;
             }

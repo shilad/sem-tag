@@ -1,13 +1,9 @@
 package org.semtag.sim;
 
 import com.typesafe.config.Config;
-import gnu.trove.set.TIntSet;
-import gnu.trove.set.hash.TIntHashSet;
 import org.semtag.dao.DaoException;
 import org.semtag.dao.DaoFilter;
 import org.semtag.dao.TagAppDao;
-import org.semtag.dao.TagDao;
-import org.semtag.model.Tag;
 import org.semtag.model.TagApp;
 import org.semtag.model.concept.Concept;
 import org.wikapidia.conf.Configuration;
@@ -96,7 +92,7 @@ public class TagAppSimilar implements Similar<TagApp> {
         }
 
         @Override
-        public TagAppSimilar get(String name, Config config) throws ConfigurationException {
+        public TagAppSimilar get(String name, Config config, Map<String, String> runtimeParams) throws ConfigurationException {
             if (!config.getString("type").equals("tagApp")) {
                 return null;
             }

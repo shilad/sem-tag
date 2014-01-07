@@ -1,23 +1,18 @@
 package org.semtag.sim;
 
 import com.typesafe.config.Config;
-import gnu.trove.set.TIntSet;
-import gnu.trove.set.hash.TIntHashSet;
 import org.semtag.SemTagException;
 import org.semtag.dao.DaoException;
 import org.semtag.dao.DaoFilter;
 import org.semtag.dao.TagDao;
 import org.semtag.mapper.ConceptMapper;
 import org.semtag.model.Tag;
-import org.semtag.model.TagApp;
 import org.semtag.model.concept.Concept;
 import org.wikapidia.conf.Configuration;
 import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -144,7 +139,7 @@ public class TagSimilar implements Similar<Tag> {
         }
 
         @Override
-        public TagSimilar get(String name, Config config) throws ConfigurationException {
+        public TagSimilar get(String name, Config config, Map<String, String> runtimeParams) throws ConfigurationException {
             if (!config.getString("type").equals("tag")) {
                 return null;
             }

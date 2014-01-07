@@ -17,6 +17,7 @@ import org.wikapidia.sr.disambig.Disambiguator;
 
 import java.sql.Timestamp;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -58,7 +59,7 @@ public class WikapidiaMapper implements ConceptMapper {
                 context.add(new LocalString(language, t.getTag().getNormalizedTag()));
             }
             LocalString tagString = new LocalString(language, tag.getNormalizedTag());
-            LocalId localId = disambiguator.disambiguate(tagString, context);
+            LocalId localId = disambiguator.disambiguateTop(tagString, context);
             if (localId == null) { // TODO: this is not ideal, what should we do?
                 localId = new LocalId(language, -1);
             }
@@ -74,7 +75,7 @@ public class WikapidiaMapper implements ConceptMapper {
     public Concept map(Tag tag) throws SemTagException {
         try {
             LocalString tagString = new LocalString(language, tag.getNormalizedTag());
-            LocalId localId = disambiguator.disambiguate(tagString, null);
+            LocalId localId = disambiguator.disambiguateTop(tagString, null);
             if (localId == null) {
                 tag.setConcept(null);
                 return null;
@@ -104,7 +105,7 @@ public class WikapidiaMapper implements ConceptMapper {
         }
 
         @Override
-        public WikapidiaMapper get(String name, Config config) throws ConfigurationException {
+        public WikapidiaMapper get(String name, Config config, Map<String, String> runtimeParams) throws ConfigurationException {
             if (!config.getString("type").equals("wikapidia")) {
                 return null;
             }

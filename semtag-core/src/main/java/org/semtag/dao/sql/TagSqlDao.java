@@ -7,7 +7,6 @@ import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
 import org.semtag.core.jooq.Tables;
-import org.semtag.dao.ConceptDao;
 import org.semtag.dao.DaoException;
 import org.semtag.dao.DaoFilter;
 import org.semtag.dao.TagDao;
@@ -17,14 +16,15 @@ import org.semtag.model.concept.Concept;
 import org.wikapidia.conf.Configuration;
 import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
+import org.wikapidia.core.dao.sql.WpDataSource;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * A SQL implementation of TagDao.
@@ -33,7 +33,7 @@ import java.util.Date;
  */
 public class TagSqlDao extends BaseSqLDao<Tag> implements TagDao {
 
-    public TagSqlDao(DataSource dataSource) throws DaoException {
+    public TagSqlDao(WpDataSource dataSource) throws DaoException {
         super(dataSource, "/db/tags", Tables.TAGS);
     }
 
@@ -51,10 +51,10 @@ public class TagSqlDao extends BaseSqLDao<Tag> implements TagDao {
         }
     }
     @Override
-    public void save(Connection conn, Tag tag) throws DaoException {
+    public void save(DSLContext ctx, Tag tag) throws DaoException {
         if (getCount(new DaoFilter().setTags(tag)) == 0) {
             insert(
-                    null,
+                    ctx,
                     tag.getRawTag(),
                     tag.getNormalizedTag(),
                     new Timestamp(new Date().getTime()),
@@ -64,10 +64,10 @@ public class TagSqlDao extends BaseSqLDao<Tag> implements TagDao {
         }
     }
 
-    public void save(Connection conn, TagApp tagApp) throws DaoException {
+    public void save(DSLContext ctx, TagApp tagApp) throws DaoException {
         if (getCount(new DaoFilter().setTags(tagApp.getTag())) == 0) {
             insert(
-                    conn,
+                    ctx,
                     null,
                     tagApp.getTag().getRawTag(),
                     tagApp.getTag().getNormalizedTag(),
@@ -76,11 +76,10 @@ public class TagSqlDao extends BaseSqLDao<Tag> implements TagDao {
                     1
             );
         } else {
-                DSLContext context = DSL.using(conn, dialect);
-                context.update(Tables.TAGS)
-                        .set(Tables.TAGS.COUNT, Tables.TAGS.COUNT.add(1))
-                        .where(Tables.TAGS.NORM_TAG.eq(tagApp.getTag().getNormalizedTag()))
-                        .execute();
+            ctx.update(Tables.TAGS)
+                .set(Tables.TAGS.COUNT, Tables.TAGS.COUNT.add(1))
+                .where(Tables.TAGS.NORM_TAG.eq(tagApp.getTag().getNormalizedTag()))
+                .execute();
         }
     }
 
@@ -139,7 +138,7 @@ public class TagSqlDao extends BaseSqLDao<Tag> implements TagDao {
         }
 
         @Override
-        public Class getType() {
+        public Class<TagDao> getType() {
             return TagDao.class;
         }
 
@@ -149,13 +148,13 @@ public class TagSqlDao extends BaseSqLDao<Tag> implements TagDao {
         }
 
         @Override
-        public TagSqlDao get(String name, Config config) throws ConfigurationException {
+        public TagSqlDao get(String name, Config config, Map<String, String> runtimeParams) throws ConfigurationException {
             if (!config.getString("type").equals("sql")) {
                 return null;
             }
             try {
                 return new TagSqlDao(
-                        getConfigurator().get(DataSource.class, config.getString("datasource"))
+                        getConfigurator().get(WpDataSource.class, config.getString("datasource"))
                 );
             } catch (DaoException e) {
                 throw new ConfigurationException(e);

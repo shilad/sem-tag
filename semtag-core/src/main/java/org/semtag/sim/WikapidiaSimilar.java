@@ -12,9 +12,11 @@ import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
 import org.wikapidia.core.lang.Language;
 import org.wikapidia.core.lang.LocalId;
-import org.wikapidia.sr.LocalSRMetric;
+import org.wikapidia.sr.MonolingualSRMetric;
 import org.wikapidia.sr.SRResult;
 import org.wikapidia.sr.SRResultList;
+
+import java.util.Map;
 
 /**
  * Defines ConceptSimilar methods for WikapidiaConcepts.
@@ -25,9 +27,9 @@ public class WikapidiaSimilar implements ConceptSimilar {
 
     private final ConceptDao helperDao;
     private final Language language;
-    private final LocalSRMetric srMetric;
+    private final MonolingualSRMetric srMetric;
 
-    protected WikapidiaSimilar(ConceptDao helperDao, Language language, LocalSRMetric srMetric) {
+    protected WikapidiaSimilar(ConceptDao helperDao, Language language, MonolingualSRMetric srMetric) {
         this.helperDao = helperDao;
         this.language = language;
         this.srMetric = srMetric;
@@ -41,7 +43,7 @@ public class WikapidiaSimilar implements ConceptSimilar {
         return language;
     }
 
-    public LocalSRMetric getSrMetric() {
+    public MonolingualSRMetric getSrMetric() {
         return srMetric;
     }
 
@@ -49,8 +51,8 @@ public class WikapidiaSimilar implements ConceptSimilar {
     public double similarity(Concept x, Concept y) throws DaoException {
         try {
             SRResult result = srMetric.similarity(
-                    x.getLocalId().asLocalPage(),
-                    y.getLocalId().asLocalPage(),
+                    x.getLocalId().getId(),
+                    y.getLocalId().getId(),
                     false);
             return result.getScore();
         } catch (org.wikapidia.core.dao.DaoException e) {
@@ -75,7 +77,7 @@ public class WikapidiaSimilar implements ConceptSimilar {
         SRResultList results;
         try {
             results = srMetric.mostSimilar(
-                    concept.getLocalId().asLocalPage(),
+                    concept.getLocalId().getId(),
                     maxResults,
                     validIds);
         } catch (org.wikapidia.core.dao.DaoException e) {
@@ -100,7 +102,7 @@ public class WikapidiaSimilar implements ConceptSimilar {
     @Override
     public double[][] cosimilarity(Concept[] concepts) throws DaoException {
         try {
-            return srMetric.cosimilarity(getIdVector(concepts), language);
+            return srMetric.cosimilarity(getIdVector(concepts));
         } catch (org.wikapidia.core.dao.DaoException e) {
             throw new DaoException(e);
         }
@@ -109,7 +111,7 @@ public class WikapidiaSimilar implements ConceptSimilar {
     @Override
     public double[][] cosimilarity(Concept[] xConcepts, Concept[] yConcepts) throws DaoException {
         try {
-            return srMetric.cosimilarity(getIdVector(xConcepts), getIdVector(yConcepts), language);
+            return srMetric.cosimilarity(getIdVector(xConcepts), getIdVector(yConcepts));
         } catch (org.wikapidia.core.dao.DaoException e) {
             throw new DaoException(e);
         }
@@ -139,15 +141,16 @@ public class WikapidiaSimilar implements ConceptSimilar {
         }
 
         @Override
-        public WikapidiaSimilar get(String name, Config config) throws ConfigurationException {
+        public WikapidiaSimilar get(String name, Config config, Map<String, String> runtimeParams) throws ConfigurationException {
             if (!config.getString("type").equals("wikapidia")) {
                 return null;
             }
-            return new WikapidiaSimilar(
-                    getConfigurator().get(ConceptDao.class, config.getString("conceptDao")),
-                    Language.getByLangCode(config.getString("lang")),
-                    getConfigurator().get(LocalSRMetric.class, config.getString("metric"))
-            );
+            ConceptDao dao = getConfigurator().get(ConceptDao.class, config.getString("conceptDao"));
+            Language lang = Language.getByLangCode(config.getString("lang"));
+            MonolingualSRMetric sr = getConfigurator().get(
+                    MonolingualSRMetric.class, config.getString("metric"),
+                    "language", lang.getLangCode());
+            return new WikapidiaSimilar(dao, lang, sr);
         }
     }
 }
