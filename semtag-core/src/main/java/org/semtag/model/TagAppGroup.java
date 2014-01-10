@@ -2,6 +2,7 @@ package org.semtag.model;
 
 import com.google.common.collect.Sets;
 import org.semtag.dao.DaoFilter;
+import org.semtag.model.concept.Concept;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -20,7 +21,7 @@ public class TagAppGroup implements Iterable<TagApp> {
     private final String userId;
     private final Tag tag;
     private final String itemId;
-    private final Integer conceptId;
+    private final Concept concept;
     private final Set<TagApp> tagApps;
 
     /**
@@ -31,7 +32,7 @@ public class TagAppGroup implements Iterable<TagApp> {
         this.userId = null;
         this.tag = null;
         this.itemId = null;
-        this.conceptId = null;
+        this.concept = null;
         this.tagApps = tagApps;
     }
 
@@ -40,14 +41,14 @@ public class TagAppGroup implements Iterable<TagApp> {
      * @param userId
      * @param tag
      * @param itemId
-     * @param conceptId
+     * @param concept
      * @param tagApps
      */
-    public TagAppGroup(String userId, Tag tag, String itemId, Integer conceptId, Set<TagApp> tagApps) {
+    public TagAppGroup(String userId, Tag tag, String itemId, Concept concept, Set<TagApp> tagApps) {
         this.userId = userId;
         this.tag = tag;
         this.itemId = itemId;
-        this.conceptId = conceptId;
+        this.concept = concept;
         this.tagApps = tagApps;
     }
 
@@ -59,7 +60,7 @@ public class TagAppGroup implements Iterable<TagApp> {
             this.tag = new Tag(filter.getTag());
         }
         this.itemId = filter.getItemId();
-        this.conceptId = filter.getConceptId();
+        this.concept = filter.getConcept();
         this.tagApps = tagApps;
     }
 
@@ -116,15 +117,15 @@ public class TagAppGroup implements Iterable<TagApp> {
      * @return
      */
     public boolean hasConcept() {
-        return conceptId != null;
+        return concept != null;
     }
 
     /**
      * Returns the ID of the associated concept, or null if there is none.
      * @return
      */
-    public Integer getConceptId() {
-        return conceptId;
+    public Concept getConcept() {
+        return concept;
     }
 
     /**
@@ -198,21 +199,21 @@ public class TagAppGroup implements Iterable<TagApp> {
         } else {
             itemId = group2.itemId;
         }
-        Integer conceptId;
-        if (group1.conceptId != null) {
-            if (group2.conceptId != null && !group2.conceptId.equals(group1.conceptId)) {
+        Concept concept;
+        if (group1.concept != null) {
+            if (group2.concept != null && !group2.concept.equals(group1.concept)) {
                 return null;
             }
-            conceptId = group1.conceptId;
+            concept = group1.concept;
         } else {
-            conceptId = group2.conceptId;
+            concept = group2.concept;
         }
         Set<TagApp> intersection = Sets.intersection(group1.tagApps, group2.tagApps);
         return new TagAppGroup(
                 userId,
                 tag,
                 itemId,
-                conceptId,
+                concept,
                 intersection);
     }
 

@@ -38,7 +38,7 @@ public interface Similar<T> {
      * @return
      * @throws DaoException
      */
-    public SimilarResultList mostSimilar(T obj, int maxResults) throws DaoException;
+    public SimilarResultList<T> mostSimilar(T obj, int maxResults) throws DaoException;
 
     /**
      * Returns a list of the most similar objects to this objects that pass the threshold.
@@ -47,7 +47,7 @@ public interface Similar<T> {
      * @return
      * @throws DaoException
      */
-    public SimilarResultList mostSimilar(T obj, int maxResults, double threshold) throws DaoException;
+    public SimilarResultList<T> mostSimilar(T obj, int maxResults, double threshold) throws DaoException;
 
     /**
      * Returns a symmetric cosimilarity matrix of T objects.

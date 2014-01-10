@@ -1,25 +1,21 @@
 package org.semtag.dao.sql;
 
 import com.typesafe.config.Config;
-import org.jooq.Condition;
-import org.jooq.Cursor;
-import org.jooq.Record;
-import org.jooq.Result;
+import org.jooq.*;
 import org.semtag.core.jooq.Tables;
 import org.semtag.dao.DaoException;
 import org.semtag.dao.DaoFilter;
 import org.semtag.dao.TagAppDao;
 import org.semtag.model.*;
+import org.semtag.model.concept.Concept;
 import org.wikapidia.conf.Configuration;
 import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
+import org.wikapidia.core.dao.sql.WpDataSource;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * A SQL implementation of TagAppDao.
@@ -28,7 +24,7 @@ import java.util.Set;
  */
 public class TagAppSqlDao extends BaseSqLDao<TagApp> implements TagAppDao {
 
-    public TagAppSqlDao(DataSource dataSource) throws DaoException {
+    public TagAppSqlDao(WpDataSource dataSource) throws DaoException {
         super(dataSource, "/db/tagapps", Tables.TAGAPPS);
     }
 
@@ -41,12 +37,12 @@ public class TagAppSqlDao extends BaseSqLDao<TagApp> implements TagAppDao {
                 tagApp.getTag().getNormalizedTag(),
                 tagApp.getItem().getItemId(),
                 tagApp.getTimestamp(),
-                tagApp.getConceptId()
+                tagApp.getConcept().getConceptId()
         );
     }
 
     @Override
-    public void save(Connection conn, TagApp tagApp) throws DaoException {
+    public void save(DSLContext conn, TagApp tagApp) throws DaoException {
         insert(
                 conn,
                 null,
@@ -55,7 +51,7 @@ public class TagAppSqlDao extends BaseSqLDao<TagApp> implements TagAppDao {
                 tagApp.getTag().getNormalizedTag(),
                 tagApp.getItem().getItemId(),
                 tagApp.getTimestamp(),
-                tagApp.getConceptId()
+                tagApp.getConcept().getConceptId()
         );
     }
 
@@ -114,7 +110,7 @@ public class TagAppSqlDao extends BaseSqLDao<TagApp> implements TagAppDao {
         if (filter.getItemId() != null) {
             conditions.add(Tables.TAGAPPS.ITEM_ID.eq(filter.getItemId()));
         }
-        if (filter.getConceptId() != null) {
+        if (filter.getConcept() != null) {
             conditions.add(Tables.TAGAPPS.CONCEPT_ID.eq(filter.getConceptId()));
         }
         Result<Record> result = fetch(conditions);
@@ -133,7 +129,7 @@ public class TagAppSqlDao extends BaseSqLDao<TagApp> implements TagAppDao {
         if (filter.getItemId() != null) {
             conditions.add(Tables.TAGAPPS.ITEM_ID.eq(filter.getItemId()));
         }
-        if (filter.getConceptId() != null) {
+        if (filter.getConcept() != null) {
             conditions.add(Tables.TAGAPPS.CONCEPT_ID.eq(filter.getConceptId()));
         }
         Result<Record> result = fetch(conditions);
@@ -171,7 +167,7 @@ public class TagAppSqlDao extends BaseSqLDao<TagApp> implements TagAppDao {
                 new Tag(record.getValue(Tables.TAGAPPS.RAW_TAG)),
                 new Item(record.getValue(Tables.TAGAPPS.ITEM_ID)),
                 record.getValue(Tables.TAGAPPS.TIMESTAMP),
-                record.getValue(Tables.TAGAPPS.CONCEPT_ID));
+                new Concept(record.getValue(Tables.TAGAPPS.CONCEPT_ID)));
     }
 
     public static class Provider extends org.wikapidia.conf.Provider<TagAppDao> {
@@ -190,13 +186,13 @@ public class TagAppSqlDao extends BaseSqLDao<TagApp> implements TagAppDao {
         }
 
         @Override
-        public TagAppSqlDao get(String name, Config config) throws ConfigurationException {
+        public TagAppSqlDao get(String name, Config config, Map<String, String> runtimeParams) throws ConfigurationException {
             if (!config.getString("type").equals("sql")) {
                 return null;
             }
             try {
                 return new TagAppSqlDao(
-                        getConfigurator().get(DataSource.class, config.getString("datasource"))
+                        getConfigurator().get(WpDataSource.class, config.getString("datasource"))
                 );
             } catch (DaoException e) {
                 throw new ConfigurationException(e);

@@ -7,6 +7,7 @@ import org.jooq.impl.DSL;
 import org.semtag.dao.Dao;
 import org.semtag.dao.DaoException;
 import org.wikapidia.core.dao.sql.JooqUtils;
+import org.wikapidia.core.dao.sql.WpDataSource;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -31,7 +32,7 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
     protected final SQLDialect dialect;
     protected final String sqlScriptPrefix;
     protected final Table<Record> table;
-    protected final DataSource dataSource;
+    protected final WpDataSource dataSource;
 
     private int fetchSize = DEFAULT_FETCH_SIZE;
 
@@ -43,7 +44,7 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
      * @param table
      * @throws DaoException
      */
-    public BaseSqLDao(DataSource dataSource, String sqlScriptPrefix, Table<Record> table) throws DaoException {
+    public BaseSqLDao(WpDataSource dataSource, String sqlScriptPrefix, Table<Record> table) throws DaoException {
         this.dataSource = dataSource;
         Connection conn = null;
         try {
@@ -52,8 +53,9 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            quietlyCloseConn(conn);
+            WpDataSource.closeQuietly(conn);
         }
+
         this.sqlScriptPrefix = sqlScriptPrefix;
         this.table = table;
     }
@@ -73,11 +75,11 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
     /**
      * Saves the object over the given connection.
      * Used by the SqlSaveHandler primarily.
-     * @param conn
+     * @param context
      * @param obj
      * @throws DaoException
      */
-    public abstract void save(Connection conn, T obj) throws DaoException;
+    public abstract void save(DSLContext context, T obj) throws DaoException;
 
     @Override
     public void endLoad() throws DaoException {
@@ -101,19 +103,18 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
     }
 
     protected void insert(Object... values) throws DaoException {
-        Connection conn = null;
+        DSLContext context = getJooq();
         try {
-            conn = dataSource.getConnection();
-            insert(conn, values);
-        } catch (SQLException e) {
+            insert(context, values);
+            JooqUtils.commit(context);
+        } catch (org.wikapidia.core.dao.DaoException e) {
             throw new DaoException(e);
         } finally {
-            quietlyCloseConn(conn);
+            freeJooq(context);
         }
     }
 
-    protected void insert(Connection conn, Object... values) {
-        DSLContext context = DSL.using(conn, dialect);
+    protected void insert(DSLContext context, Object... values) {
         context.insertInto(table)
                 .values(values)
                 .execute();
@@ -124,17 +125,13 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
     }
 
     protected Record fetchOne(Collection<Condition> conditions) throws DaoException {
-        Connection conn = null;
+        DSLContext context = getJooq();
         try {
-            conn = dataSource.getConnection();
-            DSLContext context = DSL.using(conn, dialect);
             return context.selectFrom(table)
                     .where(conditions)
                     .fetchOne();
-        } catch (SQLException e) {
-            throw new DaoException(e);
         } finally {
-            quietlyCloseConn(conn);
+            freeJooq(context);
         }
     }
 
@@ -143,17 +140,13 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
     }
 
     protected Result<Record> fetch(Collection<Condition> conditions) throws DaoException {
-        Connection conn = null;
+        DSLContext context = getJooq();
         try {
-            conn = dataSource.getConnection();
-            DSLContext context = DSL.using(conn, dialect);
             return context.selectFrom(table)
                     .where(conditions)
                     .fetch();
-        } catch (SQLException e) {
-            throw new DaoException(e);
         } finally {
-            quietlyCloseConn(conn);
+            freeJooq(context);
         }
     }
 
@@ -162,17 +155,13 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
     }
 
     protected Cursor<Record> fetchLazy(Collection<Condition> conditions) throws DaoException {
-        Connection conn = null;
+        DSLContext context = getJooq();
         try {
-            conn = dataSource.getConnection();
-            DSLContext context = DSL.using(conn, dialect);
             return context.selectFrom(table)
                     .where(conditions)
                     .fetchLazy(fetchSize);
-        } catch (SQLException e) {
-            throw new DaoException(e);
         } finally {
-            quietlyCloseConn(conn);
+            freeJooq(context);
         }
     }
 
@@ -181,18 +170,15 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
     }
 
     protected int fetchCount(Collection<Condition> conditions) throws DaoException {
-        Connection conn = null;
+        DSLContext context = getJooq();
         try {
-            conn = dataSource.getConnection();
-            DSLContext context = DSL.using(conn, dialect);
             return context.selectFrom(table)
                     .where(conditions)
                     .fetchCount();
-        } catch (SQLException e) {
-            throw new DaoException(e);
         } finally {
-            quietlyCloseConn(conn);
+            freeJooq(context);
         }
+
     }
 
     /**
@@ -233,41 +219,22 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
      * @throws DaoException
      */
     protected void executeSqlScriptWithSuffix(String suffix) throws DaoException {
-        executeSqlResource(sqlScriptPrefix + suffix);
-    }
-
-    /**
-     * Executes a sql resource on the classpath
-     * @param name Resource path - e.g. "/db/local-page.schema.sql"
-     * @throws DaoException
-     */
-    public void executeSqlResource(String name) throws DaoException {
-        Connection conn=null;
         try {
-            conn = dataSource.getConnection();
-            conn.createStatement().execute(
-                    IOUtils.toString(BaseSqLDao.class.getResource(name)));
-        } catch (IOException e) {
+            dataSource.executeSqlResource(sqlScriptPrefix + suffix);
+        } catch (org.wikapidia.core.dao.DaoException e) {
             throw new DaoException(e);
-        } catch (SQLException e){
-            throw new DaoException(e);
-        } finally {
-            quietlyCloseConn(conn);
         }
     }
 
-    /**
-     * Close a connection without generating an exception if it fails.
-     * @param conn
-     */
-    public static void quietlyCloseConn(Connection conn) {
-        if (conn != null) {
-            try {
-                conn.setAutoCommit(true);
-                conn.close();
-            } catch (SQLException e) {
-                LOG.warning("Failed to close connection");
-            }
+    protected DSLContext getJooq() throws DaoException {
+        try {
+            return dataSource.getJooq();
+        } catch (org.wikapidia.core.dao.DaoException e) {
+            throw new DaoException(e);
         }
+    }
+
+    protected void freeJooq(DSLContext context) {
+        dataSource.freeJooq(context);
     }
 }

@@ -15,6 +15,7 @@ import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
 import org.wikapidia.conf.DefaultOptionBuilder;
 import org.wikapidia.core.cmd.Env;
+import org.wikapidia.core.cmd.EnvBuilder;
 import org.wikapidia.utils.ParallelForEach;
 import org.wikapidia.utils.Procedure;
 
@@ -116,7 +117,7 @@ public class TagAppLoader {
                         .withLongOpt("file")
                         .withDescription("file path to a tab-delimited file with columns: user ID, item ID, tag text, timestamp")
                         .create("f"));
-        Env.addStandardOptions(options);
+        EnvBuilder.addStandardOptions(options);
 
         CommandLineParser parser = new PosixParser();
         CommandLine cmd;
@@ -128,7 +129,7 @@ public class TagAppLoader {
             return;
         }
 
-        Env env = new Env(cmd);
+        Env env = new EnvBuilder(cmd).build();
         Configurator conf = env.getConfigurator();
         SaveHandler handler = conf.get(SaveHandler.class);
         ConceptMapper mapper = conf.get(ConceptMapper.class);

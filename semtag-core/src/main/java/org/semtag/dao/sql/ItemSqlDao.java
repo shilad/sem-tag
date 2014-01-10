@@ -3,6 +3,7 @@ package org.semtag.dao.sql;
 import com.typesafe.config.Config;
 import org.jooq.Condition;
 import org.jooq.Cursor;
+import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.semtag.core.jooq.Tables;
 import org.semtag.dao.DaoException;
@@ -12,11 +13,13 @@ import org.semtag.model.Item;
 import org.wikapidia.conf.Configuration;
 import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
+import org.wikapidia.core.dao.sql.WpDataSource;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * A SQL implementation of ItemDao.
@@ -25,7 +28,7 @@ import java.util.Collection;
  */
 public class ItemSqlDao extends BaseSqLDao<Item> implements ItemDao {
 
-    public ItemSqlDao(DataSource dataSource) throws DaoException {
+    public ItemSqlDao(WpDataSource dataSource) throws DaoException {
         super(dataSource, "/db/items", Tables.ITEMS);
     }
 
@@ -37,7 +40,7 @@ public class ItemSqlDao extends BaseSqLDao<Item> implements ItemDao {
     }
 
     @Override
-    public void save(Connection conn, Item item) throws DaoException {
+    public void save(DSLContext conn, Item item) throws DaoException {
         if (getCount(new DaoFilter().setItemId(item.getItemId())) == 0) {
             insert(conn, item.getItemId());
         }
@@ -105,13 +108,13 @@ public class ItemSqlDao extends BaseSqLDao<Item> implements ItemDao {
         }
 
         @Override
-        public ItemSqlDao get(String name, Config config) throws ConfigurationException {
+        public ItemSqlDao get(String name, Config config, Map<String, String> runtimeParams) throws ConfigurationException {
             if (!config.getString("type").equals("sql")) {
                 return null;
             }
             try {
                 return new ItemSqlDao(
-                        getConfigurator().get(DataSource.class, config.getString("datasource"))
+                        getConfigurator().get(WpDataSource.class, config.getString("datasource"))
                 );
             } catch (DaoException e) {
                 throw new ConfigurationException(e);

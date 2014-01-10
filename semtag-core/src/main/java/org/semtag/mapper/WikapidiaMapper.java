@@ -7,7 +7,6 @@ import org.semtag.dao.DaoFilter;
 import org.semtag.dao.TagAppDao;
 import org.semtag.model.*;
 import org.semtag.model.concept.Concept;
-import org.semtag.model.concept.WikapidiaConcept;
 import org.wikapidia.conf.Configuration;
 import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
@@ -18,6 +17,7 @@ import org.wikapidia.sr.disambig.Disambiguator;
 
 import java.sql.Timestamp;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -54,19 +54,16 @@ public class WikapidiaMapper implements ConceptMapper {
     public TagApp map(User user, Tag tag, Item item, Timestamp timestamp) throws SemTagException {
         try {
             Set<LocalString> context = new HashSet<LocalString>();
-            if (tagAppDao != null) {
-                TagAppGroup group = tagAppDao.getGroup(new DaoFilter().setItemId(item.getItemId()));
-                for (TagApp t : group) {
-                    context.add(new LocalString(language, t.getTag().getNormalizedTag()));
-                }
+            TagAppGroup group = tagAppDao.getGroup(new DaoFilter().setItemId(item.getItemId()));
+            for (TagApp t : group) {
+                context.add(new LocalString(language, t.getTag().getNormalizedTag()));
             }
             LocalString tagString = new LocalString(language, tag.getNormalizedTag());
-            LocalId conceptObj = disambiguator.disambiguate(tagString, context);
-            if (conceptObj == null) { // TODO: this is not ideal, what should we do?
-                conceptObj = new LocalId(language, -1);
+            LocalId localId = disambiguator.disambiguateTop(tagString, context);
+            if (localId == null) { // TODO: this is not ideal, what should we do?
+                localId = new LocalId(language, -1);
             }
-            Concept concept = new WikapidiaConcept(conceptObj, "wikapidia");
-            return new TagApp(user, tag, item, timestamp, concept);
+            return new TagApp(user, tag, item, timestamp, new Concept(localId));
         } catch (org.wikapidia.core.dao.DaoException e) {
             throw new SemTagException(e);
         } catch (DaoException e) {
@@ -75,11 +72,21 @@ public class WikapidiaMapper implements ConceptMapper {
     }
 
     @Override
-    public Concept getConcept(int conceptId, String metric, byte[] objBytes) throws DaoException {
-        return new WikapidiaConcept(
-                conceptId,
-                "wikapidia",
-                objBytes);
+    public Concept map(Tag tag) throws SemTagException {
+        try {
+            LocalString tagString = new LocalString(language, tag.getNormalizedTag());
+            LocalId localId = disambiguator.disambiguateTop(tagString, null);
+            if (localId == null) {
+                tag.setConcept(null);
+                return null;
+            } else {
+                tag.setConcept(new Concept(localId));
+                return tag.getConcept();
+            }
+        } catch (org.wikapidia.core.dao.DaoException e) {
+            throw new SemTagException(e);
+        }
+
     }
 
     public static class Provider extends org.wikapidia.conf.Provider<ConceptMapper> {
@@ -98,7 +105,7 @@ public class WikapidiaMapper implements ConceptMapper {
         }
 
         @Override
-        public WikapidiaMapper get(String name, Config config) throws ConfigurationException {
+        public WikapidiaMapper get(String name, Config config, Map<String, String> runtimeParams) throws ConfigurationException {
             if (!config.getString("type").equals("wikapidia")) {
                 return null;
             }

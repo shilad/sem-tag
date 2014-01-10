@@ -2,11 +2,9 @@ package org.semtag.dao;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.semtag.model.Tag;
+import org.semtag.model.concept.Concept;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 
 /**
  * Specifies filters to apply to the various SemTag Daos.
@@ -37,21 +35,21 @@ public class DaoFilter {
     private Collection<String> userIds;
     private Collection<String> tags;
     private Collection<String> itemIds;
-    private Collection<Integer> conceptIds;
+    private Collection<Concept> concepts;
     private String userId;
     private String tag;
     private String itemId;
-    private Integer conceptId;
+    private Concept concept;
 
     public DaoFilter() {
         this.userIds = null;
         this.tags = null;
         this.itemIds = null;
-        this.conceptIds = null;
+        this.concepts = null;
         this.userId = null;
         this.tag = null;
         this.itemId = null;
-        this.conceptId = null;
+        this.concept = null;
     }
 
     /**
@@ -158,33 +156,34 @@ public class DaoFilter {
     /**
      * Sets the concept filter to the specified collection of concept IDs.
      * Used by TagApp, Concept.
-     * @param conceptIds
+     * @param concepts
      * @return
      */
-    public DaoFilter setConceptIds(Collection<Integer> conceptIds) {
-        this.conceptIds = conceptIds;
+    public DaoFilter setConceptIds(Collection<Concept> concepts) {
+        this.concepts = concepts;
         return this;
     }
 
     /**
-     * Sets the concept filter to the specified array of concept IDs.
+     * Sets the concept filter to the specified array of concepts.
      * Used by TagApp, Concept.
-     * @param conceptIds
+     * @param concepts
      * @return
      */
-    public DaoFilter setConceptIds(Integer... conceptIds) {
-        this.conceptIds = Arrays.asList(conceptIds);
+    public DaoFilter setConcepts(Collection<Concept> concepts) {
+        this.concepts = Collections.unmodifiableCollection(concepts);
         return this;
     }
 
     /**
-     * Sets the concept filter to the specified array of concept IDs.
+     * Sets the concept filter to the specified array of concepts.
      * Used by TagApp, Concept.
-     * @param conceptIds
+     * @param concepts
      * @return
      */
-    public DaoFilter setConceptIds(int... conceptIds) {
-        return setConceptIds(ArrayUtils.toObject(conceptIds));
+    public DaoFilter setConcepts(Concept... concepts) {
+        this.concepts = Arrays.asList(concepts);
+        return this;
     }
 
     /**
@@ -231,12 +230,12 @@ public class DaoFilter {
      * Sets the concept filter to the specified concept ID.
      * Additionally sets a singleton concept filter for use by TagAppGroup.
      * Used by TagApp, User.
-     * @param conceptId
+     * @param concept
      * @return
      */
-    public DaoFilter setConceptId(Integer conceptId) {
-        this.conceptIds = Collections.singleton(conceptId);
-        this.conceptId = conceptId;
+    public DaoFilter setConcept(Concept concept) {
+        this.concepts = Collections.singleton(concept);
+        this.concept = concept;
         return this;
     }
 
@@ -256,8 +255,19 @@ public class DaoFilter {
         return itemIds;
     }
 
-    public Collection<Integer> getConceptIds() {
-        return conceptIds;
+    public Collection<Concept> getConcepts() {
+        return concepts;
+    }
+
+    public Collection<Long> getConceptIds() {
+        if (concepts == null) {
+            return null;
+        }
+        List<Long> ids = new ArrayList<Long>();
+        for (Concept c : concepts) {
+            ids.add(c.getConceptId());
+        }
+        return ids;
     }
 
     public String getUserId() {
@@ -272,7 +282,11 @@ public class DaoFilter {
         return itemId;
     }
 
-    public Integer getConceptId() {
-        return conceptId;
+    public Concept getConcept() {
+        return concept;
+    }
+
+    public long getConceptId() {
+        return concept == null ? -1 : concept.getConceptId();
     }
 }

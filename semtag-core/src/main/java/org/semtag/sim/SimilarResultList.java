@@ -14,11 +14,11 @@ import java.util.*;
  *
  * @author Ari Weiland
  */
-public class SimilarResultList implements Iterable<SimilarResult> {
+public class SimilarResultList<T> implements Iterable<SimilarResult<T>> {
 
     private final int maxSize;
     private final double threshold;
-    private List<SimilarResult> results;
+    private List<SimilarResult<T>> results;
     private boolean locked = false;
 
     /**
@@ -34,7 +34,7 @@ public class SimilarResultList implements Iterable<SimilarResult> {
      * @param maxSize
      */
     public SimilarResultList(int maxSize, double threshold) {
-        this(maxSize, threshold, new ArrayList<SimilarResult>());
+        this(maxSize, threshold, new ArrayList<SimilarResult<T>>());
     }
 
     /**
@@ -51,7 +51,7 @@ public class SimilarResultList implements Iterable<SimilarResult> {
      * @param maxSize
      * @param results
      */
-    public SimilarResultList(int maxSize, Collection<SimilarResult> results) {
+    public SimilarResultList(int maxSize, Collection<SimilarResult<T>> results) {
         this(maxSize, 0, results);
     }
 
@@ -60,10 +60,10 @@ public class SimilarResultList implements Iterable<SimilarResult> {
      * @param maxSize
      * @param results
      */
-    public SimilarResultList(int maxSize, double threshold, SimilarResult... results) {
+    public SimilarResultList(int maxSize, double threshold, SimilarResult<T>... results) {
         this.maxSize = maxSize;
         this.threshold = threshold;
-        this.results = new ArrayList<SimilarResult>(maxSize);
+        this.results = new ArrayList<SimilarResult<T>>(maxSize);
         add(results);
     }
 
@@ -72,10 +72,10 @@ public class SimilarResultList implements Iterable<SimilarResult> {
      * @param maxSize
      * @param results
      */
-    public SimilarResultList(int maxSize, double threshold, Collection<SimilarResult> results) {
+    public SimilarResultList(int maxSize, double threshold, Collection<SimilarResult<T>> results) {
         this.maxSize = maxSize;
         this.threshold = threshold;
-        this.results = new ArrayList<SimilarResult>(maxSize);
+        this.results = new ArrayList<SimilarResult<T>>(maxSize);
         add(results);
     }
 
@@ -84,7 +84,7 @@ public class SimilarResultList implements Iterable<SimilarResult> {
      * If called after List has been locked, an IllegalStateException will be thrown.
      * @param results
      */
-    public void add(SimilarResult... results) {
+    public void add(SimilarResult<T>... results) {
         if (locked) {
             throw new IllegalStateException("SimilarResultList has been locked");
         }
@@ -96,7 +96,7 @@ public class SimilarResultList implements Iterable<SimilarResult> {
      * If called after list has been locked, an IllegalStateException will be thrown.
      * @param results
      */
-    public void add(Collection<SimilarResult> results) {
+    public void add(Collection<SimilarResult<T>> results) {
         if (locked) {
             throw new IllegalStateException("SimilarResultList has been locked");
         }
@@ -135,7 +135,7 @@ public class SimilarResultList implements Iterable<SimilarResult> {
      * This method does NOT lock the list.
      * @return
      */
-    public List<SimilarResult> getResults() {
+    public List<SimilarResult<T>> getResults() {
         return Collections.unmodifiableList(results);
     }
 
@@ -146,12 +146,7 @@ public class SimilarResultList implements Iterable<SimilarResult> {
      * @return
      */
     public double getValue(long id) {
-        for (SimilarResult result : results) {
-            if (result.getLongId() == id) {
-                return result.getValue();
-            }
-        }
-        return 0;
+        return getValue("" + id);
     }
 
     /**
@@ -163,6 +158,20 @@ public class SimilarResultList implements Iterable<SimilarResult> {
     public double getValue(String id) {
         for (SimilarResult result : results) {
             if (result.getStringId().equals(id)) {
+                return result.getValue();
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * Returns the similarity score of the item with the specifieid obj or 0 if not found.
+     * @param o
+     * @return
+     */
+    public double getValue(Object o) {
+        for (SimilarResult result : results) {
+            if (result.getObj().equals(o)) {
                 return result.getValue();
             }
         }
@@ -202,7 +211,7 @@ public class SimilarResultList implements Iterable<SimilarResult> {
      * @return
      */
     @Override
-    public Iterator<SimilarResult> iterator() {
+    public Iterator<SimilarResult<T>> iterator() {
         lock();
         return Iterators.limit(getResults().iterator(), maxSize);
     }
@@ -218,5 +227,13 @@ public class SimilarResultList implements Iterable<SimilarResult> {
         while (results.size() > truncateSize) {
             results.remove(truncateSize);
         }
+    }
+
+    public List<T> getObjects() {
+        List<T> objs = new ArrayList<T>(results.size());
+        for (int i = 0; i < results.size(); i++) {
+            objs.add(results.get(i).getObj());
+        }
+        return objs;
     }
 }

@@ -1,13 +1,11 @@
 package org.semtag.sim;
 
 import com.typesafe.config.Config;
-import gnu.trove.set.TIntSet;
-import gnu.trove.set.hash.TIntHashSet;
 import org.semtag.dao.DaoException;
 import org.semtag.dao.DaoFilter;
 import org.semtag.dao.TagAppDao;
-import org.semtag.model.Tag;
 import org.semtag.model.TagApp;
+import org.semtag.model.concept.Concept;
 import org.wikapidia.conf.Configuration;
 import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
@@ -22,90 +20,41 @@ import java.util.Map;
  */
 public class TagAppSimilar implements Similar<TagApp> {
 
-    private final TagAppDao helperDao;
+    private final TagAppDao dao;
     private final ConceptSimilar sim;
 
-    public TagAppSimilar(TagAppDao helperDao, ConceptSimilar sim) {
-        this.helperDao = helperDao;
+    public TagAppSimilar(TagAppDao dao, ConceptSimilar sim) {
+        this.dao = dao;
         this.sim = sim;
-    }
-
-    public TagAppDao getHelperDao() {
-        return helperDao;
-    }
-
-    public ConceptSimilar getSim() {
-        return sim;
     }
 
     @Override
     public double similarity(TagApp x, TagApp y) throws DaoException {
-        return sim.similarity(x.getConceptId(), y.getConceptId());
+        return sim.similarity(x.getConcept(), y.getConcept());
     }
 
     @Override
-    public SimilarResultList mostSimilar(TagApp obj, int maxResults) throws DaoException {
+    public SimilarResultList<TagApp> mostSimilar(TagApp obj, int maxResults) throws DaoException {
         return mostSimilar(obj, maxResults, 0);
     }
 
     @Override
-    public SimilarResultList mostSimilar(TagApp obj, int maxResults, double threshold) throws DaoException {
-        SimilarResultList concepts = sim.mostSimilar(obj.getConceptId(), maxResults);
-        TIntSet conceptIds = new TIntHashSet();
-        for (SimilarResult result : concepts) {
-            conceptIds.add(result.getIntId());
-        }
-        Iterable<TagApp> iterable = helperDao.get(new DaoFilter().setConceptIds(conceptIds.toArray()));
+    public SimilarResultList<TagApp> mostSimilar(TagApp obj, int maxResults, double threshold) throws DaoException {
+        long l1 = System.currentTimeMillis();
+        SimilarResultList<Concept> concepts = sim.mostSimilar(obj.getConcept(), maxResults);
+
+        long l2 = System.currentTimeMillis();
         Map<String, TagApp> tags = new HashMap<String, TagApp>();
-        for (TagApp t : iterable) {
+        for (TagApp t : dao.get(new DaoFilter().setConcepts(concepts.getObjects()))) {
             tags.put(t.getTag().getNormalizedTag(), t);
         }
-        SimilarResultList list = new SimilarResultList(maxResults, threshold);
+        SimilarResultList<TagApp> list = new SimilarResultList<TagApp>(maxResults, threshold);
         for (TagApp t : tags.values()) {
-            list.add(new SimilarResult(t.getTagAppId(), t, concepts.getValue(t.getConceptId())));
+            list.add(new SimilarResult<TagApp>(t.getTagAppId(), t, concepts.getValue(t.getConcept())));
         }
         list.lock();
-        return list;
-    }
-
-    /**
-     * Returns a list of the most similar raw tags to this tag.
-     * Note that this method is 3-6 times slower than the mostSimilar(TagApp),
-     * and you should try to use that one when possible.
-     * @param tag
-     * @param maxResults
-     * @return
-     * @throws DaoException
-     */
-    public SimilarResultList mostSimilar(Tag tag, int maxResults) throws DaoException {
-        return mostSimilar(tag, maxResults, 0);
-    }
-
-    /**
-     * Returns a list of the most similar raw tags to this tag that pass the threshold.
-     * Note that this method is 3-6 times slower than the mostSimilar(TagApp),
-     * and you should try to use that one when possible.
-     * @param tag
-     * @param maxResults
-     * @return
-     * @throws DaoException
-     */
-    public SimilarResultList mostSimilar(Tag tag, int maxResults, double threshold) throws DaoException {
-        SimilarResultList concepts = sim.mostSimilar(tag, maxResults);
-        TIntSet conceptIds = new TIntHashSet();
-        for (SimilarResult result : concepts) {
-            conceptIds.add(result.getIntId());
-        }
-        Iterable<TagApp> iterable = helperDao.get(new DaoFilter().setConceptIds(conceptIds.toArray()));
-        Map<String, TagApp> tags = new HashMap<String, TagApp>();
-        for (TagApp t : iterable) {
-            tags.put(t.getTag().getNormalizedTag(), t);
-        }
-        SimilarResultList list = new SimilarResultList(maxResults, threshold);
-        for (TagApp t : tags.values()) {
-            list.add(new SimilarResult<TagApp>(t.getTagAppId(), t, concepts.getValue(t.getConceptId())));
-        }
-        list.lock();
+        long l3 = System.currentTimeMillis();
+        System.err.println("elapsed time are " + (l2 - l1) + " and " + (l3 - l2));
         return list;
     }
 
@@ -119,12 +68,12 @@ public class TagAppSimilar implements Similar<TagApp> {
         return sim.cosimilarity(getVector(xObjs), getVector(yObjs));
     }
 
-    private int[] getVector(TagApp[] objs) {
-        int[] ids = new int[objs.length];
+    private Concept[] getVector(TagApp[] objs) {
+        Concept[] concepts = new Concept[objs.length];
         for (int i=0; i<objs.length; i++) {
-            ids[i] = objs[i].getConceptId();
+            concepts[i] = objs[i].getConcept();
         }
-        return ids;
+        return concepts;
     }
 
     public static class Provider extends org.wikapidia.conf.Provider<TagAppSimilar> {
@@ -143,7 +92,7 @@ public class TagAppSimilar implements Similar<TagApp> {
         }
 
         @Override
-        public TagAppSimilar get(String name, Config config) throws ConfigurationException {
+        public TagAppSimilar get(String name, Config config, Map<String, String> runtimeParams) throws ConfigurationException {
             if (!config.getString("type").equals("tagApp")) {
                 return null;
             }

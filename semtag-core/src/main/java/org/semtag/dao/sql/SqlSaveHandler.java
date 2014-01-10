@@ -1,15 +1,21 @@
 package org.semtag.dao.sql;
 
 import com.typesafe.config.Config;
+import org.jooq.DSLContext;
 import org.semtag.dao.*;
+import org.semtag.dao.DaoException;
 import org.semtag.model.TagApp;
 import org.wikapidia.conf.Configuration;
 import org.wikapidia.conf.ConfigurationException;
 import org.wikapidia.conf.Configurator;
+import org.wikapidia.core.dao.*;
+import org.wikapidia.core.dao.sql.JooqUtils;
+import org.wikapidia.core.dao.sql.WpDataSource;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Map;
 import java.util.logging.Level;
 
 /**
@@ -21,43 +27,42 @@ import java.util.logging.Level;
  */
 public class SqlSaveHandler extends SaveHandler {
     
-    private final DataSource dataSource;
+    private final WpDataSource dataSource;
     
-    public SqlSaveHandler(TagAppDao tagAppDao, UserDao userDao, ItemDao itemDao, ConceptDao conceptDao, DataSource dataSource) {
-        super(tagAppDao, userDao, itemDao, conceptDao);
+    public SqlSaveHandler(TagDao tagDao, TagAppDao tagAppDao, UserDao userDao, ItemDao itemDao, ConceptDao conceptDao, WpDataSource dataSource) {
+        super(tagDao, tagAppDao, userDao, itemDao, conceptDao);
         this.dataSource = dataSource;
     }
 
     @Override
     public void save(TagApp tagApp) throws DaoException {
-        Connection conn = null;
+        DSLContext context = null;
         try {
-            conn = dataSource.getConnection();
-            conn.setAutoCommit(false);
-            ((TagAppSqlDao) tagAppDao).save(conn, tagApp);
-            ((UserSqLDao) userDao).save(conn, tagApp.getUser());
-            ((ItemSqlDao) itemDao).save(conn, tagApp.getItem());
-            ((ConceptSqlDao) conceptDao).save(conn, tagApp.getConcept());
-            conn.commit();
-        } catch (SQLException e) {
-            rollback(conn, e);
+            context = dataSource.getJooq();
+        } catch (org.wikapidia.core.dao.DaoException e) {
+            throw new DaoException(e);
+        }
+        try {
+            ((TagSqlDao) tagDao).save(context, tagApp);
+            ((TagAppSqlDao) tagAppDao).save(context, tagApp);
+            ((UserSqLDao) userDao).save(context, tagApp.getUser());
+            ((ItemSqlDao) itemDao).save(context, tagApp.getItem());
+            ((ConceptSqlDao) conceptDao).save(context, tagApp.getConcept());
+            JooqUtils.commit(context);
         } catch (DaoException e) {
-            rollback(conn, e);
+            rollback(context, e);
+            throw new DaoException(e);
+        } catch (org.wikapidia.core.dao.DaoException e) {
+            rollback(context, e);
+            throw new DaoException(e);
         } finally {
-            BaseSqLDao.quietlyCloseConn(conn);
+            dataSource.freeJooq(context);
         }
     }
 
-    private void rollback(Connection conn, Throwable t) throws DaoException {
+    private void rollback(DSLContext context, Throwable t) throws DaoException {
         LOG.log(Level.WARNING, "Failed to save TagApp; attempting to roll back changes. Cause: " + t);
-        if (conn != null) {
-            try {
-                conn.rollback();
-            } catch (SQLException e) {
-                LOG.severe("Unable to roll back changes! Database may encounter problems.");
-                throw new DaoException(e);
-            }
-        }
+        JooqUtils.rollbackQuietly(context);
     }
 
     public static class Provider extends org.wikapidia.conf.Provider<SaveHandler> {
@@ -76,16 +81,17 @@ public class SqlSaveHandler extends SaveHandler {
         }
 
         @Override
-        public SqlSaveHandler get(String name, Config config) throws ConfigurationException {
+        public SqlSaveHandler get(String name, Config config, Map<String, String> runtimeParams) throws ConfigurationException {
             if (!config.getString("type").equals("sql")) {
                 return null;
             }
             return new SqlSaveHandler(
+                    getConfigurator().get(TagDao.class, "sql"),
                     getConfigurator().get(TagAppDao.class, "sql"),
                     getConfigurator().get(UserDao.class, "sql"),
                     getConfigurator().get(ItemDao.class, "sql"),
                     getConfigurator().get(ConceptDao.class, "sql"),
-                    getConfigurator().get(DataSource.class, config.getString("datasource"))
+                    getConfigurator().get(WpDataSource.class, config.getString("datasource"))
             );
         }
     }

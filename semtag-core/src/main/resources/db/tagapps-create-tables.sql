@@ -5,5 +5,5 @@ CREATE TABLE IF NOT EXISTS tagapps (
   norm_tag VARCHAR(256) NOT NULL,
   item_id VARCHAR(256) NOT NULL,
   timestamp TIMESTAMP NOT NULL,
-  concept_id INT NOT NULL
+  concept_id BIGINT NOT NULL
 );
