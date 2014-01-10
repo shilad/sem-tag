@@ -19,12 +19,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
+ * A SQL implementation of UserDao.
+ *
  * @author Ari Weiland
  */
 public class UserSqLDao extends BaseSqLDao<User> implements UserDao {
 
     public UserSqLDao(DataSource dataSource) throws DaoException {
-        super(dataSource, "users", Tables.USERS);
+        super(dataSource, "/db/users", Tables.USERS);
     }
 
     @Override
@@ -61,7 +63,7 @@ public class UserSqLDao extends BaseSqLDao<User> implements UserDao {
     }
 
     @Override
-    public User getByUserId(int userId) throws DaoException {
+    public User getByUserId(long userId) throws DaoException {
         return getByUserId(String.valueOf(userId));
     }
 

@@ -5,6 +5,11 @@ import org.semtag.model.TagApp;
 import java.util.logging.Logger;
 
 /**
+ * The SaveHandler is used by the loader to synchronize the save
+ * process across all tables. It is designed to prevent for example
+ * a TagApp to be saved but not the concept it is mapped to. Either
+ * all four tables are saved to, or it saves to none of them.
+ *
  * @author Ari Weiland
  */
 public abstract class SaveHandler {
@@ -23,6 +28,10 @@ public abstract class SaveHandler {
         this.conceptDao = conceptDao;
     }
 
+    /**
+     * Calls clear() on all its wrapped daos.
+     * @throws DaoException
+     */
     public void clear() throws DaoException {
         this.tagAppDao.clear();
         this.userDao.clear();
@@ -30,6 +39,10 @@ public abstract class SaveHandler {
         this.conceptDao.clear();
     }
 
+    /**
+     * Calls beginLoad() on all its wrapped daos.
+     * @throws DaoException
+     */
     public void beginLoad() throws DaoException {
         this.tagAppDao.beginLoad();
         this.userDao.beginLoad();
@@ -37,8 +50,16 @@ public abstract class SaveHandler {
         this.conceptDao.beginLoad();
     }
 
+    /**
+     * Calls save() on all its wrapped daos.
+     * @throws DaoException
+     */
     public abstract void save(TagApp tagApp) throws DaoException;
 
+    /**
+     * Calls endLoad() on all its wrapped daos.
+     * @throws DaoException
+     */
     public void endLoad() throws DaoException {
         this.tagAppDao.endLoad();
         this.userDao.endLoad();

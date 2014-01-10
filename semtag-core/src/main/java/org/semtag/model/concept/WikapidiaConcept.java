@@ -4,6 +4,9 @@ import org.wikapidia.core.lang.Language;
 import org.wikapidia.core.lang.LocalId;
 
 /**
+ * A SemTag concept that represents a Wikipedia local page,
+ * as determined by the WikAPIdia API.
+ *
  * @author Ari Weiland
  */
 public class WikapidiaConcept extends Concept<LocalId> {

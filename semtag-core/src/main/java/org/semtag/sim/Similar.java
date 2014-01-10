@@ -1,13 +1,12 @@
 package org.semtag.sim;
 
 import org.semtag.dao.DaoException;
-import org.semtag.model.Tag;
 
 /**
  * A general-purpose interface that defines how to test similarity in SemTag
  * between two objects of a specified type. Implementations include
- * ItemSimilarity, TagAppSimilarity, and the sub-interface ConceptSimilarity,
- * which is implemented by WikapidiaSimilarity. It contains:
+ * ItemSimilar, TagAppSimilar, and the sub-interface ConceptSimilar,
+ * which is implemented by WikapidiaSimilar. It contains:
  * <p>
  * - similarity method that gives a score (theoretically) between 0 and 1
  *   rating the similarity of two objects <p>
@@ -42,13 +41,13 @@ public interface Similar<T> {
     public SimilarResultList mostSimilar(T obj, int maxResults) throws DaoException;
 
     /**
-     * Returns a list of the most similar objects to this tag.
-     * @param tag
-     * @param maxResults
+     * Returns a list of the most similar objects to this objects that pass the threshold.
+     * @param obj
+     * @param maxResults the maximum amount of items to return
      * @return
      * @throws DaoException
      */
-    public SimilarResultList mostSimilar(Tag tag, int maxResults) throws DaoException;
+    public SimilarResultList mostSimilar(T obj, int maxResults, double threshold) throws DaoException;
 
     /**
      * Returns a symmetric cosimilarity matrix of T objects.

@@ -19,12 +19,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
+ * A SQL implementation of ItemDao.
+ *
  * @author Ari Weiland
  */
 public class ItemSqlDao extends BaseSqLDao<Item> implements ItemDao {
 
     public ItemSqlDao(DataSource dataSource) throws DaoException {
-        super(dataSource, "items", Tables.ITEMS);
+        super(dataSource, "/db/items", Tables.ITEMS);
     }
 
     @Override
@@ -61,7 +63,7 @@ public class ItemSqlDao extends BaseSqLDao<Item> implements ItemDao {
     }
 
     @Override
-    public Item getByItemId(int itemId) throws DaoException {
+    public Item getByItemId(long itemId) throws DaoException {
         return getByItemId(String.valueOf(itemId));
     }
 

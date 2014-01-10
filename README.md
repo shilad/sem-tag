@@ -7,7 +7,8 @@ An API for implementing a tagging system based on sematic relatedness and the wi
 * Provide efficient methods for measuring similarity between Items, TagApps, and Concepts.
 * Provide efficient methods for finding Items, TagApps, and Concepts most similar to a specified one.
 * Implement our own minimal, self-contained H2 database
-* Planned: Multilingual support
+* Currently supports multiple languages, but only one per system
+* Planned: Supporting multiple languages in one system
 
 This API is meant to be used for anyone wishing to implement a versatile tagging system on their website or application.
 

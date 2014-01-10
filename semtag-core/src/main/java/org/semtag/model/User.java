@@ -1,6 +1,8 @@
 package org.semtag.model;
 
 /**
+ * A user in a tagging system.
+ *
  * @author Ari Weiland
  */
 public class User {
@@ -10,7 +12,7 @@ public class User {
      * Constructs a user from a given ID.
      * @param userId
      */
-    public User(int userId) {
+    public User(long userId) {
         this.userId = String.valueOf(userId);
     }
 

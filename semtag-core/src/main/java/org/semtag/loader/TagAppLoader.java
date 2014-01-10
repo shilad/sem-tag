@@ -2,7 +2,7 @@ package org.semtag.loader;
 
 import org.apache.commons.cli.*;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.semtag.SemTagException;
 import org.semtag.dao.DaoException;
 import org.semtag.dao.SaveHandler;

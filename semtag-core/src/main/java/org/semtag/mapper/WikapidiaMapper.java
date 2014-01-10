@@ -22,6 +22,7 @@ import java.util.Set;
 
 /**
  * A ConceptMapper subclass that maps TagApps to a Wikipedia local page.
+ *
  * @author Yulun Li
  * @author Ari Weiland
  */

@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
+ * A SQL implementation of ConceptDao.
+ *
  * @author Ari Weiland
  */
 public class ConceptSqlDao extends BaseSqLDao<Concept> implements ConceptDao {
@@ -27,7 +29,7 @@ public class ConceptSqlDao extends BaseSqLDao<Concept> implements ConceptDao {
     private final ConceptMapper mapper;
 
     public ConceptSqlDao(DataSource dataSource, ConceptMapper mapper) throws DaoException {
-        super(dataSource, "concepts", Tables.CONCEPTS);
+        super(dataSource, "/db/concepts", Tables.CONCEPTS);
         this.mapper = mapper;
     }
 

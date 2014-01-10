@@ -11,11 +11,11 @@ import org.semtag.dao.DaoException;
 import java.util.Iterator;
 
 /**
- * @author Ari Weiland
- *
  * This iterable is used by the SQL Daos to convert a jOOQ Cursor into an
  * Iterable of the appropriate class. This iterable can only be iterated
  * over once, and will throw exceptions if a user tries otherwise.
+ *
+ * @author Ari Weiland
  */
 public abstract class SqlDaoIterable<E> implements Iterable<E> {
     private Cursor<Record> result;

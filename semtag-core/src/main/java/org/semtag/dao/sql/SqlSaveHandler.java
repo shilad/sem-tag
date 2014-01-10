@@ -13,6 +13,10 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 
 /**
+ * A SQL implementation of the SaveHandler.
+ * Controls the group saving by creating its own connection
+ * and passing it to the individual save methods.
+ *
  * @author Ari Weiland
  */
 public class SqlSaveHandler extends SaveHandler {

@@ -16,14 +16,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * Defines Similar methods for TagApps.
+ *
  * @author Ari Weiland
  */
-public class TagAppSimilarity implements Similar<TagApp> {
+public class TagAppSimilar implements Similar<TagApp> {
 
     private final TagAppDao helperDao;
-    private final ConceptSimilarity sim;
+    private final ConceptSimilar sim;
 
-    public TagAppSimilarity(TagAppDao helperDao, ConceptSimilarity sim) {
+    public TagAppSimilar(TagAppDao helperDao, ConceptSimilar sim) {
         this.helperDao = helperDao;
         this.sim = sim;
     }
@@ -32,7 +34,7 @@ public class TagAppSimilarity implements Similar<TagApp> {
         return helperDao;
     }
 
-    public ConceptSimilarity getSim() {
+    public ConceptSimilar getSim() {
         return sim;
     }
 
@@ -43,15 +45,12 @@ public class TagAppSimilarity implements Similar<TagApp> {
 
     @Override
     public SimilarResultList mostSimilar(TagApp obj, int maxResults) throws DaoException {
-        return buildResultList(sim.mostSimilar(obj.getConceptId(), maxResults));
+        return mostSimilar(obj, maxResults, 0);
     }
 
     @Override
-    public SimilarResultList mostSimilar(Tag tag, int maxResults) throws DaoException {
-        return buildResultList(sim.mostSimilar(tag, maxResults));
-    }
-
-    private SimilarResultList buildResultList(SimilarResultList concepts) throws DaoException {
+    public SimilarResultList mostSimilar(TagApp obj, int maxResults, double threshold) throws DaoException {
+        SimilarResultList concepts = sim.mostSimilar(obj.getConceptId(), maxResults);
         TIntSet conceptIds = new TIntHashSet();
         for (SimilarResult result : concepts) {
             conceptIds.add(result.getIntId());
@@ -61,9 +60,50 @@ public class TagAppSimilarity implements Similar<TagApp> {
         for (TagApp t : iterable) {
             tags.put(t.getTag().getNormalizedTag(), t);
         }
-        SimilarResultList list = new SimilarResultList(concepts.getMaxSize());
+        SimilarResultList list = new SimilarResultList(maxResults, threshold);
         for (TagApp t : tags.values()) {
-            list.add(new SimilarResult(t.getTagAppId(), concepts.getValue(t.getConceptId())));
+            list.add(new SimilarResult(t.getTagAppId(), t, concepts.getValue(t.getConceptId())));
+        }
+        list.lock();
+        return list;
+    }
+
+    /**
+     * Returns a list of the most similar raw tags to this tag.
+     * Note that this method is 3-6 times slower than the mostSimilar(TagApp),
+     * and you should try to use that one when possible.
+     * @param tag
+     * @param maxResults
+     * @return
+     * @throws DaoException
+     */
+    public SimilarResultList mostSimilar(Tag tag, int maxResults) throws DaoException {
+        return mostSimilar(tag, maxResults, 0);
+    }
+
+    /**
+     * Returns a list of the most similar raw tags to this tag that pass the threshold.
+     * Note that this method is 3-6 times slower than the mostSimilar(TagApp),
+     * and you should try to use that one when possible.
+     * @param tag
+     * @param maxResults
+     * @return
+     * @throws DaoException
+     */
+    public SimilarResultList mostSimilar(Tag tag, int maxResults, double threshold) throws DaoException {
+        SimilarResultList concepts = sim.mostSimilar(tag, maxResults);
+        TIntSet conceptIds = new TIntHashSet();
+        for (SimilarResult result : concepts) {
+            conceptIds.add(result.getIntId());
+        }
+        Iterable<TagApp> iterable = helperDao.get(new DaoFilter().setConceptIds(conceptIds.toArray()));
+        Map<String, TagApp> tags = new HashMap<String, TagApp>();
+        for (TagApp t : iterable) {
+            tags.put(t.getTag().getNormalizedTag(), t);
+        }
+        SimilarResultList list = new SimilarResultList(maxResults, threshold);
+        for (TagApp t : tags.values()) {
+            list.add(new SimilarResult<TagApp>(t.getTagAppId(), t, concepts.getValue(t.getConceptId())));
         }
         list.lock();
         return list;
@@ -87,29 +127,29 @@ public class TagAppSimilarity implements Similar<TagApp> {
         return ids;
     }
 
-    public static class Provider extends org.wikapidia.conf.Provider<TagAppSimilarity> {
+    public static class Provider extends org.wikapidia.conf.Provider<TagAppSimilar> {
         public Provider(Configurator configurator, Configuration config) throws ConfigurationException {
             super(configurator, config);
         }
 
         @Override
         public Class getType() {
-            return TagAppSimilarity.class;
+            return TagAppSimilar.class;
         }
 
         @Override
         public String getPath() {
-            return "sem-tag.similar.tagApp";
+            return "sem-tag.sim.tagApp";
         }
 
         @Override
-        public TagAppSimilarity get(String name, Config config) throws ConfigurationException {
+        public TagAppSimilar get(String name, Config config) throws ConfigurationException {
             if (!config.getString("type").equals("tagApp")) {
                 return null;
             }
-            return new TagAppSimilarity(
+            return new TagAppSimilar(
                     getConfigurator().get(TagAppDao.class, config.getString("tagAppDao")),
-                    getConfigurator().get(ConceptSimilarity.class, config.getString("conceptSim"))
+                    getConfigurator().get(ConceptSimilar.class, config.getString("conceptSim"))
             );
         }
     }

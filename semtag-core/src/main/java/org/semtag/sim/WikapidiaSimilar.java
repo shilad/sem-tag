@@ -19,15 +19,17 @@ import org.wikapidia.sr.SRResult;
 import org.wikapidia.sr.SRResultList;
 
 /**
+ * Defines ConceptSimilar methods for WikapidiaConcepts.
+ *
  * @author Ari Weiland
  */
-public class WikapidiaSimilarity implements ConceptSimilarity {
+public class WikapidiaSimilar implements ConceptSimilar {
 
     private final ConceptDao helperDao;
     private final Language language;
     private final LocalSRMetric srMetric;
 
-    protected WikapidiaSimilarity(ConceptDao helperDao, Language language, LocalSRMetric srMetric) {
+    protected WikapidiaSimilar(ConceptDao helperDao, Language language, LocalSRMetric srMetric) {
         this.helperDao = helperDao;
         this.language = language;
         this.srMetric = srMetric;
@@ -65,11 +67,21 @@ public class WikapidiaSimilarity implements ConceptSimilarity {
 
     @Override
     public SimilarResultList mostSimilar(Concept obj, int maxResults) throws DaoException {
-        return mostSimilar(obj.getConceptId(), maxResults);
+        return mostSimilar(obj.getConceptId(), maxResults, 0);
+    }
+
+    @Override
+    public SimilarResultList mostSimilar(Concept obj, int maxResults, double threshold) throws DaoException {
+        return mostSimilar(obj.getConceptId(), maxResults, threshold);
     }
 
     @Override
     public SimilarResultList mostSimilar(int id, int maxResults) throws DaoException {
+        return mostSimilar(id, maxResults, 0);
+    }
+
+    @Override
+    public SimilarResultList mostSimilar(int id, int maxResults, double threshold) throws DaoException {
         Iterable<Concept> concepts = helperDao.get(new DaoFilter());
         TIntSet validIds = new TIntHashSet();
         for (Concept c : concepts) {
@@ -84,18 +96,16 @@ public class WikapidiaSimilarity implements ConceptSimilarity {
         } catch (org.wikapidia.core.dao.DaoException e) {
             throw new DaoException(e);
         }
-        SimilarResultList list = new SimilarResultList(maxResults);
-        for (SRResult r : results) {
-            if (r.getId() > -1) {
-                list.add(new SimilarResult(r.getId(), r.getScore()));
-            }
-        }
-        list.lock();
-        return list;
+        return buildSimilarResultList(results, maxResults, threshold);
     }
 
     @Override
     public SimilarResultList mostSimilar(Tag tag, int maxResults) throws DaoException {
+        return mostSimilar(tag, maxResults, 0);
+    }
+
+    @Override
+    public SimilarResultList mostSimilar(Tag tag, int maxResults, double threshold) throws DaoException {
         Iterable<Concept> concepts = helperDao.get(new DaoFilter());
         TIntSet validIds = new TIntHashSet();
         for (Concept c : concepts) {
@@ -110,7 +120,11 @@ public class WikapidiaSimilarity implements ConceptSimilarity {
         } catch (org.wikapidia.core.dao.DaoException e) {
             throw new DaoException(e);
         }
-        SimilarResultList list = new SimilarResultList(maxResults);
+        return buildSimilarResultList(results, maxResults, threshold);
+    }
+
+    private SimilarResultList buildSimilarResultList(SRResultList results, int maxResults, double threshold) {
+        SimilarResultList list = new SimilarResultList(maxResults, threshold);
         for (SRResult r : results) {
             if (r.getId() > -1) {
                 list.add(new SimilarResult(r.getId(), r.getScore()));
@@ -156,27 +170,27 @@ public class WikapidiaSimilarity implements ConceptSimilarity {
         return ids;
     }
 
-    public static class Provider extends org.wikapidia.conf.Provider<ConceptSimilarity> {
+    public static class Provider extends org.wikapidia.conf.Provider<ConceptSimilar> {
         public Provider(Configurator configurator, Configuration config) throws ConfigurationException {
             super(configurator, config);
         }
 
         @Override
         public Class getType() {
-            return ConceptSimilarity.class;
+            return ConceptSimilar.class;
         }
 
         @Override
         public String getPath() {
-            return "sem-tag.similar.concept";
+            return "sem-tag.sim.concept";
         }
 
         @Override
-        public WikapidiaSimilarity get(String name, Config config) throws ConfigurationException {
+        public WikapidiaSimilar get(String name, Config config) throws ConfigurationException {
             if (!config.getString("type").equals("wikapidia")) {
                 return null;
             }
-            return new WikapidiaSimilarity(
+            return new WikapidiaSimilar(
                     getConfigurator().get(ConceptDao.class, config.getString("conceptDao")),
                     Language.getByLangCode(config.getString("lang")),
                     getConfigurator().get(LocalSRMetric.class, config.getString("metric"))

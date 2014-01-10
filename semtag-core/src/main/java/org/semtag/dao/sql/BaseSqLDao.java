@@ -16,6 +16,10 @@ import java.util.Collection;
 import java.util.logging.Logger;
 
 /**
+ * BaseSqlDao provides an abstract base implementation for all SQL daos.
+ * It implements the clear(), beginLoad(), and endLoad() methods and
+ * provides a plethora of other utility methods for SQL daos.
+ *
  * @author Ari Weiland
  */
 public abstract class BaseSqLDao<T> implements Dao<T> {
@@ -25,13 +29,21 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
     public static final int DEFAULT_FETCH_SIZE = 1000;
 
     protected final SQLDialect dialect;
-    protected final String tableName;
+    protected final String sqlScriptPrefix;
     protected final Table<Record> table;
     protected final DataSource dataSource;
 
     private int fetchSize = DEFAULT_FETCH_SIZE;
 
-    public BaseSqLDao(DataSource dataSource, String tableName, Table<Record> table) throws DaoException {
+    /**
+     * Constructs a SqlDao with a datasource, prespecified SQL script prefix, and jOOQ table.
+     * The latter two should be hardcoded into the subclass constructor.
+     * @param dataSource
+     * @param sqlScriptPrefix
+     * @param table
+     * @throws DaoException
+     */
+    public BaseSqLDao(DataSource dataSource, String sqlScriptPrefix, Table<Record> table) throws DaoException {
         this.dataSource = dataSource;
         Connection conn = null;
         try {
@@ -42,7 +54,7 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
         } finally {
             quietlyCloseConn(conn);
         }
-        this.tableName = tableName;
+        this.sqlScriptPrefix = sqlScriptPrefix;
         this.table = table;
     }
 
@@ -58,17 +70,32 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
         createTables();
     }
 
-    public abstract void save(Connection conn, T item) throws DaoException;
+    /**
+     * Saves the object over the given connection.
+     * Used by the SqlSaveHandler primarily.
+     * @param conn
+     * @param obj
+     * @throws DaoException
+     */
+    public abstract void save(Connection conn, T obj) throws DaoException;
 
     @Override
     public void endLoad() throws DaoException {
         createIndexes();
     }
 
+    /**
+     * Returns the fetch size used by lazy fetches.
+     * @return
+     */
     public int getFetchSize() {
         return fetchSize;
     }
 
+    /**
+     * Sets the fetch size used by lazy fetches.
+     * @param fetchSize
+     */
     public void setFetchSize(int fetchSize) {
         this.fetchSize = fetchSize;
     }
@@ -168,18 +195,34 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
         }
     }
 
+    /**
+     * Runs the create-tables skip.
+     * @throws DaoException
+     */
     public void createTables() throws DaoException {
         executeSqlScriptWithSuffix("-create-tables.sql");
     }
 
+    /**
+     * Runs the drop-tables skip.
+     * @throws DaoException
+     */
     public void dropTables() throws DaoException {
         executeSqlScriptWithSuffix("-drop-tables.sql");
     }
 
+    /**
+     * Runs the create-indexes skip.
+     * @throws DaoException
+     */
     public void createIndexes() throws DaoException {
         executeSqlScriptWithSuffix("-create-indexes.sql");
     }
 
+    /**
+     * Runs the drop-indexes skip.
+     * @throws DaoException
+     */
     public void dropIndexes() throws DaoException {
         executeSqlScriptWithSuffix("-drop-indexes.sql");
     }
@@ -190,7 +233,7 @@ public abstract class BaseSqLDao<T> implements Dao<T> {
      * @throws DaoException
      */
     protected void executeSqlScriptWithSuffix(String suffix) throws DaoException {
-        executeSqlResource("/db/" + tableName + suffix);
+        executeSqlResource(sqlScriptPrefix + suffix);
     }
 
     /**
